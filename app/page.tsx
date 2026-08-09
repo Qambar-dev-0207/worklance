@@ -1,0 +1,508 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+export default function Home() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeTab, setActiveTab] = useState<'seeker' | 'recruiter'>('seeker');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('worklance_user');
+    if (userStr) {
+      try {
+        setCurrentUser(JSON.parse(userStr));
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    revealEls.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
+
+  return (
+    <>
+      {/* NAVBAR */}
+      <nav className={`nav ${isScrolled ? 'scrolled' : ''}`} id="nav">
+        <div className="container nav-inner">
+          <Link href="/" className="logo">
+            <img src="/logo.png" alt="Worklance Logo" className="logo-mark-img" width={34} height={34} />
+            Worklance
+          </Link>
+          <div className="nav-links">
+            <Link href="/jobs">Job Hub</Link>
+            <Link href="/hackathons">Hackathons</Link>
+            <Link href="/hr-database">HR Directory</Link>
+            <Link href="/interview-prep">Interview Prep</Link>
+            <Link href="/resume-builder">Resume Builder</Link>
+          </div>
+          <div className="nav-cta">
+            {currentUser ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Hi, {currentUser.name}</span>
+                <Link href="/profile" className="btn btn-outline" style={{ padding: '7px 16px', fontSize: '13px' }}>
+                  My Profile
+                </Link>
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-ghost">Log in</Link>
+                <Link href="/register" className="btn btn-primary">Get Started</Link>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <header className="hero">
+        <div className="container hero-grid">
+          <div>
+            <div className="eyebrow">Connect · Train · Get Hired</div>
+            <h1>
+              Everything you need to build your <span className="accent">career</span>, in one place
+            </h1>
+            <p className="lead">
+              From your first resume to your first offer — Worklance brings resume building, job search, verified HR contacts, interview prep and skills training into a single connected platform.
+            </p>
+            <div className="hero-actions">
+              <Link href="/register" className="btn btn-primary btn-lg">Get Started Free</Link>
+              <Link href="/jobs" className="btn btn-outline btn-lg">Explore Jobs</Link>
+            </div>
+            <div className="trust-row">
+              <span><span className="dot"></span> ATS-friendly resumes</span>
+              <span><span className="dot"></span> Verified HR database</span>
+              <span><span className="dot"></span> AI interview practice</span>
+            </div>
+          </div>
+          <div className="journey-wrap">
+            <svg className="journey-path" viewBox="0 0 400 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M60 60 C 220 60, 180 190, 340 190 C 420 190, 60 320, 60 320 C 60 380, 220 400, 340 410"
+                stroke="#E2E2E2"
+                strokeWidth="2"
+                strokeDasharray="6 8"
+                fill="none"
+              />
+            </svg>
+            <div className="journey-card jc-1"><span className="journey-icon">📄</span> Build your resume</div>
+            <div className="journey-card jc-2"><span className="journey-icon">🔍</span> Apply to jobs</div>
+            <div className="journey-card jc-3"><span className="journey-icon">🎤</span> Practice interviews</div>
+            <div className="journey-card jc-4"><span className="journey-icon">🎉</span> Get hired</div>
+          </div>
+        </div>
+      </header>
+
+      {/* FEATURES */}
+      <section className="section-pad" id="features">
+        <div className="container">
+          <div className="sec-head reveal">
+            <div className="eyebrow">Platform</div>
+            <h2>Six tools. One career operating system.</h2>
+            <p>No more juggling five tabs for a job search. Worklance connects every step so nothing falls through the cracks.</p>
+          </div>
+          <div className="feat-grid">
+            <div className="feat-card reveal">
+              <span className="num">01</span>
+              <div className="feat-icon">📄</div>
+              <h3>ATS Resume Builder</h3>
+              <p>Professional, ATS-friendly templates with AI suggestions, a live resume score and grammar checks — export as PDF in minutes.</p>
+              <div className="feat-tags"><span>AI Suggestions</span><span>Resume Score</span><span>Cover Letters</span></div>
+            </div>
+            <div className="feat-card reveal">
+              <span className="num">02</span>
+              <div className="feat-icon">🔍</div>
+              <h3>Job Search</h3>
+              <p>Filter by location, salary, skills and work type. Save roles, apply in one click and track every application from one dashboard.</p>
+              <div className="feat-tags"><span>Easy Apply</span><span>Remote/Hybrid</span><span>Tracking</span></div>
+            </div>
+            <div className="feat-card reveal">
+              <span className="num">03</span>
+              <div className="feat-icon">👤</div>
+              <h3>HR Database</h3>
+              <p>Reach verified HR contacts directly — name, company, designation, email and LinkedIn — filtered by industry, city and role.</p>
+              <div className="feat-tags"><span>Verified Contacts</span><span>Premium</span></div>
+            </div>
+            <div className="feat-card reveal">
+              <span className="num">04</span>
+              <div className="feat-icon">📚</div>
+              <h3>Previous Year Questions</h3>
+              <p>Company-wise interview questions from TCS, Infosys, Google, Amazon and more — sorted by HR, technical, coding and GD rounds.</p>
+              <div className="feat-tags"><span>Company-wise</span><span>Coding</span><span>Aptitude</span></div>
+            </div>
+            <div className="feat-card reveal">
+              <span className="num">05</span>
+              <div className="feat-icon">🎤</div>
+              <h3>Interview Preparation</h3>
+              <p>Practice with AI-powered mock interviews, get instant feedback and prep with company-specific questions and tips.</p>
+              <div className="feat-tags"><span>AI Practice</span><span>Feedback</span></div>
+            </div>
+            <div className="feat-card reveal">
+              <span className="num">06</span>
+              <div className="feat-icon">🎓</div>
+              <h3>Skills & Training</h3>
+              <p>Learn Excel, SQL, Python, React, communication and more — with videos, notes, practice sets and certificates.</p>
+              <div className="feat-tags"><span>Courses</span><span>Certificates</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="section-pad bg-soft" id="how">
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center' }}>Process</div>
+            <h2>How Worklance works</h2>
+            <p>A clear five-step path — whether you're hunting for your next role or hiring for one.</p>
+          </div>
+          <div className="tabs reveal">
+            <button
+              className={`tab-btn ${activeTab === 'seeker' ? 'active' : ''}`}
+              onClick={() => setActiveTab('seeker')}
+            >
+              For Job Seekers
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'recruiter' ? 'active' : ''}`}
+              onClick={() => setActiveTab('recruiter')}
+            >
+              For Recruiters
+            </button>
+          </div>
+          <div className={`steps-track ${activeTab === 'seeker' ? 'active' : ''} reveal`} id="seeker">
+            <div className="step"><div className="step-num">1</div><h4>Create Profile</h4><p>Set up your career profile in minutes.</p></div>
+            <div className="step"><div className="step-num">2</div><h4>Build Resume</h4><p>Generate an ATS-optimized resume.</p></div>
+            <div className="step"><div className="step-num">3</div><h4>Apply</h4><p>Easy-apply to matched openings.</p></div>
+            <div className="step"><div className="step-num">4</div><h4>Get Interview</h4><p>Prep with mock interviews and PYQs.</p></div>
+            <div className="step"><div className="step-num">5</div><h4>Get Hired</h4><p>Land the offer and track it all.</p></div>
+          </div>
+          <div className={`steps-track ${activeTab === 'recruiter' ? 'active' : ''} reveal`} id="recruiter">
+            <div className="step"><div className="step-num">1</div><h4>Create Company</h4><p>Set up your company profile.</p></div>
+            <div className="step"><div className="step-num">2</div><h4>Post Job</h4><p>Publish roles in a few clicks.</p></div>
+            <div className="step"><div className="step-num">3</div><h4>Receive Applications</h4><p>Applications land in one pipeline.</p></div>
+            <div className="step"><div className="step-num">4</div><h4>Shortlist</h4><p>Search, save and shortlist candidates.</p></div>
+            <div className="step"><div className="step-num">5</div><h4>Hire</h4><p>Schedule interviews and close roles.</p></div>
+          </div>
+        </div>
+      </section>
+
+      {/* HACKATHONS */}
+      <section className="section-pad" id="hackathons">
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center' }}>Hackathons</div>
+            <h2>Compete, build, and get noticed by recruiters</h2>
+            <p>Join hackathons hosted by real companies, build with a team, and turn your project into your next job lead.</p>
+          </div>
+
+          <div className="hack-banner reveal">
+            <div>
+              <span className="badge-live"><span className="pulse"></span> Live · 3 days left</span>
+              <h3>Worklance Winter Hackathon 2026</h3>
+              <p>Build an AI-powered hiring tool in 48 hours. Open to students and early-career developers across India.</p>
+              <div className="stats">
+                <div><div className="n">1,240</div><div className="l">Participants</div></div>
+                <div><div className="n">180</div><div className="l">Teams</div></div>
+                <div><div className="n">48 hrs</div><div className="l">Duration</div></div>
+              </div>
+            </div>
+            <div className="side">
+              <div className="prize">₹3,00,000</div>
+              <div className="prize-label">Total Prize Pool</div>
+              <Link href="/hackathons" className="btn btn-primary">Register Your Team</Link>
+            </div>
+          </div>
+
+          <div className="hack-grid">
+            <div className="hack-card reveal">
+              <div className="hack-card-top"><div className="hack-logo-badge">ZN</div><span className="hack-status live">Live</span></div>
+              <h4>Zenith Labs AI Challenge</h4>
+              <div className="org">Hosted by Zenith Labs</div>
+              <div className="tags"><span>AI/ML</span><span>Beginner Friendly</span></div>
+              <div className="hack-meta-row"><span>Prize Pool</span><span>₹1,50,000</span></div>
+              <div className="hack-meta-row"><span>Team Size</span><span>Up to 4</span></div>
+              <div className="hack-meta-row"><span>Ends in</span><span>2 days</span></div>
+              <Link href="/hackathons" className="btn btn-dark" style={{ width: '100%', marginTop: '18px' }}>Join Hackathon</Link>
+            </div>
+            <div className="hack-card reveal">
+              <div className="hack-card-top"><div className="hack-logo-badge">NX</div><span className="hack-status upcoming">Upcoming</span></div>
+              <h4>Nexora Fintech Sprint</h4>
+              <div className="org">Hosted by Nexora Tech</div>
+              <div className="tags"><span>Fintech</span><span>Web Dev</span></div>
+              <div className="hack-meta-row"><span>Prize Pool</span><span>₹2,00,000</span></div>
+              <div className="hack-meta-row"><span>Team Size</span><span>Up to 5</span></div>
+              <div className="hack-meta-row"><span>Starts in</span><span>6 days</span></div>
+              <Link href="/hackathons" className="btn btn-outline" style={{ width: '100%', marginTop: '18px' }}>Notify Me</Link>
+            </div>
+            <div className="hack-card reveal">
+              <div className="hack-card-top"><div className="hack-logo-badge">CD</div><span className="hack-status upcoming">Upcoming</span></div>
+              <h4>Codeloop Campus Build</h4>
+              <div className="org">Hosted by Codeloop · Campus Only</div>
+              <div className="tags"><span>Students Only</span><span>Web Dev</span></div>
+              <div className="hack-meta-row"><span>Prize Pool</span><span>₹75,000</span></div>
+              <div className="hack-meta-row"><span>Team Size</span><span>Up to 3</span></div>
+              <div className="hack-meta-row"><span>Starts in</span><span>12 days</span></div>
+              <Link href="/hackathons" className="btn btn-outline" style={{ width: '100%', marginTop: '18px' }}>Notify Me</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WHY WORKLANCE */}
+      <section className="section-pad" id="why">
+        <div className="container why-wrap">
+          <div className="why-visual reveal">
+            <div className="score">
+              <div className="score-num">92%</div>
+              <div className="score-label">Average resume ATS score after AI review</div>
+              <div className="mini-row"><span>Resume completion</span><span>100%</span></div>
+              <div className="mini-row"><span>Applications sent</span><span>18</span></div>
+              <div className="mini-row"><span>Interviews scheduled</span><span>4</span></div>
+              <div className="mini-row"><span>Profile views by HR</span><span>27</span></div>
+            </div>
+          </div>
+          <div>
+            <div className="eyebrow">Why Worklance</div>
+            <h2 style={{ fontSize: '34px', marginBottom: '26px' }}>Everything else forced you to piece it together yourself.</h2>
+            <div className="why-list">
+              <div className="why-item reveal"><div className="why-check">✓</div><div><h4>One platform, not five tabs</h4><p>Resume, jobs, HR contacts, prep and courses — all connected to one profile.</p></div></div>
+              <div className="why-item reveal"><div className="why-check">✓</div><div><h4>Verified HR database</h4><p>Skip the guesswork and reach real decision-makers directly.</p></div></div>
+              <div className="why-item reveal"><div className="why-check">✓</div><div><h4>Real interview preparation</h4><p>Company-specific questions and AI mock interviews, not generic tips.</p></div></div>
+              <div className="why-item reveal"><div className="why-check">✓</div><div><h4>Track everything in one dashboard</h4><p>Applications, interviews, courses and profile score — always visible.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS */}
+      <section className="section-pad bg-soft">
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center' }}>Testimonials</div>
+            <h2>Trusted by job seekers and recruiters alike</h2>
+          </div>
+          <div className="test-grid">
+            <div className="test-card reveal">
+              <p className="test-quote">Worklance cut my job search from three months to three weeks. The HR database alone got me two direct interviews.</p>
+              <div className="test-person"><div className="avatar">RS</div><div><div className="name">Riya Sharma</div><div className="role">Frontend Developer, Fresher</div></div></div>
+            </div>
+            <div className="test-card reveal">
+              <p className="test-quote">We fill open roles nearly twice as fast now. The candidate pipeline view alone was worth switching over.</p>
+              <div className="test-person"><div className="avatar">AK</div><div><div className="name">Ankit Kapoor</div><div className="role">HR Manager, SaaS Startup</div></div></div>
+            </div>
+            <div className="test-card reveal">
+              <p className="test-quote">The company-wise previous year questions made my TCS and Infosys interviews feel like practice rounds.</p>
+              <div className="test-person"><div className="avatar">PM</div><div><div className="name">Priya Mehta</div><div className="role">B.Tech Final Year Student</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="section-pad" id="pricing">
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center' }}>Pricing</div>
+            <h2>Simple plans for every stage</h2>
+            <p>Start free. Upgrade when the HR database and recruiter tools start paying for themselves.</p>
+          </div>
+          <div className="price-grid">
+            <div className="price-card reveal">
+              <h3>Free</h3>
+              <p className="price-sub">For getting started</p>
+              <div className="price-amt">₹0<span>/month</span></div>
+              <ul className="price-feats">
+                <li>1 ATS resume</li>
+                <li>Unlimited job search</li>
+                <li>Save & track applications</li>
+                <li>Basic interview tips</li>
+              </ul>
+              <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Get Started</Link>
+            </div>
+            <div className="price-card featured reveal">
+              <div className="price-badge">Most Popular</div>
+              <h3>Premium</h3>
+              <p className="price-sub">For serious job seekers</p>
+              <div className="price-amt">₹499<span>/month</span></div>
+              <ul className="price-feats">
+                <li>Unlimited resume versions</li>
+                <li>Full HR database access</li>
+                <li>AI mock interviews</li>
+                <li>All courses & certificates</li>
+              </ul>
+              <Link href="/register" className="btn btn-primary" style={{ width: '100%' }}>Go Premium</Link>
+            </div>
+            <div className="price-card reveal">
+              <h3>Recruiter</h3>
+              <p className="price-sub">For HRs & agencies</p>
+              <div className="price-amt">₹2,499<span>/month</span></div>
+              <ul className="price-feats">
+                <li>Unlimited job posts</li>
+                <li>Candidate search & save</li>
+                <li>Hiring pipeline tracker</li>
+                <li>Direct messaging</li>
+              </ul>
+              <Link href="/jobs/post" className="btn btn-outline" style={{ width: '100%' }}>Start Hiring</Link>
+            </div>
+            <div className="price-card reveal">
+              <h3>Enterprise</h3>
+              <p className="price-sub">For growing teams</p>
+              <div className="price-amt">Custom</div>
+              <ul className="price-feats">
+                <li>Everything in Recruiter</li>
+                <li>Dedicated account manager</li>
+                <li>HR analytics dashboard</li>
+                <li>Campus hiring portal</li>
+              </ul>
+              <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Contact Sales</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section-pad bg-soft" id="faq">
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center' }}>FAQ</div>
+            <h2>Questions, answered</h2>
+          </div>
+          <div className="faq-wrap">
+            {[
+              {
+                q: "Is Worklance free to use?",
+                a: "Yes. The Free plan covers resume building, job search and application tracking. Premium unlocks the full HR database and AI interview practice."
+              },
+              {
+                q: "How does the HR database work?",
+                a: "It's a searchable directory of verified HR contacts with name, company, designation, email and LinkedIn, filterable by industry, city and hiring role."
+              },
+              {
+                q: "Can recruiters post jobs and manage candidates?",
+                a: "Yes. The Recruiter dashboard lets you post jobs, search and shortlist candidates, message them directly and track your full hiring pipeline."
+              },
+              {
+                q: "What kind of interview prep is included?",
+                a: "Company-wise previous year questions across HR, technical, coding and GD rounds, plus AI-powered mock interviews with instant feedback."
+              }
+            ].map((item, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div key={index} className={`faq-item reveal ${isOpen ? 'open' : ''}`}>
+                  <div className="faq-q" onClick={() => toggleFaq(index)}>
+                    {item.q} <span className="plus">+</span>
+                  </div>
+                  <div
+                    className="faq-a"
+                    style={{ maxHeight: isOpen ? '200px' : '0px' }}
+                  >
+                    <p>{item.a}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA BAND */}
+      <section className="section-pad" style={{ paddingBottom: 0 }}>
+        <div className="container">
+          <div className="cta-band reveal">
+            <div>
+              <h2>Ready to build your career, faster?</h2>
+              <p>Join job seekers and recruiters already using Worklance every day.</p>
+            </div>
+            <div className="actions">
+              <Link href="/register" className="btn btn-primary btn-lg">Get Started Free</Link>
+              <Link href="/jobs" className="btn btn-outline btn-lg" style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#fff' }}>Explore Jobs</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer>
+        <div className="container">
+          <div className="foot-grid">
+            <div>
+              <div className="foot-logo" style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                <img src="/logo.png" alt="Worklance Logo" className="logo-mark-img" width={34} height={34} />
+                Worklance
+              </div>
+            </div>
+            <div className="foot-col">
+              <h5>Product</h5>
+              <ul>
+                <li><Link href="/jobs">Job Search</Link></li>
+                <li><Link href="/hr-database">HR Database</Link></li>
+                <li><Link href="/hackathons">Hackathons</Link></li>
+                <li><a href="#features">Interview Prep</a></li>
+              </ul>
+            </div>
+            <div className="foot-col">
+              <h5>Company</h5>
+              <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Companies</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </div>
+            <div className="foot-col">
+              <h5>For Recruiters</h5>
+              <ul>
+                <li><Link href="/jobs/post">Post a Job</Link></li>
+                <li><a href="#pricing">Recruiter Plans</a></li>
+                <li><Link href="/hr-database">Candidate Search</Link></li>
+              </ul>
+            </div>
+            <div className="foot-col">
+              <h5>Support</h5>
+              <ul>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="foot-bottom">
+            <span>© 2026 Worklance. All rights reserved.</span>
+            <span>Connect · Train · Get Hired</span>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
