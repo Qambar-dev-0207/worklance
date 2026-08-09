@@ -17,6 +17,7 @@
 npm-debug.log*
 yarn-debug.log*
 
-# OS Files
+# OS & Temporary HTML Dumps
 .DS_Store
 Thumbs.db
+worklance.html

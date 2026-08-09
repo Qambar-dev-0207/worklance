@@ -17,6 +17,20 @@ export default function Navbar() {
       } catch (e) {}
     }
 
+    // Synchronize session with backend /api/auth/me
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.user) {
+          setCurrentUser(data.user);
+          localStorage.setItem('worklance_user', JSON.stringify(data.user));
+        } else if (data.status === 401 || !data.success) {
+          localStorage.removeItem('worklance_user');
+          setCurrentUser(null);
+        }
+      })
+      .catch(() => {});
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };

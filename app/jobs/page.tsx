@@ -94,6 +94,18 @@ export default function JobsPage() {
       const data = await res.json();
       if (data.success) {
         setJobs(data.jobs);
+
+        // Auto-open direct shared job link if present in URL
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const sharedId = urlParams.get('id');
+          if (sharedId) {
+            const found = data.jobs.find((j: JobItem) => j._id === sharedId || (j as any).id === sharedId);
+            if (found) {
+              setViewingJob(found);
+            }
+          }
+        }
       }
     } catch (err) {
       console.error(err);

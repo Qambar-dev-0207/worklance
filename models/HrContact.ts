@@ -28,6 +28,8 @@ const HrContactSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+HrContactSchema.index({ company: 1, city: 1, industry: 1 });
+
 const HrContact: Model<IHrContact> =
   mongoose.models.HrContact || mongoose.model<IHrContact>('HrContact', HrContactSchema);
 

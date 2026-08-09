@@ -62,6 +62,8 @@ export async function POST(req: NextRequest) {
       response.cookies.set('worklance_token', token, {
         httpOnly: true,
         path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 7 * 24 * 60 * 60,
       });
 
@@ -109,6 +111,8 @@ export async function POST(req: NextRequest) {
     response.cookies.set('worklance_token', token, {
       httpOnly: true,
       path: '/',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60,
     });
 

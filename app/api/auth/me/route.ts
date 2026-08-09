@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+import { connectDB, isMockDB } from '@/lib/db';
 import User from '@/models/User';
 import { getUserFromRequest } from '@/lib/auth';
+import { mockStore } from '@/lib/mockStore';
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,6 +12,20 @@ export async function GET(req: NextRequest) {
     }
 
     await connectDB();
+
+    if (isMockDB()) {
+      const mockUser = mockStore.users.find(
+        (u) => u._id === authData.userId || u.id === authData.userId || u.email === authData.email
+      );
+
+      if (!mockUser) {
+        return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      }
+
+      const { password, ...userWithoutPassword } = mockUser as any;
+      return NextResponse.json({ success: true, user: userWithoutPassword });
+    }
+
     const user = await User.findById(authData.userId).select('-password');
     if (!user) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });

@@ -48,6 +48,8 @@ const JobSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+JobSchema.index({ title: 'text', company: 'text', location: 'text', tags: 'text' });
+
 const Job: Model<IJob> = mongoose.models.Job || mongoose.model<IJob>('Job', JobSchema);
 
 export default Job;

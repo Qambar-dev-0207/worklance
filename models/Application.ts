@@ -28,6 +28,8 @@ const ApplicationSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+ApplicationSchema.index({ jobId: 1, applicantId: 1 }, { unique: true });
+
 const Application: Model<IApplication> =
   mongoose.models.Application || mongoose.model<IApplication>('Application', ApplicationSchema);
 
