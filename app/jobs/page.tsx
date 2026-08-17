@@ -177,19 +177,21 @@ export default function JobsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-soft)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* JOB SEARCH HERO BANNER */}
-      <div style={{ background: 'var(--navy-deep)', color: '#fff', padding: '50px 0 40px' }}>
+      {/* JOB SEARCH HERO BANNER (MONOTONE) */}
+      <div style={{ background: '#000000', color: '#fff', padding: '54px 0 44px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
         <div className="container">
           <div style={{ maxWidth: '700px', marginBottom: '24px' }}>
-            <div className="eyebrow" style={{ color: 'var(--orange-2)' }}>LinkedIn + Unstop Job Engine</div>
-            <h1 style={{ fontSize: '38px', color: '#fff', marginBottom: '10px' }}>
+            <div className="eyebrow" style={{ color: '#FFFFFF', background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              Job Opportunities
+            </div>
+            <h1 style={{ fontSize: '38px', color: '#fff', fontWeight: 800, marginBottom: '10px', letterSpacing: '-0.02em' }}>
               Find your next role at top tech companies
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15.5px' }}>
-              Click any opportunity to inspect complete job specifications, company insights, and direct recruiter contact.
+              Inspect complete job specifications, company insights, salary benchmarks, and direct recruiter contact.
             </p>
           </div>
 
@@ -197,13 +199,14 @@ export default function JobsPage() {
           <form
             onSubmit={handleSearchSubmit}
             style={{
-              background: '#fff',
+              background: '#FFFFFF',
               borderRadius: '16px',
-              padding: '10px',
+              padding: '8px',
               display: 'flex',
               gap: '10px',
               flexWrap: 'wrap',
-              boxShadow: 'var(--shadow-md)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+              maxWidth: '820px',
             }}
           >
             <input
@@ -216,10 +219,10 @@ export default function JobsPage() {
                 minWidth: '220px',
                 padding: '12px 16px',
                 borderRadius: '12px',
-                border: '1px solid var(--line)',
+                border: '1px solid #E4E4E7',
                 fontSize: '14px',
                 outline: 'none',
-                color: 'var(--navy)',
+                color: '#000000',
               }}
             />
             <input
@@ -232,13 +235,13 @@ export default function JobsPage() {
                 minWidth: '160px',
                 padding: '12px 16px',
                 borderRadius: '12px',
-                border: '1px solid var(--line)',
+                border: '1px solid #E4E4E7',
                 fontSize: '14px',
                 outline: 'none',
-                color: 'var(--navy)',
+                color: '#000000',
               }}
             />
-            <button type="submit" className="btn btn-primary" style={{ padding: '12px 24px' }}>
+            <button type="submit" className="btn btn-primary" style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}>
               Search Jobs
             </button>
           </form>
@@ -706,13 +709,13 @@ export default function JobsPage() {
                   {/* RESPONSIBILITIES */}
                   {viewingJob.responsibilities && viewingJob.responsibilities.length > 0 && (
                     <div>
-                      <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px', color: 'var(--navy-deep)' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '12px', color: '#000000' }}>
                         Key Responsibilities
                       </h3>
                       <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: 0, margin: 0, listStyle: 'none' }}>
                         {viewingJob.responsibilities.map((resp, i) => (
-                          <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#334155', lineHeight: 1.5 }}>
-                            <span style={{ color: 'var(--orange-2)', fontWeight: 800 }}>✓</span>
+                          <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#27272A', lineHeight: 1.5 }}>
+                            <span style={{ color: '#000000', fontWeight: 800 }}>✓</span>
                             <span>{resp}</span>
                           </li>
                         ))}
@@ -722,13 +725,13 @@ export default function JobsPage() {
 
                   {/* REQUIREMENTS */}
                   <div>
-                    <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px', color: 'var(--navy-deep)' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '12px', color: '#000000' }}>
                       Qualifications & Requirements
                     </h3>
                     <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: 0, margin: 0, listStyle: 'none' }}>
                       {viewingJob.requirements.map((req, i) => (
-                        <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#334155', lineHeight: 1.5 }}>
-                          <span style={{ color: '#2563EB', fontWeight: 800 }}>•</span>
+                        <li key={i} style={{ display: 'flex', gap: '10px', fontSize: '14px', color: '#27272A', lineHeight: 1.5 }}>
+                          <span style={{ color: '#000000', fontWeight: 800 }}>•</span>
                           <span>{req}</span>
                         </li>
                       ))}
@@ -737,7 +740,7 @@ export default function JobsPage() {
 
                   {/* SKILLS REQUIRED */}
                   <div>
-                    <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '10px', color: 'var(--navy-deep)' }}>
+                    <h3 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '10px', color: '#000000' }}>
                       Required Tech Stack & Skills
                     </h3>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -745,13 +748,13 @@ export default function JobsPage() {
                         <span
                           key={idx}
                           style={{
-                            fontSize: '12.5px',
+                            fontSize: '12px',
                             fontWeight: 600,
-                            background: '#F1F5F9',
-                            color: '#1E293B',
-                            padding: '6px 14px',
+                            background: '#F4F4F5',
+                            color: '#18181B',
+                            padding: '5px 12px',
                             borderRadius: '100px',
-                            border: '1px solid #CBD5E1',
+                            border: '1px solid #E4E4E7',
                           }}
                         >
                           {tag}
@@ -762,13 +765,13 @@ export default function JobsPage() {
 
                   {/* BENEFITS & PERKS */}
                   {viewingJob.benefits && viewingJob.benefits.length > 0 && (
-                    <div style={{ background: '#FEF3C7', borderRadius: '16px', padding: '20px', border: '1px solid #FCD34D' }}>
-                      <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '10px', color: '#92400E' }}>
+                    <div style={{ background: '#F4F4F5', borderRadius: '16px', padding: '20px', border: '1px solid #E4E4E7' }}>
+                      <h3 style={{ fontSize: '15px', fontWeight: 800, marginBottom: '10px', color: '#000000' }}>
                         🎁 Perks & Benefits
                       </h3>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         {viewingJob.benefits.map((b, i) => (
-                          <div key={i} style={{ fontSize: '13px', color: '#78350F', fontWeight: 600, display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          <div key={i} style={{ fontSize: '13px', color: '#27272A', fontWeight: 600, display: 'flex', gap: '6px', alignItems: 'center' }}>
                             <span>✨</span> {b}
                           </div>
                         ))}
@@ -777,13 +780,13 @@ export default function JobsPage() {
                   )}
 
                   {/* AI INTERVIEW TIP CTA */}
-                  <div style={{ background: 'var(--navy-deep)', color: '#fff', borderRadius: '16px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ background: '#000000', color: '#fff', borderRadius: '16px', padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div>
-                      <div style={{ fontSize: '12px', color: 'var(--orange-2)', fontWeight: 700, textTransform: 'uppercase' }}>Worklance AI Career OS</div>
-                      <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#fff' }}>Prepare for {viewingJob.company} Interview Questions</div>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Worklance AI Career OS</div>
+                      <div style={{ fontSize: '14.5px', fontWeight: 800, color: '#fff' }}>Prepare for {viewingJob.company} Interview Questions</div>
                       <div style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.7)' }}>Practice AI mock interviews & view previous technical questions.</div>
                     </div>
-                    <Link href="/profile" className="btn btn-primary" style={{ fontSize: '13px', padding: '8px 16px', whiteSpace: 'nowrap' }}>
+                    <Link href="/interview-prep" className="btn btn-primary" style={{ fontSize: '13px', padding: '9px 18px', whiteSpace: 'nowrap', borderRadius: '100px', background: '#FFFFFF', color: '#000000' }}>
                       Start Practice 🎤
                     </Link>
                   </div>

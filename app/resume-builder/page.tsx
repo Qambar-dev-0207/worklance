@@ -41,18 +41,13 @@ export default function ResumeBuilderPage() {
 
   const [skills, setSkills] = useState('React, Next.js, TypeScript, Node.js, Express, MongoDB, Tailwind CSS, REST APIs, GraphQL, Jest, Git');
   const [education, setEducation] = useState('B.Tech in Computer Science — RV College of Engineering, Bengaluru (2017 - 2021)');
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  // AI Review States
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewResult, setReviewResult] = useState<any>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
-  useEffect(() => {
-    const uStr = localStorage.getItem('worklance_user');
-    if (uStr) {
-      try {
-        setCurrentUser(JSON.parse(uStr));
-      } catch (e) {}
-    }
-  }, []);
-
-  // Calculate dynamic ATS Score
+  // Dynamic ATS Score Calculation
   const calculateAtsScore = () => {
     let score = 50;
     if (fullName && targetTitle && email && phone) score += 15;
@@ -66,27 +61,82 @@ export default function ResumeBuilderPage() {
     window.print();
   };
 
+  const handleRunAiReview = async () => {
+    setReviewLoading(true);
+    setShowReviewModal(true);
+    try {
+      const res = await fetch('/api/resume/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName,
+          targetTitle,
+          summary,
+          experience,
+          skills,
+          education,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReviewResult(data.review);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
+  const handleAddExperience = () => {
+    setExperience([
+      ...experience,
+      {
+        company: 'Company Name',
+        role: 'Role Title',
+        duration: '2022 - 2023',
+        points: ['Accomplishment or project responsibility.'],
+      },
+    ]);
+  };
+
+  const handleRemoveExperience = (index: number) => {
+    setExperience(experience.filter((_, i) => i !== index));
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-soft)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* HERO BANNER */}
-      <div style={{ background: 'var(--navy-deep)', color: '#fff', padding: '50px 0 40px' }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+      {/* HERO BANNER (MONOTONE) */}
+      <div style={{ background: '#000000', color: '#fff', padding: '54px 0 44px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
           <div>
-            <div className="eyebrow" style={{ color: 'var(--orange-2)' }}>Naukri + LinkedIn ATS Engine</div>
-            <h1 style={{ fontSize: '38px', color: '#fff', marginBottom: '8px' }}>
+            <div className="eyebrow" style={{ color: '#FFFFFF', background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              ATS Resume Engine
+            </div>
+            <h1 style={{ fontSize: '38px', color: '#fff', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
               Build an ATS-Optimized Resume
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15.5px' }}>
-              Pass corporate recruiter bots and get shortlisted by top companies across India.
+              Pass corporate recruiter screening algorithms and get shortlisted by top companies.
             </p>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', padding: '18px 26px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center' }}>
-            <div style={{ fontSize: '12.5px', color: 'var(--orange-2)', fontWeight: 700, textTransform: 'uppercase' }}>Live ATS Score</div>
-            <div style={{ fontSize: '34px', fontWeight: 900, color: '#34D399' }}>{calculateAtsScore()}%</div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>Optimized for Tech Recruiters</div>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div style={{ background: '#111115', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Live ATS Score</div>
+              <div style={{ fontSize: '32px', fontWeight: 900, color: '#FFFFFF' }}>{calculateAtsScore()}%</div>
+              <div style={{ fontSize: '11.5px', color: 'rgba(255,255,255,0.5)' }}>Tech Bot Compliant</div>
+            </div>
+
+            <button
+              onClick={handleRunAiReview}
+              className="btn btn-primary"
+              style={{ background: '#FFFFFF', color: '#000000', padding: '14px 22px', fontSize: '13.5px', fontWeight: 700, borderRadius: '100px' }}
+            >
+              🤖 AI Review & Critique
+            </button>
           </div>
         </div>
       </div>
@@ -96,101 +146,167 @@ export default function ResumeBuilderPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: '32px', alignItems: 'flex-start' }}>
           
           {/* LEFT FORM EDITORS */}
-          <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid var(--line)', padding: '28px', boxShadow: 'var(--shadow-sm)' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px', color: 'var(--navy-deep)' }}>
-              📄 Edit Resume Details
-            </h2>
+          <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid #E4E4E7', padding: '28px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#000000' }}>
+                📄 Edit Resume Details
+              </h2>
+              <span style={{ fontSize: '12px', color: '#71717A' }}>Live Auto-Updating</span>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Full Name</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Full Name</label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Target Role / Title</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Target Role / Title</label>
                 <input
                   type="text"
                   value={targetTitle}
                   onChange={(e) => setTargetTitle(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                 />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Email</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Phone</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Phone</label>
                   <input
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Location</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Location</label>
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>LinkedIn URL</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>LinkedIn URL</label>
                   <input
                     type="text"
                     value={linkedIn}
                     onChange={(e) => setLinkedIn(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '14px', outline: 'none' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Professional Summary</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Professional Summary</label>
                 <textarea
                   rows={3}
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '13.5px', outline: 'none', lineHeight: 1.5 }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none', lineHeight: 1.5 }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Key Technical Skills (Comma-separated)</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Key Technical Skills (Comma-separated)</label>
                 <input
                   type="text"
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '13.5px', outline: 'none' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Education</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: '#18181B' }}>Work Experience</label>
+                  <button
+                    type="button"
+                    onClick={handleAddExperience}
+                    style={{ background: 'none', border: 'none', color: '#000000', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    + Add Experience
+                  </button>
+                </div>
+                {experience.map((exp, idx) => (
+                  <div key={idx} style={{ background: '#F4F4F5', padding: '12px', borderRadius: '12px', marginBottom: '10px', border: '1px solid #E4E4E7' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <input
+                        type="text"
+                        value={exp.role}
+                        onChange={(e) => {
+                          const updated = [...experience];
+                          updated[idx].role = e.target.value;
+                          setExperience(updated);
+                        }}
+                        placeholder="Role"
+                        style={{ fontWeight: 600, fontSize: '13px', border: 'none', background: 'transparent', outline: 'none', width: '48%' }}
+                      />
+                      <input
+                        type="text"
+                        value={exp.company}
+                        onChange={(e) => {
+                          const updated = [...experience];
+                          updated[idx].company = e.target.value;
+                          setExperience(updated);
+                        }}
+                        placeholder="Company"
+                        style={{ fontSize: '13px', border: 'none', background: 'transparent', outline: 'none', width: '48%', textAlign: 'right' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        value={exp.duration}
+                        onChange={(e) => {
+                          const updated = [...experience];
+                          updated[idx].duration = e.target.value;
+                          setExperience(updated);
+                        }}
+                        placeholder="Duration (e.g. 2022 - Present)"
+                        style={{ fontSize: '12px', color: '#71717A', border: 'none', background: 'transparent', outline: 'none', width: '70%' }}
+                      />
+                      {experience.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExperience(idx)}
+                          style={{ background: 'none', border: 'none', color: '#DC2626', fontSize: '11.5px', cursor: 'pointer' }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px', color: '#18181B' }}>Education</label>
                 <input
                   type="text"
                   value={education}
                   onChange={(e) => setEducation(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--line)', fontSize: '13.5px', outline: 'none' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
                 />
               </div>
             </div>
@@ -199,18 +315,18 @@ export default function ResumeBuilderPage() {
           {/* RIGHT ATS RESUME SHEET PREVIEW */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--navy-deep)' }}>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#000000' }}>
                 Live ATS Resume Preview
               </div>
-              <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13.5px' }}>
+              <button onClick={handlePrint} className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '13.5px', borderRadius: '100px' }}>
                 🖨️ Download / Print PDF
               </button>
             </div>
 
-            <div className="ats-resume-sheet">
-              <h1>{fullName}</h1>
-              <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--orange-2)', marginBottom: '6px' }}>{targetTitle}</div>
-              <div style={{ fontSize: '12.5px', color: '#64748B', marginBottom: '16px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div className="ats-resume-sheet" style={{ background: '#FFFFFF', padding: '36px', borderRadius: '12px', border: '1px solid #E4E4E7', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+              <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#000000', marginBottom: '4px', letterSpacing: '-0.02em' }}>{fullName}</h1>
+              <div style={{ fontSize: '14.5px', fontWeight: 700, color: '#3F3F46', marginBottom: '8px' }}>{targetTitle}</div>
+              <div style={{ fontSize: '12.5px', color: '#71717A', marginBottom: '18px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <span>📍 {location}</span>
                 <span>•</span>
                 <span>✉️ {email}</span>
@@ -220,17 +336,21 @@ export default function ResumeBuilderPage() {
                 <span>🔗 {linkedIn}</span>
               </div>
 
-              <div className="ats-section-title">Professional Summary</div>
-              <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#334155' }}>{summary}</p>
+              <div className="ats-section-title" style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '8px', color: '#000000' }}>
+                Professional Summary
+              </div>
+              <p style={{ fontSize: '13px', lineHeight: 1.6, color: '#27272A', marginBottom: '18px' }}>{summary}</p>
 
-              <div className="ats-section-title">Work Experience</div>
+              <div className="ats-section-title" style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '8px', color: '#000000' }}>
+                Work Experience
+              </div>
               {experience.map((exp, i) => (
                 <div key={i} style={{ marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '14px', color: '#0F172A' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '13.5px', color: '#000000' }}>
                     <span>{exp.role} — {exp.company}</span>
-                    <span style={{ fontSize: '12.5px', color: '#64748B' }}>{exp.duration}</span>
+                    <span style={{ fontSize: '12px', color: '#71717A' }}>{exp.duration}</span>
                   </div>
-                  <ul style={{ listStyle: 'disc', paddingLeft: '18px', marginTop: '6px', fontSize: '13px', color: '#334155' }}>
+                  <ul style={{ listStyle: 'disc', paddingLeft: '18px', marginTop: '6px', fontSize: '12.5px', color: '#3F3F46', lineHeight: 1.5 }}>
                     {exp.points.map((pt, idx) => (
                       <li key={idx} style={{ marginBottom: '4px' }}>{pt}</li>
                     ))}
@@ -238,16 +358,95 @@ export default function ResumeBuilderPage() {
                 </div>
               ))}
 
-              <div className="ats-section-title">Technical Skills</div>
-              <p style={{ fontSize: '13px', color: '#334155' }}>{skills}</p>
+              <div className="ats-section-title" style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '8px', color: '#000000' }}>
+                Technical Skills
+              </div>
+              <p style={{ fontSize: '13px', color: '#27272A', marginBottom: '18px' }}>{skills}</p>
 
-              <div className="ats-section-title">Education & Certifications</div>
-              <p style={{ fontSize: '13px', color: '#334155' }}>{education}</p>
+              <div className="ats-section-title" style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1.5px solid #000000', paddingBottom: '4px', marginBottom: '8px', color: '#000000' }}>
+                Education & Certifications
+              </div>
+              <p style={{ fontSize: '13px', color: '#27272A' }}>{education}</p>
             </div>
           </div>
 
         </div>
       </div>
+
+      {/* AI REVIEW MODAL */}
+      {showReviewModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            zIndex: 1000,
+          }}
+          onClick={() => setShowReviewModal(false)}
+        >
+          <div
+            style={{
+              background: '#000000',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '24px',
+              padding: '36px',
+              width: '100%',
+              maxWidth: '560px',
+              color: '#FFFFFF',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '18px', fontWeight: 800 }}>🤖 AI Resume & ATS Review</div>
+              <button
+                onClick={() => setShowReviewModal(false)}
+                style={{ background: 'none', border: 'none', color: '#A1A1AA', fontSize: '20px', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {reviewLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#A1A1AA' }}>
+                Analyzing resume structure, keyword density, and ATS score...
+              </div>
+            ) : reviewResult ? (
+              <div>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center', background: '#111115', padding: '16px', borderRadius: '16px', marginBottom: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFFFFF' }}>{reviewResult.score}%</div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700 }}>ATS Rating: {reviewResult.rating}</div>
+                    <div style={{ fontSize: '12px', color: '#A1A1AA' }}>Identified {reviewResult.keywordCount} key technical terms</div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '13.5px', fontWeight: 700, marginBottom: '10px' }}>Actionable ATS Suggestions:</div>
+                <ul style={{ listStyle: 'disc', paddingLeft: '20px', fontSize: '13px', color: '#D4D4D8', lineHeight: 1.6, marginBottom: '24px' }}>
+                  {reviewResult.suggestions.map((sug: string, idx: number) => (
+                    <li key={idx} style={{ marginBottom: '8px' }}>{sug}</li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => setShowReviewModal(false)}
+                  className="btn btn-primary"
+                  style={{ width: '100%', background: '#FFFFFF', color: '#000000', borderRadius: '100px', fontWeight: 700 }}
+                >
+                  Got It, Thanks!
+                </button>
+              </div>
+            ) : (
+              <div style={{ color: '#EF4444' }}>Unable to retrieve review results.</div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
