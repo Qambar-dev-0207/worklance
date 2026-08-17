@@ -2,17 +2,29 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'seeker' | 'recruiter'>('seeker');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [heroQuery, setHeroQuery] = useState('');
 
   // New interactive states for AI ROI Chart & Pricing
   const [activeRoiMetric, setActiveRoiMetric] = useState<'time' | 'cost' | 'quality' | 'manual' | 'team'>('time');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [pricingCategory, setPricingCategory] = useState<'recruiter' | 'seeker'>('recruiter');
+
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (heroQuery.trim()) {
+      router.push(`/jobs?keyword=${encodeURIComponent(heroQuery.trim())}`);
+    } else {
+      router.push('/jobs');
+    }
+  };
 
   const roiMetrics = {
     time: {
@@ -122,41 +134,140 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* 3D SLEEK HERO SECTION */}
       <header className="hero">
+        <div className="hero-3d-grid-floor"></div>
+        <div className="hero-3d-spotlight"></div>
+
         <div className="container hero-grid">
+          {/* LEFT: MINIMALIST BOLD TYPOGRAPHY & COMMAND SEARCH */}
           <div>
-            <div className="eyebrow">Connect · Train · Get Hired</div>
-            <h1>
-              Everything you need to build your <span className="accent">career</span>, in one place
-            </h1>
-            <p className="lead">
-              From your first resume to your first offer — Worklance brings resume building, job search, verified HR contacts, interview prep and skills training into a single connected platform.
-            </p>
-            <div className="hero-actions">
-              <Link href="/register" className="btn btn-primary btn-lg">Get Started Free</Link>
-              <Link href="/jobs" className="btn btn-outline btn-lg">Explore Jobs</Link>
+            <div className="eyebrow" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.18)', marginBottom: '18px' }}>
+              <span className="hero-beacon"></span>
+              Autonomous Career OS · AI Automated
             </div>
-            <div className="trust-row">
-              <span><span className="dot"></span> ATS-friendly resumes</span>
-              <span><span className="dot"></span> Verified HR database</span>
-              <span><span className="dot"></span> AI interview practice</span>
+
+            <h1>
+              Architect Your Career.<br />
+              <span className="hero-3d-gradient-text">Hired in 10 Minutes.</span>
+            </h1>
+
+            <p className="lead">
+              The unified intelligence platform that merges AI job matchmaking, verified recruiter direct access, automated voice screening, and bot-proof ATS resume engineering.
+            </p>
+
+            {/* COMMAND SEARCH BAR */}
+            <form onSubmit={handleHeroSearch} className="hero-command-box">
+              <span style={{ fontSize: '16px', opacity: 0.7 }}>🔍</span>
+              <input
+                type="text"
+                value={heroQuery}
+                onChange={(e) => setHeroQuery(e.target.value)}
+                placeholder="Search 10,000+ AI-screened tech roles..."
+                className="hero-command-input"
+              />
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ background: '#FFFFFF', color: '#000000', borderRadius: '100px', padding: '10px 22px', fontSize: '13px', fontWeight: 800, whiteSpace: 'nowrap' }}
+              >
+                Find Roles
+              </button>
+            </form>
+
+            {/* QUICK SHORTCUT PILLS */}
+            <div className="hero-tags-row">
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Quick Filter:</span>
+              <button type="button" onClick={() => router.push('/jobs?keyword=Remote')} className="hero-tag-btn">⚡ Remote</button>
+              <button type="button" onClick={() => router.push('/jobs?keyword=Full%20Stack')} className="hero-tag-btn">💻 Full Stack</button>
+              <button type="button" onClick={() => router.push('/jobs?keyword=AI')} className="hero-tag-btn">🤖 AI / ML</button>
+              <button type="button" onClick={() => router.push('/jobs?location=Bengaluru')} className="hero-tag-btn">📍 Bengaluru</button>
+            </div>
+
+            {/* TRUST INDICATORS */}
+            <div className="hero-trust-metrics">
+              <span><span className="hero-beacon"></span> 10-Minute Offer Pipeline</span>
+              <span><span className="hero-beacon"></span> 98.4% ATS Accuracy</span>
+              <span><span className="hero-beacon"></span> Verified Direct HRs</span>
             </div>
           </div>
-          <div className="journey-wrap">
-            <svg className="journey-path" viewBox="0 0 400 460" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M60 60 C 220 60, 180 190, 340 190 C 420 190, 60 320, 60 320 C 60 380, 220 400, 340 410"
-                stroke="#E2E2E2"
-                strokeWidth="2"
-                strokeDasharray="6 8"
-                fill="none"
-              />
-            </svg>
-            <div className="journey-card jc-1"><span className="journey-icon">📄</span> Build your resume</div>
-            <div className="journey-card jc-2"><span className="journey-icon">🔍</span> Apply to jobs</div>
-            <div className="journey-card jc-3"><span className="journey-icon">🎤</span> Practice interviews</div>
-            <div className="journey-card jc-4"><span className="journey-icon">🎉</span> Get hired</div>
+
+          {/* RIGHT: 3D MULTI-LAYER FLOATING INTERFACE DECK */}
+          <div className="hero-3d-stage">
+            <div className="hero-3d-card-deck">
+              {/* SATELLITE 1: TOP-RIGHT FAST-TRACK PILL */}
+              <div className="hero-sat-card sat-top-right">
+                <span className="hero-beacon"></span>
+                <span>⚡ 10-Min Fast Track Verified</span>
+              </div>
+
+              {/* MAIN 3D GLASS DECK */}
+              <div className="hero-main-deck">
+                <div className="cross-corner cross-tl">+</div>
+                <div className="cross-corner cross-tr">+</div>
+                <div className="cross-corner cross-bl">+</div>
+                <div className="cross-corner cross-br">+</div>
+
+                {/* Candidate Header */}
+                <div className="hero-deck-header">
+                  <div className="hero-candidate-info">
+                    <div className="hero-candidate-avatar">RS</div>
+                    <div>
+                      <div className="hero-candidate-name">Riya Sharma</div>
+                      <div className="hero-candidate-role">Senior Full Stack Engineer</div>
+                    </div>
+                  </div>
+                  <div className="hero-match-badge">99.2% MATCH</div>
+                </div>
+
+                {/* 3-Stage Pipeline Tracker */}
+                <div className="hero-pipeline-tracker">
+                  <div className="hero-pipeline-title">
+                    <span>Autonomous Pipeline</span>
+                    <span style={{ color: '#FFFFFF' }}>00:09:42 Elapsed</span>
+                  </div>
+                  <div className="hero-pipeline-steps">
+                    <div className="hero-p-step done">
+                      <div className="hero-p-dot">✓</div>
+                      <span className="hero-p-label">AI Screen</span>
+                    </div>
+                    <div className="hero-p-step done">
+                      <div className="hero-p-dot">✓</div>
+                      <span className="hero-p-label">AI Video</span>
+                    </div>
+                    <div className="hero-p-step active">
+                      <div className="hero-p-dot">●</div>
+                      <span className="hero-p-label">Offer Out</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Matched Role Details */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '4px' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Matched Company:</span>
+                    <span style={{ fontWeight: 800, color: '#FFFFFF' }}>Zenith Tech Labs</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Compensation Benchmark:</span>
+                    <span style={{ fontWeight: 800, color: '#FFFFFF' }}>₹28,00,000 - ₹35,00,000</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SATELLITE 2: BOTTOM-LEFT AI VOICE SCREENING CARD */}
+              <div className="hero-sat-card sat-bottom-left">
+                <div style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  🤖 AI Voice Interview Bot
+                </div>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', marginTop: '3px' }}>
+                  &ldquo;Candidate demonstrated deep Next.js 14 RSC and microservices knowledge.&rdquo;
+                </div>
+                <div className="sat-waveform">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -741,56 +852,85 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              /* JOB SEEKER TIERS */
-              <div className="price-grid" style={{ marginTop: '20px' }}>
-                <div className="price-card reveal">
-                  <h3>Free</h3>
-                  <p className="price-sub">For getting started</p>
-                  <div className="price-amt">₹0<span>/month</span></div>
-                  <ul className="price-feats">
-                    <li>1 ATS resume</li>
-                    <li>Unlimited job search</li>
-                    <li>Save & track applications</li>
-                    <li>Basic interview tips</li>
+              /* JOB SEEKER TIERS (DARK SPOTLIGHT CARDS MATCHING RECRUITER TIER) */
+              <div className="ai-pricing-grid">
+                {/* Starter Seeker Card */}
+                <div className="ai-price-card">
+                  <div className="ai-card-tier">Starter Seeker</div>
+                  <div className="ai-card-price">
+                    <span className="ai-price-num">₹0</span>
+                    <span className="ai-price-unit">/ month</span>
+                  </div>
+                  <div className="ai-card-sub">
+                    Free forever for ambitious engineers
+                  </div>
+                  <ul className="ai-card-features">
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      1 ATS-Optimized Resume Template
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Unlimited Tech Job Search & Filters
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Application Tracker & Dashboard
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Hackathon Hub Team Registrations
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Sample Interview Questions & Tips
+                    </li>
                   </ul>
-                  <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Get Started</Link>
+                  <Link href="/register" className="btn-ai-white">
+                    Get Started Free
+                  </Link>
                 </div>
-                <div className="price-card featured reveal">
-                  <div className="price-badge">Most Popular</div>
-                  <h3>Premium</h3>
-                  <p className="price-sub">For serious job seekers</p>
-                  <div className="price-amt">₹499<span>/month</span></div>
-                  <ul className="price-feats">
-                    <li>Unlimited resume versions</li>
-                    <li>Full HR database access</li>
-                    <li>AI mock interviews</li>
-                    <li>All courses & certificates</li>
+
+                {/* Pro Career OS Card (Most Popular) */}
+                <div className="ai-price-card featured">
+                  <div className="ai-popular-badge">Most Popular</div>
+                  <div className="ai-card-tier">Pro Career OS</div>
+                  <div className="ai-card-price">
+                    <span className="ai-price-num">{billingCycle === 'yearly' ? '₹399' : '₹499'}</span>
+                    <span className="ai-price-unit">/ month</span>
+                  </div>
+                  <div className="ai-card-sub">
+                    {billingCycle === 'yearly' ? '(Billed annually - ₹4,788/yr)' : '(Billed monthly)'}
+                  </div>
+                  <ul className="ai-card-features">
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Unlimited AI ATS Resumes + Bot Score Checker
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Full Verified HR Database Access & 1-Click Copy
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      AI Voice & Technical Interview Mock Simulator
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      10-Minute Fast-Track Verified Candidate Badge
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Previous Year Company Questions (FAANG, Unicorns)
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Priority Recruiter Inbox Placement
+                    </li>
                   </ul>
-                  <Link href="/register" className="btn btn-primary" style={{ width: '100%' }}>Go Premium</Link>
-                </div>
-                <div className="price-card reveal">
-                  <h3>Recruiter</h3>
-                  <p className="price-sub">For HRs & agencies</p>
-                  <div className="price-amt">₹2,499<span>/month</span></div>
-                  <ul className="price-feats">
-                    <li>Unlimited job posts</li>
-                    <li>Candidate search & save</li>
-                    <li>Hiring pipeline tracker</li>
-                    <li>Direct messaging</li>
-                  </ul>
-                  <Link href="/jobs/post" className="btn btn-outline" style={{ width: '100%' }}>Start Hiring</Link>
-                </div>
-                <div className="price-card reveal">
-                  <h3>Enterprise</h3>
-                  <p className="price-sub">For growing teams</p>
-                  <div className="price-amt">Custom</div>
-                  <ul className="price-feats">
-                    <li>Everything in Recruiter</li>
-                    <li>Dedicated account manager</li>
-                    <li>HR analytics dashboard</li>
-                    <li>Campus hiring portal</li>
-                  </ul>
-                  <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Contact Sales</Link>
+                  <Link href="/register?plan=pro" className="btn-ai-dark">
+                    Upgrade to Pro
+                  </Link>
                 </div>
               </div>
             )}
@@ -804,35 +944,48 @@ export default function Home() {
           <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
             <div className="eyebrow" style={{ justifyContent: 'center' }}>FAQ</div>
             <h2>Questions, answered</h2>
+            <p>Everything you need to know about Worklance Career OS and autonomous recruitment.</p>
           </div>
           <div className="faq-wrap">
             {[
               {
-                q: "Is Worklance free to use?",
-                a: "Yes. The Free plan covers resume building, job search and application tracking. Premium unlocks the full HR database and AI interview practice."
+                q: "Is Worklance free to use for job seekers?",
+                a: "Yes! The Starter plan is 100% free forever and includes ATS resume building, unlimited tech job search, application tracking, and hackathon registrations. Pro Career OS unlocks direct HR contacts and AI voice mock interviews."
               },
               {
-                q: "How does the HR database work?",
-                a: "It's a searchable directory of verified HR contacts with name, company, designation, email and LinkedIn, filterable by industry, city and hiring role."
+                q: "How does the HR Database work?",
+                a: "Our HR directory is a curated, verified repository of active talent acquisition leaders, engineering recruiters, and HR heads with direct emails, LinkedIn profiles, and verified company domains."
               },
               {
-                q: "Can recruiters post jobs and manage candidates?",
-                a: "Yes. The Recruiter dashboard lets you post jobs, search and shortlist candidates, message them directly and track your full hiring pipeline."
+                q: "What is the 10-Minute Fast-Track Offer Pipeline?",
+                a: "Worklance allows candidates to complete AI voice pre-screening and technical evaluations in advance. Recruiters can review instant benchmark scores and send direct interview invitations or offers in as little as 10 minutes."
               },
               {
-                q: "What kind of interview prep is included?",
-                a: "Company-wise previous year questions across HR, technical, coding and GD rounds, plus AI-powered mock interviews with instant feedback."
+                q: "Can recruiters post jobs and manage full hiring pipelines?",
+                a: "Yes. Recruiters get an autonomous dashboard to post roles, search candidates, review AI assessment scores, schedule interviews, and update candidate statuses from Applied to Offered."
+              },
+              {
+                q: "How does the AI ATS Resume Builder work?",
+                a: "It generates clean, single-column, bot-optimized resumes that pass modern Applicant Tracking Systems (Workday, Greenhouse, Lever) and calculates real-time ATS compliance scores."
+              },
+              {
+                q: "What kind of interview preparation questions are included?",
+                a: "We provide real previous year interview questions from top tech companies (Google, Amazon, TCS, Infosys, Microsoft) categorized by HR, Technical, Coding, and System Design rounds."
               }
             ].map((item, index) => {
               const isOpen = openFaq === index;
               return (
-                <div key={index} className={`faq-item reveal ${isOpen ? 'open' : ''}`}>
+                <div key={index} className={`faq-item ${isOpen ? 'open' : ''}`}>
                   <div className="faq-q" onClick={() => toggleFaq(index)}>
-                    {item.q} <span className="plus">+</span>
+                    <span>{item.q}</span>
+                    <span className="plus">+</span>
                   </div>
                   <div
                     className="faq-a"
-                    style={{ maxHeight: isOpen ? '200px' : '0px' }}
+                    style={{
+                      maxHeight: isOpen ? '240px' : '0px',
+                      opacity: isOpen ? 1 : 0,
+                    }}
                   >
                     <p>{item.a}</p>
                   </div>
