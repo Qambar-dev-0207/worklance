@@ -9,6 +9,44 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
+  // New interactive states for AI ROI Chart & Pricing
+  const [activeRoiMetric, setActiveRoiMetric] = useState<'time' | 'cost' | 'quality' | 'manual' | 'team'>('time');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [pricingCategory, setPricingCategory] = useState<'recruiter' | 'seeker'>('recruiter');
+
+  const roiMetrics = {
+    time: {
+      title: 'TIME',
+      traditional: '30 days',
+      ai: '3 hours',
+      desc: 'From posting a role to sending a verified offer letter',
+    },
+    cost: {
+      title: 'COST',
+      traditional: '₹45,000',
+      ai: '₹3,500',
+      desc: 'Agency fees and screening expenses per hire',
+    },
+    quality: {
+      title: 'QUALITY',
+      traditional: '65% match',
+      ai: '98% match',
+      desc: 'Candidate role fit and technical interview score correlation',
+    },
+    manual: {
+      title: 'MANUAL',
+      traditional: '40 hrs/wk',
+      ai: '15 mins/wk',
+      desc: 'Time spent reviewing resumes and scheduling calls',
+    },
+    team: {
+      title: 'TEAM',
+      traditional: '4-5 Recruiters',
+      ai: '1 Lead + AI',
+      desc: 'Staffing required to screen and interview candidate volume',
+    },
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -178,6 +216,230 @@ export default function Home() {
         </div>
       </section>
 
+      {/* AI INTELLIGENCE & RECRUITMENT TRANSFORMATION */}
+      <section className="section-pad" id="ai-intelligence" style={{ background: '#000000', color: '#fff', borderTop: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="container">
+          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="eyebrow" style={{ justifyContent: 'center', background: 'rgba(255,255,255,0.08)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.18)' }}>AI Intelligence</div>
+            <h2 style={{ color: '#fff', fontSize: '42px', fontWeight: 800 }}>Transform Your Hiring Process<br />with AI Intelligence</h2>
+            <p style={{ color: 'rgba(255,255,255,0.7)', maxWidth: '720px', margin: '0 auto', fontSize: '16.5px' }}>
+              Revolutionize recruitment with cutting-edge AI technology that automates candidate screening, conducts intelligent interviews, and identifies top talent faster than ever before.
+            </p>
+          </div>
+
+          {/* Isometric AI Hiring Maze Graphic */}
+          <div className="ai-maze-card reveal">
+            <img
+              src="/images/ai-hiring-maze.jpg"
+              alt="AI Automated Recruitment Workflow"
+              className="ai-maze-img"
+            />
+            <div className="ai-maze-badge ai-badge-1">
+              <span>⚡ 98% Screening Accuracy</span>
+            </div>
+            <div className="ai-maze-badge ai-badge-2">
+              <span>🤖 Automated Voice & Video Screening</span>
+            </div>
+            <div className="ai-maze-badge ai-badge-3">
+              <span>🚀 10x Faster Time-to-Offer</span>
+            </div>
+          </div>
+
+          {/* High-Impact Monochrome Quote Banner */}
+          <div className="ai-magenta-quote reveal">
+            <div className="ai-quote-text">
+              &ldquo;Transform your hiring process with AI automation that delivers results <span className="italic-accent">10x faster</span> than traditional methods.&rdquo;
+            </div>
+            <div className="ai-quote-author">
+              &mdash; Streamline recruitment from days to minutes
+            </div>
+          </div>
+
+          {/* BOOST HIRING ROI & SPIDER / RADAR CHART */}
+          <div className="roi-section reveal" id="roi-analysis">
+            <div className="cross-corner cross-tl">+</div>
+            <div className="cross-corner cross-tr">+</div>
+            <div className="cross-corner cross-bl">+</div>
+            <div className="cross-corner cross-br">+</div>
+
+            <div className="roi-head">
+              <h2>Boost your hiring ROI</h2>
+              <p>
+                Ramp up hiring as your company grows while also keeping an eye on the budget. Worklance provides scalable and cost-effective recruitment solutions for organizations of all sizes.
+              </p>
+            </div>
+
+            <div className="roi-chart-container">
+              <svg className="roi-radar-svg" viewBox="0 0 500 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Concentric Pentagon Grid Lines */}
+                <polygon points="250,208 280.4,222.6 268.8,255.4 231.2,255.4 219.6,222.6" stroke="rgba(255,255,255,0.08)" strokeWidth="1" fill="none" />
+                <polygon points="250,176 310.9,205.2 287.6,270.8 212.4,270.8 189.1,205.2" stroke="rgba(255,255,255,0.1)" strokeWidth="1" fill="none" />
+                <polygon points="250,144 341.3,187.8 306.4,286.2 193.6,286.2 158.7,187.8" stroke="rgba(255,255,255,0.12)" strokeWidth="1" fill="none" />
+                <polygon points="250,112 371.8,170.4 325.2,301.6 174.8,301.6 128.2,170.4" stroke="rgba(255,255,255,0.15)" strokeWidth="1" fill="none" />
+                <polygon points="250,80 402.2,153.1 344.0,317.0 156.0,317.0 97.8,153.1" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2" fill="none" />
+
+                {/* Axis Radial Lines */}
+                <line x1="250" y1="240" x2="250" y2="80" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1="250" y1="240" x2="402.2" y2="153.1" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1="250" y1="240" x2="344.0" y2="317.0" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1="250" y1="240" x2="156.0" y2="317.0" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+                <line x1="250" y1="240" x2="97.8" y2="153.1" stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3" />
+
+                {/* Traditional Hiring Polygon (Muted Grey Dashed) */}
+                <polygon
+                  points="250,185 305,220 290,270 215,275 190,215"
+                  fill="rgba(255, 255, 255, 0.05)"
+                  stroke="rgba(255, 255, 255, 0.35)"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                />
+
+                {/* Worklance AI-Powered Radar Polygon (Monochrome Crisp White/Silver) */}
+                <polygon
+                  points="250,115 394.5,158 322.0,305 170.0,305 115.0,158"
+                  fill="rgba(255, 255, 255, 0.18)"
+                  stroke="#FFFFFF"
+                  strokeWidth="2.5"
+                />
+
+                {/* Interactive Points on Polygon */}
+                {/* Cost (Top) */}
+                <circle
+                  cx="250"
+                  cy="115"
+                  r={activeRoiMetric === 'cost' ? '7.5' : '4.5'}
+                  fill={activeRoiMetric === 'cost' ? '#FFFFFF' : '#71717A'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  className="radar-interactive-dot"
+                  onClick={() => setActiveRoiMetric('cost')}
+                />
+                {/* Time (Top-Right) */}
+                <circle
+                  cx="394.5"
+                  cy="158"
+                  r={activeRoiMetric === 'time' ? '7.5' : '4.5'}
+                  fill={activeRoiMetric === 'time' ? '#FFFFFF' : '#71717A'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  className="radar-interactive-dot"
+                  onClick={() => setActiveRoiMetric('time')}
+                />
+                {/* Team (Bottom-Right) */}
+                <circle
+                  cx="322"
+                  cy="305"
+                  r={activeRoiMetric === 'team' ? '7.5' : '4.5'}
+                  fill={activeRoiMetric === 'team' ? '#FFFFFF' : '#71717A'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  className="radar-interactive-dot"
+                  onClick={() => setActiveRoiMetric('team')}
+                />
+                {/* Manual (Bottom-Left) */}
+                <circle
+                  cx="170"
+                  cy="305"
+                  r={activeRoiMetric === 'manual' ? '7.5' : '4.5'}
+                  fill={activeRoiMetric === 'manual' ? '#FFFFFF' : '#71717A'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  className="radar-interactive-dot"
+                  onClick={() => setActiveRoiMetric('manual')}
+                />
+                {/* Quality (Top-Left) */}
+                <circle
+                  cx="115"
+                  cy="158"
+                  r={activeRoiMetric === 'quality' ? '7.5' : '4.5'}
+                  fill={activeRoiMetric === 'quality' ? '#FFFFFF' : '#71717A'}
+                  stroke="#FFFFFF"
+                  strokeWidth="1.5"
+                  className="radar-interactive-dot"
+                  onClick={() => setActiveRoiMetric('quality')}
+                />
+
+                {/* Axis Labels */}
+                <text
+                  x="250"
+                  y="55"
+                  textAnchor="middle"
+                  className={`radar-axis-label ${activeRoiMetric === 'cost' ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric('cost')}
+                >
+                  Cost
+                </text>
+                <text
+                  x="420"
+                  y="158"
+                  textAnchor="start"
+                  className={`radar-axis-label ${activeRoiMetric === 'time' ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric('time')}
+                >
+                  Time
+                </text>
+                <text
+                  x="355"
+                  y="345"
+                  textAnchor="start"
+                  className={`radar-axis-label ${activeRoiMetric === 'team' ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric('team')}
+                >
+                  Team
+                </text>
+                <text
+                  x="145"
+                  y="345"
+                  textAnchor="end"
+                  className={`radar-axis-label ${activeRoiMetric === 'manual' ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric('manual')}
+                >
+                  Manual
+                </text>
+                <text
+                  x="80"
+                  y="158"
+                  textAnchor="end"
+                  className={`radar-axis-label ${activeRoiMetric === 'quality' ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric('quality')}
+                >
+                  Quality
+                </text>
+              </svg>
+
+              {/* Floating Tooltip Card */}
+              <div className="roi-tooltip-card">
+                <div className="roi-tooltip-title">{roiMetrics[activeRoiMetric].title}</div>
+                <div className="roi-tooltip-row">
+                  <span className="label"><span className="roi-dot-gray"></span> Traditional</span>
+                  <span className="val">{roiMetrics[activeRoiMetric].traditional}</span>
+                </div>
+                <div className="roi-tooltip-row active-ai">
+                  <span className="label"><span className="roi-dot-white"></span> AI-Powered</span>
+                  <span className="val">{roiMetrics[activeRoiMetric].ai}</span>
+                </div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  {roiMetrics[activeRoiMetric].desc}
+                </div>
+              </div>
+            </div>
+
+            {/* Metric Selectors */}
+            <div className="roi-metric-selectors">
+              {(['time', 'cost', 'quality', 'manual', 'team'] as const).map((m) => (
+                <button
+                  key={m}
+                  className={`roi-btn ${activeRoiMetric === m ? 'active' : ''}`}
+                  onClick={() => setActiveRoiMetric(m)}
+                >
+                  {roiMetrics[m].title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section className="section-pad bg-soft" id="how">
         <div className="container">
@@ -329,64 +591,209 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <section className="section-pad" id="pricing">
+      {/* SPEED QUOTE BANNER */}
+      <section className="container" style={{ marginTop: '50px', marginBottom: '30px' }}>
+        <div className="speed-quote-section reveal">
+          <div className="cross-corner cross-tl">+</div>
+          <div className="cross-corner cross-tr">+</div>
+          <div className="cross-corner cross-bl">+</div>
+          <div className="cross-corner cross-br">+</div>
+          <h2 className="speed-quote-title">
+            &ldquo;Hire in 10 Minutes. Yes, Really. Not 10 days. Not 10 hours. <span className="monotone-highlight">10 minutes.</span>&rdquo;
+          </h2>
+          <p className="speed-quote-sub">&mdash; From posting a job to sending an offer letter</p>
+        </div>
+      </section>
+
+      {/* PRICING SECTION */}
+      <section className="section-pad" id="pricing" style={{ paddingTop: '20px' }}>
         <div className="container">
-          <div className="sec-head center reveal" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
-            <div className="eyebrow" style={{ justifyContent: 'center' }}>Pricing</div>
-            <h2>Simple plans for every stage</h2>
-            <p>Start free. Upgrade when the HR database and recruiter tools start paying for themselves.</p>
-          </div>
-          <div className="price-grid">
-            <div className="price-card reveal">
-              <h3>Free</h3>
-              <p className="price-sub">For getting started</p>
-              <div className="price-amt">₹0<span>/month</span></div>
-              <ul className="price-feats">
-                <li>1 ATS resume</li>
-                <li>Unlimited job search</li>
-                <li>Save & track applications</li>
-                <li>Basic interview tips</li>
-              </ul>
-              <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Get Started</Link>
+          <div className="ai-pricing-wrap reveal">
+            <div className="cross-corner cross-tl">+</div>
+            <div className="cross-corner cross-tr">+</div>
+            <div className="cross-corner cross-bl">+</div>
+            <div className="cross-corner cross-br">+</div>
+
+            {/* Glowing Spotlight Beam Effect */}
+            <div className="pricing-spotlight-beam"></div>
+
+            <div className="ai-pricing-head">
+              <h2>Simple, Transparent Pricing</h2>
+              <p>Choose the plan that fits your hiring needs. All plans include our core AI-powered features.</p>
             </div>
-            <div className="price-card featured reveal">
-              <div className="price-badge">Most Popular</div>
-              <h3>Premium</h3>
-              <p className="price-sub">For serious job seekers</p>
-              <div className="price-amt">₹499<span>/month</span></div>
-              <ul className="price-feats">
-                <li>Unlimited resume versions</li>
-                <li>Full HR database access</li>
-                <li>AI mock interviews</li>
-                <li>All courses & certificates</li>
-              </ul>
-              <Link href="/register" className="btn btn-primary" style={{ width: '100%' }}>Go Premium</Link>
+
+            {/* Plan Category Switcher (Recruiter AI Plans / Job Seeker Plans) */}
+            <div className="pricing-mode-tabs">
+              <button
+                className={`pricing-mode-btn ${pricingCategory === 'recruiter' ? 'active' : ''}`}
+                onClick={() => setPricingCategory('recruiter')}
+              >
+                AI Hiring Plans (Recruiter)
+              </button>
+              <button
+                className={`pricing-mode-btn ${pricingCategory === 'seeker' ? 'active' : ''}`}
+                onClick={() => setPricingCategory('seeker')}
+              >
+                Job Seeker Plans
+              </button>
             </div>
-            <div className="price-card reveal">
-              <h3>Recruiter</h3>
-              <p className="price-sub">For HRs & agencies</p>
-              <div className="price-amt">₹2,499<span>/month</span></div>
-              <ul className="price-feats">
-                <li>Unlimited job posts</li>
-                <li>Candidate search & save</li>
-                <li>Hiring pipeline tracker</li>
-                <li>Direct messaging</li>
-              </ul>
-              <Link href="/jobs/post" className="btn btn-outline" style={{ width: '100%' }}>Start Hiring</Link>
+
+            {/* Billing Toggle (Monthly / Yearly) */}
+            <div className="ai-billing-toggle">
+              <button
+                className={`ai-billing-btn ${billingCycle === 'monthly' ? 'active' : ''}`}
+                onClick={() => setBillingCycle('monthly')}
+              >
+                Monthly
+              </button>
+              <button
+                className={`ai-billing-btn ${billingCycle === 'yearly' ? 'active' : ''}`}
+                onClick={() => setBillingCycle('yearly')}
+              >
+                Yearly <span className="discount-pill">15% OFF</span>
+              </button>
             </div>
-            <div className="price-card reveal">
-              <h3>Enterprise</h3>
-              <p className="price-sub">For growing teams</p>
-              <div className="price-amt">Custom</div>
-              <ul className="price-feats">
-                <li>Everything in Recruiter</li>
-                <li>Dedicated account manager</li>
-                <li>HR analytics dashboard</li>
-                <li>Campus hiring portal</li>
-              </ul>
-              <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Contact Sales</Link>
-            </div>
+
+            {pricingCategory === 'recruiter' ? (
+              /* RECRUITER AI HIRING PLANS (AS SEEN IN SCREENSHOTS) */
+              <div className="ai-pricing-grid">
+                {/* Starter Card */}
+                <div className="ai-price-card">
+                  <div className="ai-card-tier">Starter</div>
+                  <div className="ai-card-price">
+                    <span className="ai-price-num">{billingCycle === 'yearly' ? '₹7,999' : '₹9,499'}</span>
+                    <span className="ai-price-unit">/ month</span>
+                  </div>
+                  <div className="ai-card-sub">
+                    {billingCycle === 'yearly' ? '(Billed annually - Save 20%)' : '(Billed monthly)'}
+                  </div>
+                  <ul className="ai-card-features">
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      1,500 AI Credits / month
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      3 Active Jobs
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      AI Pre-screening Calls (10 cr/call)
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      AI Video Interviews (35 cr/interview)
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      WhatsApp & Email Invites (1 cr/msg)
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Resume Parsing (1 cr/cv)
+                    </li>
+                  </ul>
+                  <Link href="/register?plan=starter" className="btn-ai-white">
+                    Get Started
+                  </Link>
+                </div>
+
+                {/* Growth Card (Most Popular) */}
+                <div className="ai-price-card featured">
+                  <div className="ai-popular-badge">Most Popular</div>
+                  <div className="ai-card-tier">Growth</div>
+                  <div className="ai-card-price">
+                    <span className="ai-price-num">{billingCycle === 'yearly' ? '₹15,999' : '₹18,999'}</span>
+                    <span className="ai-price-unit">/ month</span>
+                  </div>
+                  <div className="ai-card-sub">
+                    {billingCycle === 'yearly' ? '(Billed annually - Save 20%)' : '(Billed monthly)'}
+                  </div>
+                  <ul className="ai-card-features">
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      4,000 AI Credits / month
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      10 Active Jobs
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      AI Sourcing + Contacts (5 Projects, 15 cr/contact reveal)
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      WhatsApp & Email Automation
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Advanced Anti-Cheating & Analytics
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      Custom Interview Workflows
+                    </li>
+                  </ul>
+                  <Link href="/register?plan=growth" className="btn-ai-dark">
+                    Get Started
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              /* JOB SEEKER TIERS */
+              <div className="price-grid" style={{ marginTop: '20px' }}>
+                <div className="price-card reveal">
+                  <h3>Free</h3>
+                  <p className="price-sub">For getting started</p>
+                  <div className="price-amt">₹0<span>/month</span></div>
+                  <ul className="price-feats">
+                    <li>1 ATS resume</li>
+                    <li>Unlimited job search</li>
+                    <li>Save & track applications</li>
+                    <li>Basic interview tips</li>
+                  </ul>
+                  <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Get Started</Link>
+                </div>
+                <div className="price-card featured reveal">
+                  <div className="price-badge">Most Popular</div>
+                  <h3>Premium</h3>
+                  <p className="price-sub">For serious job seekers</p>
+                  <div className="price-amt">₹499<span>/month</span></div>
+                  <ul className="price-feats">
+                    <li>Unlimited resume versions</li>
+                    <li>Full HR database access</li>
+                    <li>AI mock interviews</li>
+                    <li>All courses & certificates</li>
+                  </ul>
+                  <Link href="/register" className="btn btn-primary" style={{ width: '100%' }}>Go Premium</Link>
+                </div>
+                <div className="price-card reveal">
+                  <h3>Recruiter</h3>
+                  <p className="price-sub">For HRs & agencies</p>
+                  <div className="price-amt">₹2,499<span>/month</span></div>
+                  <ul className="price-feats">
+                    <li>Unlimited job posts</li>
+                    <li>Candidate search & save</li>
+                    <li>Hiring pipeline tracker</li>
+                    <li>Direct messaging</li>
+                  </ul>
+                  <Link href="/jobs/post" className="btn btn-outline" style={{ width: '100%' }}>Start Hiring</Link>
+                </div>
+                <div className="price-card reveal">
+                  <h3>Enterprise</h3>
+                  <p className="price-sub">For growing teams</p>
+                  <div className="price-amt">Custom</div>
+                  <ul className="price-feats">
+                    <li>Everything in Recruiter</li>
+                    <li>Dedicated account manager</li>
+                    <li>HR analytics dashboard</li>
+                    <li>Campus hiring portal</li>
+                  </ul>
+                  <Link href="/register" className="btn btn-outline" style={{ width: '100%' }}>Contact Sales</Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -45,7 +45,7 @@ export default function Footer() {
         </div>
         <div className="foot-bottom">
           <span>© 2026 Worklance. All rights reserved.</span>
-          <span style={{ color: 'var(--orange-2)', fontWeight: 600 }}>Connect · Train · Get Hired</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.75)', fontWeight: 600 }}>Connect · Train · Get Hired</span>
         </div>
       </div>
     </footer>

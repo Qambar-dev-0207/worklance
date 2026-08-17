@@ -63,8 +63,8 @@ export default function Navbar() {
                 href={item.href}
                 style={{
                   fontWeight: isActive ? 700 : 500,
-                  color: isActive ? 'var(--orange-2)' : 'var(--navy)',
-                  borderBottom: isActive ? '2px solid var(--orange-2)' : '2px solid transparent',
+                  color: isActive ? '#000000' : 'var(--navy)',
+                  borderBottom: isActive ? '2px solid #000000' : '2px solid transparent',
                   paddingBottom: '4px',
                   transition: 'all 0.2s ease',
                 }}
@@ -78,7 +78,7 @@ export default function Navbar() {
               href="/jobs/post"
               style={{
                 fontWeight: pathname === '/jobs/post' ? 700 : 600,
-                color: 'var(--orange-2)',
+                color: '#000000',
               }}
             >
               + Post Job
