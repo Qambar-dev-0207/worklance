@@ -2191,5 +2191,36 @@ footer {
   .speed-quote-title { font-size: 24px; }
   .roi-head h2, .ai-pricing-head h2 { font-size: 30px; }
   .roi-tooltip-card { position: static; margin-top: 24px; width: 100%; }
+
+  .nav-links, .nav-cta {
+    display: none !important;
+  }
+  .mobile-nav-toggle {
+    display: flex !important;
+  }
+}
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  nav, footer, .no-print, .nav, .btn, .eyebrow {
+    display: none !important;
+  }
+  .ats-resume-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  .resume-builder-grid {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .resume-builder-grid > div {
+    display: block !important;
+  }
 }
 

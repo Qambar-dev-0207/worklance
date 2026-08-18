@@ -33,6 +33,20 @@ export default function HackathonsPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Host Hackathon Modal States
+  const [hostModal, setHostModal] = useState(false);
+  const [hostTitle, setHostTitle] = useState('');
+  const [hostOrganizer, setHostOrganizer] = useState('');
+  const [hostPrizePool, setHostPrizePool] = useState('₹2,00,000');
+  const [hostStatus, setHostStatus] = useState<'Live' | 'Upcoming'>('Live');
+  const [hostTeamSize, setHostTeamSize] = useState('Up to 4');
+  const [hostTags, setHostTags] = useState('AI/ML, Web Dev, Full Stack');
+  const [hostDuration, setHostDuration] = useState('48 hrs');
+  const [hostDeadline, setHostDeadline] = useState('3 days left');
+  const [hostDescription, setHostDescription] = useState('');
+  const [hostSubmitting, setHostSubmitting] = useState(false);
+  const [hostError, setHostError] = useState('');
+
   const fetchHackathons = async () => {
     setLoading(true);
     try {
@@ -88,44 +102,94 @@ export default function HackathonsPage() {
     }
   };
 
+  const handleHostHackathonSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setHostSubmitting(true);
+    setHostError('');
+
+    try {
+      const res = await fetch('/api/hackathons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: hostTitle,
+          organizer: hostOrganizer,
+          prizePool: hostPrizePool,
+          status: hostStatus,
+          teamSize: hostTeamSize,
+          tags: hostTags.split(',').map((t) => t.trim()).filter(Boolean),
+          duration: hostDuration,
+          deadline: hostDeadline,
+          description: hostDescription,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to publish hackathon');
+      }
+
+      alert('🎉 Hackathon published successfully! It is now live for registrations.');
+      setHostModal(false);
+      setHostTitle('');
+      setHostOrganizer('');
+      setHostDescription('');
+      fetchHackathons();
+    } catch (err: any) {
+      setHostError(err.message);
+    } finally {
+      setHostSubmitting(false);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* HERO SECTION (MONOTONE) */}
+      {/* HERO SECTION */}
       <div style={{ background: '#000000', color: '#fff', padding: '54px 0 50px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="container">
-          <div className="eyebrow" style={{ color: '#FFFFFF', background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
-            Tech Competitions
-          </div>
-          <h1 style={{ fontSize: '40px', color: '#fff', fontWeight: 800, marginBottom: '12px', letterSpacing: '-0.02em' }}>
-            Compete, build projects, and land dream roles
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', maxWidth: '640px', marginBottom: '28px' }}>
-            Participate in top engineering hackathons, win cash prizes, and showcase verified skills directly to hiring managers.
-          </p>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div className="eyebrow" style={{ color: '#FFFFFF', background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              Tech Competitions
+            </div>
+            <h1 style={{ fontSize: '40px', color: '#fff', fontWeight: 800, marginBottom: '12px', letterSpacing: '-0.02em' }}>
+              Compete, build projects, and land dream roles
+            </h1>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', maxWidth: '640px', marginBottom: '28px' }}>
+              Participate in top engineering hackathons, win cash prizes, and showcase verified skills directly to hiring managers.
+            </p>
 
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {['All', 'Live', 'Upcoming', 'Completed'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setFilterStatus(st)}
-                style={{
-                  padding: '9px 20px',
-                  borderRadius: '100px',
-                  fontSize: '13.5px',
-                  fontWeight: 700,
-                  background: filterStatus === st ? '#FFFFFF' : 'rgba(255,255,255,0.08)',
-                  color: filterStatus === st ? '#000000' : '#FFFFFF',
-                  border: filterStatus === st ? '1px solid #FFFFFF' : '1px solid rgba(255,255,255,0.15)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {st} Hackathons
-              </button>
-            ))}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {['All', 'Live', 'Upcoming', 'Completed'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setFilterStatus(st)}
+                  style={{
+                    padding: '9px 20px',
+                    borderRadius: '100px',
+                    fontSize: '13.5px',
+                    fontWeight: 700,
+                    background: filterStatus === st ? '#FFFFFF' : 'rgba(255,255,255,0.08)',
+                    color: filterStatus === st ? '#000000' : '#FFFFFF',
+                    border: filterStatus === st ? '1px solid #FFFFFF' : '1px solid rgba(255,255,255,0.15)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {st} Hackathons
+                </button>
+              ))}
+            </div>
           </div>
+
+          <button
+            onClick={() => setHostModal(true)}
+            className="btn btn-primary"
+            style={{ background: '#FFFFFF', color: '#000000', borderRadius: '100px', padding: '12px 24px', fontWeight: 800, fontSize: '14px' }}
+          >
+            + Host a Hackathon
+          </button>
         </div>
       </div>
 
@@ -138,7 +202,7 @@ export default function HackathonsPage() {
         ) : hackathons.length === 0 ? (
           <div style={{ padding: '60px', textAlign: 'center', background: '#fff', borderRadius: '20px', border: '1px solid #E4E4E7' }}>
             <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}>No hackathons found</h3>
-            <p style={{ fontSize: '14px', color: '#71717A' }}>Try selecting a different status filter.</p>
+            <p style={{ fontSize: '14px', color: '#71717A' }}>Try selecting a different status filter or host a challenge.</p>
           </div>
         ) : (
           <div className="hack-grid">
@@ -208,7 +272,164 @@ export default function HackathonsPage() {
         )}
       </div>
 
-      {/* REGISTER TEAM MODAL (MONOTONE) */}
+      {/* HOST A HACKATHON MODAL */}
+      {hostModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 300,
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setHostModal(false)}
+        >
+          <div
+            style={{
+              background: '#FFFFFF',
+              borderRadius: '24px',
+              maxWidth: '560px',
+              width: '100%',
+              padding: '36px',
+              position: 'relative',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setHostModal(false)}
+              style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '20px', fontWeight: 700, cursor: 'pointer', background: 'none', border: 'none', color: '#71717A' }}
+            >
+              ✕
+            </button>
+
+            <span className="eyebrow" style={{ marginBottom: '8px' }}>Organizer Portal</span>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', color: '#000000' }}>Host a Tech Hackathon</h2>
+            <p style={{ fontSize: '13.5px', color: '#71717A', marginBottom: '20px' }}>
+              Publish your hackathon challenge and engage top software engineers & innovators across India.
+            </p>
+
+            {hostError && (
+              <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: '10px', fontSize: '13px', marginBottom: '16px' }}>
+                {hostError}
+              </div>
+            )}
+
+            <form onSubmit={handleHostHackathonSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Hackathon Title</label>
+                <input
+                  type="text"
+                  required
+                  value={hostTitle}
+                  onChange={(e) => setHostTitle(e.target.value)}
+                  placeholder="e.g. AI Agent Hackathon 2026"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Organizer / Company</label>
+                  <input
+                    type="text"
+                    required
+                    value={hostOrganizer}
+                    onChange={(e) => setHostOrganizer(e.target.value)}
+                    placeholder="e.g. Zenith Tech Labs"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Prize Pool</label>
+                  <input
+                    type="text"
+                    required
+                    value={hostPrizePool}
+                    onChange={(e) => setHostPrizePool(e.target.value)}
+                    placeholder="e.g. ₹2,50,000"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Status</label>
+                  <select
+                    value={hostStatus}
+                    onChange={(e) => setHostStatus(e.target.value as any)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', background: '#fff', outline: 'none' }}
+                  >
+                    <option value="Live">Live</option>
+                    <option value="Upcoming">Upcoming</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Duration</label>
+                  <input
+                    type="text"
+                    value={hostDuration}
+                    onChange={(e) => setHostDuration(e.target.value)}
+                    placeholder="e.g. 48 hrs"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Timeline / Deadline</label>
+                  <input
+                    type="text"
+                    value={hostDeadline}
+                    onChange={(e) => setHostDeadline(e.target.value)}
+                    placeholder="e.g. 3 days left"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Tags (Comma-separated)</label>
+                  <input
+                    type="text"
+                    value={hostTags}
+                    onChange={(e) => setHostTags(e.target.value)}
+                    placeholder="AI/ML, Web Dev, Python"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '4px', color: '#18181B' }}>Challenge Description</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={hostDescription}
+                  onChange={(e) => setHostDescription(e.target.value)}
+                  placeholder="Describe problem statement, judging criteria, and submission rules..."
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #E4E4E7', fontSize: '13.5px', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>
+                <button type="button" onClick={() => setHostModal(false)} className="btn btn-outline" style={{ borderRadius: '100px' }}>Cancel</button>
+                <button type="submit" disabled={hostSubmitting} className="btn btn-primary" style={{ borderRadius: '100px', fontWeight: 700 }}>
+                  {hostSubmitting ? 'Publishing...' : 'Publish Hackathon'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* REGISTER TEAM MODAL */}
       {registerModal && selectedHackathon && (
         <div
           style={{
@@ -251,55 +472,53 @@ export default function HackathonsPage() {
               </p>
             </div>
 
-            {successMsg ? (
-              <div style={{ background: '#F4F4F5', border: '1px solid #E4E4E7', color: '#000000', padding: '16px', borderRadius: '16px', textAlign: 'center', fontWeight: 700, fontSize: '14px' }}>
+            {successMsg && (
+              <div style={{ background: '#D1FAE5', color: '#065F46', padding: '12px 16px', borderRadius: '12px', fontSize: '13.5px', marginBottom: '20px' }}>
                 {successMsg}
               </div>
-            ) : (
-              <form onSubmit={handleTeamRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {errorMsg && (
-                  <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: '10px', fontSize: '13px' }}>
-                    {errorMsg}
-                  </div>
-                )}
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '6px', color: '#18181B' }}>
-                    Team Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. ByteCraft Innovators"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, marginBottom: '6px', color: '#18181B' }}>
-                    Team Member Names / Emails (Comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Alex (alex@dev.io), Sarah (sarah@dev.io)"
-                    value={members}
-                    onChange={(e) => setMembers(e.target.value)}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn btn-primary"
-                  style={{ width: '100%', borderRadius: '100px', padding: '13px', fontSize: '14px', fontWeight: 700, marginTop: '8px' }}
-                >
-                  {submitting ? 'Registering Team...' : 'Confirm Team Registration'}
-                </button>
-              </form>
             )}
+
+            {errorMsg && (
+              <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '12px 16px', borderRadius: '12px', fontSize: '13.5px', marginBottom: '20px' }}>
+                {errorMsg}
+              </div>
+            )}
+
+            <form onSubmit={handleTeamRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '6px' }}>Team Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Neural Builders"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '6px' }}>
+                  Team Member Emails / Names (Comma separated)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. rahul@worklance.com, pooja@worklance.com"
+                  value={members}
+                  onChange={(e) => setMembers(e.target.value)}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E4E4E7', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setRegisterModal(false)} className="btn btn-outline">
+                  Cancel
+                </button>
+                <button type="submit" disabled={submitting} className="btn btn-primary" style={{ padding: '12px 24px', fontWeight: 700 }}>
+                  {submitting ? 'Registering...' : 'Confirm Registration'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

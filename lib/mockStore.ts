@@ -1,3 +1,7 @@
+import bcrypt from 'bcryptjs';
+
+const defaultSeedHash = bcrypt.hashSync('password123', 10);
+
 // Fallback in-memory data store when local MongoDB service is offline
 export const mockStore = {
   users: [
@@ -6,7 +10,7 @@ export const mockStore = {
       id: 'usr_1',
       name: 'Ankit Kapoor',
       email: 'recruiter@worklance.com',
-      password: '$2a$10$w6M1tU9W1T1.T11T11T11uYhZ5a5b5c5d5e5f5g5h5i5j5k5l5m', // password123
+      password: defaultSeedHash,
       role: 'recruiter',
       company: 'Zenith Tech',
       title: 'Talent Acquisition Lead',
@@ -18,7 +22,7 @@ export const mockStore = {
       id: 'usr_2',
       name: 'Riya Sharma',
       email: 'seeker@worklance.com',
-      password: '$2a$10$w6M1tU9W1T1.T11T11T11uYhZ5a5b5c5d5e5f5g5h5i5j5k5l5m', // password123
+      password: defaultSeedHash,
       role: 'seeker',
       title: 'Frontend Developer',
       skills: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'],

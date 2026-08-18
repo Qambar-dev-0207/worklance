@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
     if (parsedSkills !== undefined) updates.skills = parsedSkills;
     if (resumeUrl !== undefined) updates.resumeUrl = resumeUrl;
 
-    const updatedUser = await User.findByIdAndUpdate(authUser.userId, updates, { new: true }).select('-password');
+    const updatedUser = await User.findByIdAndUpdate(authUser.userId, updates, { returnDocument: 'after' }).select('-password');
     if (!updatedUser) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }

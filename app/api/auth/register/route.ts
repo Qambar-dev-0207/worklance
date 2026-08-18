@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, isMockDB } from '@/lib/db';
 import User from '@/models/User';
-import { hashPassword, signToken } from '@/lib/auth';
+import { hashPassword, signToken, isValidEmail, isValidPassword } from '@/lib/auth';
 import { mockStore } from '@/lib/mockStore';
 
 export async function POST(req: NextRequest) {
@@ -13,7 +13,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Name, email, and password are required' }, { status: 400 });
     }
 
-    const lowerEmail = email.toLowerCase();
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2) {
+      return NextResponse.json({ success: false, error: 'Full name must be at least 2 characters' }, { status: 400 });
+    }
+
+    const lowerEmail = email.trim().toLowerCase();
+    if (!isValidEmail(lowerEmail)) {
+      return NextResponse.json({ success: false, error: 'Please provide a valid email address' }, { status: 400 });
+    }
+
+    if (!isValidPassword(password)) {
+      return NextResponse.json({ success: false, error: 'Password must be at least 6 characters' }, { status: 400 });
+    }
+
     const userRole = role === 'recruiter' ? 'recruiter' : 'seeker';
 
     if (isMockDB()) {

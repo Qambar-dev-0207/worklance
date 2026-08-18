@@ -8,6 +8,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isScrolled, setIsScrolled] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const userStr = localStorage.getItem('worklance_user');
@@ -38,6 +39,11 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Close mobile menu on route change
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const navItems = [
     { label: 'Job Hub', href: '/jobs' },
@@ -102,7 +108,96 @@ export default function Navbar() {
             </>
           )}
         </div>
+
+        {/* MOBILE MENU TOGGLE BUTTON */}
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            gap: '5px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px',
+            zIndex: 110,
+          }}
+        >
+          <span style={{ display: 'block', width: '22px', height: '2px', background: '#000000', transition: '0.3s' }}></span>
+          <span style={{ display: 'block', width: '22px', height: '2px', background: '#000000', transition: '0.3s' }}></span>
+          <span style={{ display: 'block', width: '22px', height: '2px', background: '#000000', transition: '0.3s' }}></span>
+        </button>
       </div>
+
+      {/* MOBILE DRAWER */}
+      {mobileMenuOpen && (
+        <div
+          className="mobile-drawer"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            background: '#FFFFFF',
+            borderBottom: '1px solid #E4E4E7',
+            padding: '20px 32px 30px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            zIndex: 105,
+          }}
+        >
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                fontSize: '16px',
+                fontWeight: pathname === item.href ? 800 : 500,
+                color: pathname === item.href ? '#000000' : '#3F3F46',
+              }}
+            >
+              {item.label}
+            </Link>
+          ))}
+          {currentUser?.role === 'recruiter' && (
+            <Link
+              href="/jobs/post"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                fontSize: '16px',
+                fontWeight: 700,
+                color: '#000000',
+              }}
+            >
+              + Post a New Job
+            </Link>
+          )}
+          <div style={{ paddingTop: '12px', borderTop: '1px solid #E4E4E7', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {currentUser ? (
+              <>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#18181B' }}>Signed in as {currentUser.name}</div>
+                <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{ width: '100%', borderRadius: '100px' }}>
+                  My Profile
+                </Link>
+              </>
+            ) : (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="btn btn-outline" style={{ flex: 1, borderRadius: '100px' }}>
+                  Log In
+                </Link>
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="btn btn-primary" style={{ flex: 1, borderRadius: '100px' }}>
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

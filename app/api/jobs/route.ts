@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JobService } from '@/services/jobService';
-import { getUserFromRequest } from '@/lib/auth';
+import { getUserFromRequest, isRecruiterOrAdmin } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,8 +8,9 @@ export async function GET(req: NextRequest) {
     const keyword = searchParams.get('keyword') || undefined;
     const location = searchParams.get('location') || undefined;
     const type = searchParams.get('type') || undefined;
+    const postedBy = searchParams.get('postedBy') || undefined;
 
-    const jobs = await JobService.getJobs({ keyword, location, type });
+    const jobs = await JobService.getJobs({ keyword, location, type, postedBy });
     return NextResponse.json({ success: true, count: jobs.length, jobs });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -23,8 +24,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized. Please login to post a job.' }, { status: 401 });
     }
 
+    if (!isRecruiterOrAdmin(user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Only recruiters and talent acquisition leads are authorized to post jobs.' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
-    const { title, company, location, type, salary, description, requirements, tags } = body;
+    const {
+      title,
+      company,
+      companyAbout,
+      companyIndustry,
+      companySize,
+      companyWebsite,
+      location,
+      type,
+      salary,
+      description,
+      responsibilities,
+      requirements,
+      benefits,
+      tags,
+    } = body;
 
     if (!title || !company || !location || !salary || !description) {
       return NextResponse.json({ success: false, error: 'Missing required job fields' }, { status: 400 });
@@ -33,11 +56,17 @@ export async function POST(req: NextRequest) {
     const newJob = await JobService.createJob({
       title,
       company,
+      companyAbout,
+      companyIndustry,
+      companySize,
+      companyWebsite,
       location,
       type,
       salary,
       description,
+      responsibilities,
       requirements,
+      benefits,
       tags,
       postedBy: user.userId,
     });

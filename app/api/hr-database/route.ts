@@ -60,3 +60,52 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    const { name, company, designation, email, linkedIn, industry, city } = body;
+
+    if (!name || !company || !designation || !email || !industry || !city) {
+      return NextResponse.json(
+        { success: false, error: 'Name, company, designation, email, industry, and city are required' },
+        { status: 400 }
+      );
+    }
+
+    if (isMockDB()) {
+      const newContact = {
+        _id: 'hr_' + Date.now(),
+        name,
+        company,
+        designation,
+        email: email.toLowerCase().trim(),
+        linkedIn: linkedIn || 'https://linkedin.com',
+        industry,
+        city,
+        verified: true,
+        createdAt: new Date().toISOString(),
+      };
+
+      mockStore.hrContacts.unshift(newContact as any);
+      return NextResponse.json({ success: true, contact: newContact }, { status: 201 });
+    }
+
+    const newContact = await HrContact.create({
+      name,
+      company,
+      designation,
+      email: email.toLowerCase().trim(),
+      linkedIn: linkedIn || 'https://linkedin.com',
+      industry,
+      city,
+      verified: true,
+    });
+
+    return NextResponse.json({ success: true, contact: newContact }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+

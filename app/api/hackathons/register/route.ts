@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
           participantsCount: members ? members.split(',').length + 1 : 1,
         },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updated) {

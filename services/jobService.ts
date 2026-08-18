@@ -6,6 +6,7 @@ export interface GetJobsQuery {
   keyword?: string;
   location?: string;
   type?: string;
+  postedBy?: string;
 }
 
 export interface CreateJobInput {
@@ -29,10 +30,14 @@ export interface CreateJobInput {
 export class JobService {
   static async getJobs(query: GetJobsQuery) {
     await connectDB();
-    const { keyword, location, type } = query;
+    const { keyword, location, type, postedBy } = query;
 
     if (isMockDB()) {
       let filtered = [...mockStore.jobs];
+
+      if (postedBy) {
+        filtered = filtered.filter((j) => j.postedBy === postedBy);
+      }
 
       if (keyword) {
         const k = keyword.toLowerCase();
@@ -56,6 +61,10 @@ export class JobService {
     }
 
     const filterQuery: any = {};
+
+    if (postedBy) {
+      filterQuery.postedBy = postedBy;
+    }
 
     if (keyword) {
       filterQuery.$or = [

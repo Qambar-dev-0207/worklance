@@ -50,7 +50,9 @@ export default function JobsPage() {
     const userStr = localStorage.getItem('worklance_user');
     if (userStr) {
       try {
-        setCurrentUser(JSON.parse(userStr));
+        const u = JSON.parse(userStr);
+        setCurrentUser(u);
+        if (u.resumeUrl) setResumeUrl(u.resumeUrl);
       } catch (e) {}
     }
 
