@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Job posting not found' }, { status: 404 });
     }
 
-    if (targetJob.postedBy.toString() === user.userId) {
+    if (targetJob.postedBy && targetJob.postedBy.toString() === user.userId) {
       return NextResponse.json({ success: false, error: 'You cannot apply to your own job posting' }, { status: 400 });
     }
 
@@ -142,7 +142,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ success: false, error: 'Job not found' }, { status: 404 });
       }
 
-      if (user.role !== 'admin' && targetJob.postedBy.toString() !== user.userId) {
+      if (user.role !== 'admin' && targetJob.postedBy && targetJob.postedBy.toString() !== user.userId) {
         return NextResponse.json({ success: false, error: 'Forbidden: You do not own this job posting' }, { status: 403 });
       }
 
@@ -212,7 +212,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const targetJob = await Job.findById(targetApp.jobId);
-    if (user.role !== 'admin' && (!targetJob || targetJob.postedBy.toString() !== user.userId)) {
+    if (user.role !== 'admin' && (!targetJob || (targetJob.postedBy && targetJob.postedBy.toString() !== user.userId))) {
       return NextResponse.json({ success: false, error: 'Forbidden: You are not authorized to update this applicant status' }, { status: 403 });
     }
 
