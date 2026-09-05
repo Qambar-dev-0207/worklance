@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import AiToolkitShowcase from '@/components/AiToolkitShowcase';
 
 export default function Home() {
   const router = useRouter();
@@ -271,6 +272,9 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* AI CAREER TOOLKIT SHOWCASE (MOCKUP SECTION) */}
+      <AiToolkitShowcase />
 
       {/* FEATURES */}
       <section className="section-pad" id="features">
