@@ -2201,9 +2201,15 @@ footer {
 }
 
 @media print {
+  @page {
+    margin: 10mm 12mm;
+    size: auto;
+  }
   body {
     background: #FFFFFF !important;
     color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   nav, footer, .no-print, .nav, .btn, .eyebrow {
     display: none !important;
@@ -2214,6 +2220,9 @@ footer {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+  }
+  .ats-section-title {
+    break-after: avoid;
   }
   .resume-builder-grid {
     padding: 0 !important;
