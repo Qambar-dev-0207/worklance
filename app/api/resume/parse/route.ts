@@ -56,6 +56,36 @@ export interface ParsedResume {
   rawText?: string;
 }
 
+function extractTextFromPdfBuffer(buffer: Buffer): string {
+  try {
+    const raw = buffer.toString('latin1');
+    const textChunks: string[] = [];
+
+    // 1. Extract text in parentheses: (text) Tj or ' or " or TJ
+    const textMatches = raw.match(/\(([^)]+)\)\s*(?:Tj|'|"|TJ)/g) || [];
+    for (const m of textMatches) {
+      const clean = m.replace(/[()]/g, '').replace(/\s*(?:Tj|'|"|TJ)$/, '').trim();
+      if (clean.length > 0 && !clean.startsWith('/')) {
+        textChunks.push(clean);
+      }
+    }
+
+    if (textChunks.length > 5) {
+      return textChunks.join(' ');
+    }
+
+    // 2. Fallback: extract continuous printable ASCII runs
+    const asciiRuns = raw.match(/[a-zA-Z0-9@._\s\-:,/]{4,}/g) || [];
+    const validRuns = asciiRuns
+      .map((r) => r.trim())
+      .filter((r) => r.length > 3 && !r.startsWith('%PDF') && !r.includes('/Type') && !r.includes('/Filter') && !r.includes('/Length'));
+
+    return validRuns.join('\n');
+  } catch (e) {
+    return '';
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const contentType = req.headers.get('content-type') || '';
@@ -64,33 +94,64 @@ export async function POST(req: NextRequest) {
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
-      const file = formData.get('file') as File | null;
+      let file = (formData.get('file') || formData.get('resume') || formData.get('upload') || formData.get('document')) as File | null;
       const directText = formData.get('text') as string | null;
+
+      if (!file) {
+        for (const [key, val] of formData.entries()) {
+          if (val && typeof val === 'object' && typeof (val as any).arrayBuffer === 'function') {
+            file = val as File;
+            break;
+          }
+        }
+      }
 
       if (directText && directText.trim().length > 0) {
         rawText = directText.trim();
       } else if (file) {
-        fileName = file.name;
+        fileName = file.name || 'resume.pdf';
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        if (fileName.toLowerCase().endsWith('.pdf')) {
-          const pdfData = await pdfParse(buffer);
-          rawText = pdfData.text || '';
-        } else if (fileName.toLowerCase().endsWith('.docx')) {
-          const docxResult = await mammoth.extractRawText({ buffer });
-          rawText = docxResult.value || '';
+        if (fileName.toLowerCase().endsWith('.pdf') || (file.type && file.type.includes('pdf'))) {
+          try {
+            const pdfData = await pdfParse(buffer);
+            rawText = pdfData?.text || '';
+          } catch (pdfErr: any) {
+            console.warn('pdf-parse threw error, using stream fallback:', pdfErr?.message);
+          }
+
+          if (!rawText || rawText.trim().length < 15) {
+            rawText = extractTextFromPdfBuffer(buffer);
+          }
+        } else if (fileName.toLowerCase().endsWith('.docx') || (file.type && file.type.includes('wordprocessingml'))) {
+          try {
+            const docxResult = await mammoth.extractRawText({ buffer });
+            rawText = docxResult?.value || '';
+          } catch (docxErr: any) {
+            console.warn('mammoth threw error, using xml fallback:', docxErr?.message);
+          }
+
+          if (!rawText || rawText.trim().length < 15) {
+            const raw = buffer.toString('utf-8');
+            const wtMatches = raw.match(/<w:t[^>]*>(.*?)<\/w:t>/g) || [];
+            rawText = wtMatches.map((m) => m.replace(/<[^>]+>/g, '')).join(' ');
+          }
         } else if (fileName.toLowerCase().endsWith('.json')) {
           const jsonStr = buffer.toString('utf-8');
           try {
             const parsedJson = JSON.parse(jsonStr);
-            if (parsedJson.fullName || parsedJson.experience) {
+            if (parsedJson.fullName || parsedJson.name || parsedJson.experience) {
+              const resObj = {
+                ...parsedJson,
+                fullName: parsedJson.fullName || parsedJson.name || 'Candidate',
+                name: parsedJson.name || parsedJson.fullName || 'Candidate',
+                fileName,
+              };
               return NextResponse.json({
                 success: true,
-                resume: {
-                  ...parsedJson,
-                  fileName,
-                },
+                resume: resObj,
+                data: resObj,
               });
             }
           } catch (e) {
@@ -101,29 +162,54 @@ export async function POST(req: NextRequest) {
         }
       }
     } else {
-      const body = await req.json();
+      const body = await req.json().catch(() => ({}));
       if (body.resumeJson) {
+        const resObj = {
+          ...body.resumeJson,
+          name: body.resumeJson.name || body.resumeJson.fullName,
+          fullName: body.resumeJson.fullName || body.resumeJson.name,
+        };
         return NextResponse.json({
           success: true,
-          resume: body.resumeJson,
+          resume: resObj,
+          data: resObj,
         });
       }
-      rawText = body.text || '';
+      rawText = body.text || body.resumeText || '';
       fileName = body.fileName || '';
     }
 
-    if (!rawText || rawText.trim().length < 20) {
+    if (!rawText || rawText.trim().length < 10) {
       return NextResponse.json(
-        { success: false, error: 'Could not extract readable text from the uploaded file or text input.' },
+        {
+          success: false,
+          error:
+            'Could not extract readable text from the uploaded file. If this is a scanned image or photo, please copy and paste your resume text directly into the text box below.',
+        },
         { status: 400 }
       );
     }
 
     const parsedResume = extractResumeFromText(rawText, fileName);
 
+    const enhancedResume = {
+      ...parsedResume,
+      name: parsedResume.fullName,
+      experience: (parsedResume.experience || []).map((e) => ({
+        ...e,
+        bulletPoints: e.points,
+      })),
+      education: (parsedResume.educationList || []).map((e) => ({
+        ...e,
+        school: e.institution,
+      })),
+      skillsArray: parsedResume.skills ? parsedResume.skills.split(',').map((s) => s.trim()).filter(Boolean) : [],
+    };
+
     return NextResponse.json({
       success: true,
-      resume: parsedResume,
+      resume: enhancedResume,
+      data: enhancedResume,
     });
   } catch (error: any) {
     console.error('Error parsing resume:', error);

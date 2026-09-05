@@ -288,6 +288,7 @@ export default function ProfilePage() {
 
     try {
       const formData = new FormData();
+      formData.append('file', file);
       formData.append('resume', file);
 
       const res = await fetch('/api/resume/parse', {
@@ -296,18 +297,23 @@ export default function ProfilePage() {
       });
 
       const data = await res.json();
-      if (!data.success || !data.data) {
+      if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to parse resume');
       }
 
-      const p = data.data;
-      if (p.name && !name) setName(p.name);
+      const p = data.resume || data.data;
+      if (!p) throw new Error('No resume structure returned from parser');
+
+      if (p.name || p.fullName) setName(p.name || p.fullName);
+      if (p.targetTitle || p.title) setTitle(p.targetTitle || p.title);
       if (p.email && user && !user.email) user.email = p.email;
       if (p.phone) setPhone(p.phone);
       if (p.location) setLocation(p.location);
+      if (p.github || p.githubUrl) setGithubUrl(p.github || p.githubUrl);
+      if (p.linkedIn || p.linkedinUrl) setLinkedinUrl(p.linkedIn || p.linkedinUrl);
       if (p.summary) setBio(p.summary);
-      if (p.skills && p.skills.length > 0) {
-        setSkills(p.skills.join(', '));
+      if (p.skills) {
+        setSkills(typeof p.skills === 'string' ? p.skills : Array.isArray(p.skills) ? p.skills.join(', ') : '');
       }
 
       if (p.experience && p.experience.length > 0) {
@@ -319,20 +325,25 @@ export default function ProfilePage() {
           startDate: exp.duration?.split('-')?.[0]?.trim() || '2022',
           endDate: exp.duration?.split('-')?.[1]?.trim() || 'Present',
           current: exp.duration?.toLowerCase().includes('present') || false,
-          description: Array.isArray(exp.bulletPoints) ? exp.bulletPoints.join(' ') : exp.bulletPoints || '',
+          description: Array.isArray(exp.bulletPoints)
+            ? exp.bulletPoints.join(' ')
+            : Array.isArray(exp.points)
+            ? exp.points.join(' ')
+            : exp.bulletPoints || exp.points || '',
         }));
         setExperienceList(newExp);
       }
 
-      if (p.education && p.education.length > 0) {
-        const newEdu = p.education.map((edu: any) => ({
+      const eduArr = p.educationList || p.education;
+      if (eduArr && Array.isArray(eduArr) && eduArr.length > 0) {
+        const newEdu = eduArr.map((edu: any) => ({
           id: 'edu_' + Math.random().toString(36).substring(2, 7),
           school: edu.institution || edu.school || 'University',
           degree: edu.degree || 'Bachelor of Technology',
           fieldOfStudy: edu.fieldOfStudy || 'Computer Science',
-          startYear: '2018',
-          endYear: edu.year || '2022',
-          grade: edu.gpa || '',
+          startYear: edu.duration?.split('-')?.[0]?.trim() || '2018',
+          endYear: edu.duration?.split('-')?.[1]?.trim() || edu.year || '2022',
+          grade: edu.gpa || edu.grade || '',
         }));
         setEducationList(newEdu);
       }
@@ -340,9 +351,10 @@ export default function ProfilePage() {
       setIsEditing(true);
       setProfileMsg('✓ Success! Your profile has been auto-filled from your resume. Review and click Save Profile.');
     } catch (err: any) {
-      setProfileMsg('Notice: Could not fully parse resume automatically. ' + err.message);
+      setProfileMsg('Notice: Could not parse resume file. ' + err.message);
     } finally {
       setAutoFillingResume(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
