@@ -42,7 +42,29 @@ export async function PUT(req: NextRequest) {
 
     await connectDB();
     const body = await req.json();
-    const { name, title, company, bio, skills, resumeUrl } = body;
+    const {
+      name,
+      title,
+      company,
+      bio,
+      skills,
+      resumeUrl,
+      phone,
+      location,
+      githubUrl,
+      linkedinUrl,
+      portfolioUrl,
+      twitterUrl,
+      targetRole,
+      expectedSalary,
+      experienceYears,
+      availability,
+      workPreference,
+      experience,
+      education,
+      projects,
+      atsScore,
+    } = body;
 
     const parsedSkills = Array.isArray(skills)
       ? skills
@@ -67,8 +89,23 @@ export async function PUT(req: NextRequest) {
         ...(bio !== undefined ? { bio } : {}),
         ...(parsedSkills !== undefined ? { skills: parsedSkills } : {}),
         ...(resumeUrl !== undefined ? { resumeUrl } : {}),
+        ...(phone !== undefined ? { phone } : {}),
+        ...(location !== undefined ? { location } : {}),
+        ...(githubUrl !== undefined ? { githubUrl } : {}),
+        ...(linkedinUrl !== undefined ? { linkedinUrl } : {}),
+        ...(portfolioUrl !== undefined ? { portfolioUrl } : {}),
+        ...(twitterUrl !== undefined ? { twitterUrl } : {}),
+        ...(targetRole !== undefined ? { targetRole } : {}),
+        ...(expectedSalary !== undefined ? { expectedSalary } : {}),
+        ...(experienceYears !== undefined ? { experienceYears } : {}),
+        ...(availability !== undefined ? { availability } : {}),
+        ...(workPreference !== undefined ? { workPreference } : {}),
+        ...(experience !== undefined ? { experience } : {}),
+        ...(education !== undefined ? { education } : {}),
+        ...(projects !== undefined ? { projects } : {}),
+        ...(atsScore !== undefined ? { atsScore } : {}),
       };
-      mockStore.users[userIndex] = updated;
+      mockStore.users[userIndex] = updated as any;
 
       const { password, ...safeUser } = updated;
       return NextResponse.json({ success: true, user: safeUser });
@@ -81,6 +118,21 @@ export async function PUT(req: NextRequest) {
     if (bio !== undefined) updates.bio = bio;
     if (parsedSkills !== undefined) updates.skills = parsedSkills;
     if (resumeUrl !== undefined) updates.resumeUrl = resumeUrl;
+    if (phone !== undefined) updates.phone = phone;
+    if (location !== undefined) updates.location = location;
+    if (githubUrl !== undefined) updates.githubUrl = githubUrl;
+    if (linkedinUrl !== undefined) updates.linkedinUrl = linkedinUrl;
+    if (portfolioUrl !== undefined) updates.portfolioUrl = portfolioUrl;
+    if (twitterUrl !== undefined) updates.twitterUrl = twitterUrl;
+    if (targetRole !== undefined) updates.targetRole = targetRole;
+    if (expectedSalary !== undefined) updates.expectedSalary = expectedSalary;
+    if (experienceYears !== undefined) updates.experienceYears = experienceYears;
+    if (availability !== undefined) updates.availability = availability;
+    if (workPreference !== undefined) updates.workPreference = workPreference;
+    if (experience !== undefined) updates.experience = experience;
+    if (education !== undefined) updates.education = education;
+    if (projects !== undefined) updates.projects = projects;
+    if (atsScore !== undefined) updates.atsScore = atsScore;
 
     const updatedUser = await User.findByIdAndUpdate(authUser.userId, updates, { returnDocument: 'after' }).select('-password');
     if (!updatedUser) {

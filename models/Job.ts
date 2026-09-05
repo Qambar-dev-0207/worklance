@@ -16,7 +16,7 @@ export interface IJob extends Document {
   requirements: string[];
   benefits?: string[];
   tags: string[];
-  postedBy: mongoose.Types.ObjectId;
+  postedBy?: any;
   applicantCount: number;
   createdAt: Date;
 }
@@ -42,7 +42,7 @@ const JobSchema: Schema = new Schema(
     requirements: { type: [String], default: [] },
     benefits: { type: [String], default: [] },
     tags: { type: [String], default: [] },
-    postedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    postedBy: { type: Schema.Types.Mixed, default: 'worklance_curator' },
     applicantCount: { type: Number, default: 0 },
   },
   { timestamps: true }

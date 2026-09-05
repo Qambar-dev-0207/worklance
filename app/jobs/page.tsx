@@ -127,6 +127,38 @@ export default function JobsPage() {
     fetchJobs();
   };
 
+  const [scraping, setScraping] = useState(false);
+  const [scrapeNotice, setScrapeNotice] = useState('');
+
+  const handleScrapeLiveJobs = async (customKeyword?: string) => {
+    setScraping(true);
+    setScrapeNotice('');
+    try {
+      const res = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'jobs',
+          keyword: customKeyword || keyword || '',
+          location: locationFilter || '',
+          limit: 8,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setScrapeNotice(data.message || `Scraped ${data.scrapedCount} live developer jobs!`);
+        fetchJobs();
+        setTimeout(() => setScrapeNotice(''), 4000);
+      } else {
+        alert(data.error || 'Failed to scrape live jobs');
+      }
+    } catch (err: any) {
+      alert('Scraper error: ' + err.message);
+    } finally {
+      setScraping(false);
+    }
+  };
+
   const handleSeedDatabase = async () => {
     try {
       setLoading(true);
@@ -248,7 +280,56 @@ export default function JobsPage() {
             <button type="submit" className="btn btn-primary" style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}>
               Search Jobs
             </button>
+            <button
+              type="button"
+              onClick={() => handleScrapeLiveJobs()}
+              disabled={scraping}
+              className="btn btn-outline"
+              style={{
+                padding: '12px 20px',
+                borderRadius: '12px',
+                fontWeight: 800,
+                background: '#000000',
+                color: '#FFFFFF',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              title="Scrape live developer jobs from public feeds"
+            >
+              {scraping ? '⏳ Scraping...' : '⚡ Scrape Live Jobs'}
+            </button>
           </form>
+
+          {scrapeNotice && (
+            <div style={{ marginTop: '12px', color: '#166534', background: '#DCFCE7', border: '1px solid #BBF7D0', padding: '8px 16px', borderRadius: '100px', display: 'inline-block', fontSize: '13px', fontWeight: 700 }}>
+              {scrapeNotice}
+            </div>
+          )}
+
+          {/* QUICK SCRAPE CATEGORY CHIPS */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}>
+            <span style={{ fontSize: '12px', color: '#71717A', fontWeight: 600 }}>Quick Scrape:</span>
+            {['Full Stack', 'AI/ML', 'DevOps', 'Frontend', 'Remote'].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                disabled={scraping}
+                onClick={() => handleScrapeLiveJobs(cat)}
+                style={{
+                  fontSize: '11.5px',
+                  fontWeight: 700,
+                  background: '#F4F4F5',
+                  color: '#18181B',
+                  border: '1px solid #E4E4E7',
+                  padding: '3px 10px',
+                  borderRadius: '100px',
+                  cursor: 'pointer',
+                }}
+              >
+                + Scrape {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

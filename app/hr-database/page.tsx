@@ -80,6 +80,39 @@ export default function HrDatabasePage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const [scraping, setScraping] = useState(false);
+  const [scrapeNotice, setScrapeNotice] = useState('');
+
+  const handleScrapeRecruiters = async (targetComp?: string) => {
+    setScraping(true);
+    setScrapeNotice('');
+    try {
+      const res = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'hr',
+          company: targetComp || search || '',
+          city: city !== 'All' ? city : '',
+          industry: industry !== 'All' ? industry : '',
+          limit: 6,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setScrapeNotice(data.message || `Scraped ${data.scrapedCount} verified recruiter profiles!`);
+        fetchContacts();
+        setTimeout(() => setScrapeNotice(''), 4500);
+      } else {
+        alert(data.error || 'Failed to scrape HR contacts');
+      }
+    } catch (err: any) {
+      alert('Recruiter scraper notice: ' + err.message);
+    } finally {
+      setScraping(false);
+    }
+  };
+
   const handleAddContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -170,16 +203,67 @@ export default function HrDatabasePage() {
               <button type="submit" className="btn btn-primary" style={{ padding: '12px 24px', borderRadius: '12px', fontWeight: 700 }}>
                 Search HR Directory
               </button>
+              <button
+                type="button"
+                onClick={() => handleScrapeRecruiters()}
+                disabled={scraping}
+                className="btn btn-outline"
+                style={{
+                  padding: '12px 20px',
+                  borderRadius: '12px',
+                  fontWeight: 800,
+                  background: '#000000',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                title="Scrape verified recruiter and talent leads"
+              >
+                {scraping ? '⏳ Scraping...' : '⚡ Auto-Scrape HR Profiles'}
+              </button>
             </form>
+
+            {scrapeNotice && (
+              <div style={{ marginTop: '12px', color: '#166534', background: '#DCFCE7', border: '1px solid #BBF7D0', padding: '8px 16px', borderRadius: '100px', display: 'inline-block', fontSize: '13px', fontWeight: 700 }}>
+                {scrapeNotice}
+              </div>
+            )}
+
+            {/* QUICK SCRAPE COMPANY CHIPS */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '14px' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Quick Scrape Recruiters:</span>
+              {['Google', 'Razorpay', 'Microsoft', 'Zepto', 'Swiggy', 'Atlassian'].map((comp) => (
+                <button
+                  key={comp}
+                  type="button"
+                  disabled={scraping}
+                  onClick={() => handleScrapeRecruiters(comp)}
+                  style={{
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    background: 'rgba(255,255,255,0.12)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    padding: '3px 12px',
+                    borderRadius: '100px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + {comp}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <button
-            onClick={() => setAddModalOpen(true)}
-            className="btn btn-primary"
-            style={{ background: '#FFFFFF', color: '#000000', borderRadius: '100px', padding: '12px 22px', fontWeight: 800, fontSize: '13.5px' }}
-          >
-            + Join Directory / Add HR Contact
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="btn btn-primary"
+              style={{ background: '#FFFFFF', color: '#000000', borderRadius: '100px', padding: '12px 22px', fontWeight: 800, fontSize: '13.5px' }}
+            >
+              + Join Directory / Add HR Contact
+            </button>
+          </div>
         </div>
       </div>
 
