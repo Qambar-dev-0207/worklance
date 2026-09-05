@@ -63,6 +63,14 @@ export default function HackathonsPage() {
   };
 
   useEffect(() => {
+    const userStr = localStorage.getItem('worklance_user');
+    if (!userStr) {
+      window.location.href = '/login?redirect=/hackathons';
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
     fetchHackathons();
   }, [filterStatus]);
 

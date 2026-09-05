@@ -199,6 +199,25 @@ export default function ResumeBuilderPage() {
   const [optimizationBanner, setOptimizationBanner] = useState<string>('');
   const [syncStatus, setSyncStatus] = useState<string>('');
 
+  // 1. Session Guard: Ensure user is logged in
+  useEffect(() => {
+    const uStr = localStorage.getItem('worklance_user');
+    if (!uStr) {
+      window.location.href = '/login?redirect=/resume-builder';
+      return;
+    }
+
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.success || !data.user) {
+          localStorage.removeItem('worklance_user');
+          window.location.href = '/login?redirect=/resume-builder';
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Dynamic ATS Score Calculation
   const calculateAtsScore = () => {
     let score = 60;

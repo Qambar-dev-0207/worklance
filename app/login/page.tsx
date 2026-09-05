@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams.get('redirect') || '/jobs';
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,10 +33,11 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store in localStorage for quick frontend state
+      // Store in localStorage for fast initial render
       localStorage.setItem('worklance_user', JSON.stringify(data.user));
-      router.push('/jobs');
-      router.refresh();
+      
+      // Redirect to intended protected page or /jobs
+      window.location.href = redirectTarget;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -52,110 +56,169 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-soft)', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+    <div
+      style={{
+        background: '#fff',
+        border: '1px solid var(--line)',
+        borderRadius: '24px',
+        padding: '40px',
+        width: '100%',
+        maxWidth: '440px',
+        boxShadow: 'var(--shadow-md)',
+      }}
+    >
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div className="eyebrow" style={{ justifyContent: 'center' }}>Welcome Back</div>
+        <h2 style={{ fontSize: '26px', marginBottom: '8px' }}>Log in to Worklance</h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Access your jobs, resume builder, applications & HR directory</p>
+      </div>
 
-      {/* LOGIN CARD */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+      {searchParams.get('redirect') && (
         <div
           style={{
-            background: '#fff',
-            border: '1px solid var(--line)',
-            borderRadius: '24px',
-            padding: '40px',
-            width: '100%',
-            maxWidth: '440px',
-            boxShadow: 'var(--shadow-md)',
+            background: '#EFF6FF',
+            border: '1px solid #BFDBFE',
+            color: '#1E40AF',
+            padding: '10px 14px',
+            borderRadius: '12px',
+            fontSize: '13px',
+            marginBottom: '18px',
+            textAlign: 'center',
+            lineHeight: 1.4,
           }}
         >
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div className="eyebrow" style={{ justifyContent: 'center' }}>Welcome Back</div>
-            <h2 style={{ fontSize: '26px', marginBottom: '8px' }}>Log in to Worklance</h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Access your jobs, resume, applications & HR contacts</p>
-          </div>
-
-          {error && (
-            <div
-              style={{
-                background: '#FEE2E2',
-                color: '#991B1B',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                fontSize: '13.5px',
-                marginBottom: '20px',
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '6px' }}>Email Address</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--line)',
-                  fontSize: '14.5px',
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '6px' }}>Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--line)',
-                  fontSize: '14.5px',
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            <button type="submit" disabled={loading} className="btn btn-primary btn-lg" style={{ marginTop: '8px', width: '100%' }}>
-              {loading ? 'Logging in...' : 'Log In'}
-            </button>
-          </form>
-
-          {/* DEMO ACCOUNTS QUICK TEST */}
-          <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--line)', textAlign: 'center' }}>
-            <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', marginBottom: '10px' }}>Quick Demo Login (Sample Data):</p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-              <button
-                type="button"
-                onClick={() => handleQuickSeedLogin('seeker')}
-                className="btn btn-outline"
-                style={{ fontSize: '12px', padding: '6px 12px' }}
-              >
-                Demo Job Seeker
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickSeedLogin('recruiter')}
-                className="btn btn-outline"
-                style={{ fontSize: '12px', padding: '6px 12px' }}
-              >
-                Demo Recruiter
-              </button>
-            </div>
-          </div>
+          🔒 Please log in to access this page.
         </div>
+      )}
+
+      {error && (
+        <div
+          style={{
+            background: '#FEE2E2',
+            color: '#991B1B',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            fontSize: '13.5px',
+            marginBottom: '20px',
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, marginBottom: '6px' }}>Email Address</label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@company.com"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              border: '1px solid var(--line)',
+              fontSize: '14px',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <label style={{ fontSize: '13.5px', fontWeight: 600 }}>Password</label>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>min. 6 characters</span>
+          </div>
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              border: '1px solid var(--line)',
+              fontSize: '14px',
+              outline: 'none',
+            }}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-primary"
+          style={{ width: '100%', padding: '14px', borderRadius: '100px', marginTop: '8px' }}
+        >
+          {loading ? 'Authenticating...' : 'Sign in'}
+        </button>
+      </form>
+
+      {/* QUICK SEED LOGINS */}
+      <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--line)' }}>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '10px' }}>
+          One-Click Demo Profiles:
+        </p>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={() => handleQuickSeedLogin('seeker')}
+            style={{
+              flex: 1,
+              padding: '8px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              background: 'var(--bg-soft)',
+              color: 'var(--navy)',
+              border: '1px solid var(--line)',
+              cursor: 'pointer',
+            }}
+          >
+            Demo Job Seeker
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickSeedLogin('recruiter')}
+            style={{
+              flex: 1,
+              padding: '8px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              background: 'var(--bg-soft)',
+              color: 'var(--navy)',
+              border: '1px solid var(--line)',
+              cursor: 'pointer',
+            }}
+          >
+            Demo Recruiter
+          </button>
+        </div>
+      </div>
+
+      <p style={{ textAlign: 'center', fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '24px' }}>
+        Don&apos;t have an account?{' '}
+        <Link href={`/register${searchParams.get('redirect') ? `?redirect=${encodeURIComponent(searchParams.get('redirect')!)}` : ''}`} style={{ fontWeight: 700, color: 'var(--navy-deep)' }}>
+          Create account
+        </Link>
+      </p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--bg-soft)', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+        <Suspense fallback={<div style={{ padding: '40px', color: '#71717A' }}>Loading login...</div>}>
+          <LoginForm />
+        </Suspense>
       </div>
       <Footer />
     </div>

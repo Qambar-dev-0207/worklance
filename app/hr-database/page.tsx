@@ -58,6 +58,14 @@ export default function HrDatabasePage() {
   };
 
   useEffect(() => {
+    const userStr = localStorage.getItem('worklance_user');
+    if (!userStr) {
+      window.location.href = '/login?redirect=/hr-database';
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
     fetchContacts();
   }, [city, industry]);
 

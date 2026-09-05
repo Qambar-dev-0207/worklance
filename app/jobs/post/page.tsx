@@ -26,13 +26,15 @@ export default function PostJobPage() {
 
   useEffect(() => {
     const userStr = localStorage.getItem('worklance_user');
-    if (userStr) {
-      try {
-        const u = JSON.parse(userStr);
-        setUser(u);
-        if (u.company) setCompany(u.company);
-      } catch (e) {}
+    if (!userStr) {
+      window.location.href = '/login?redirect=/jobs/post';
+      return;
     }
+    try {
+      const u = JSON.parse(userStr);
+      setUser(u);
+      if (u.company) setCompany(u.company);
+    } catch (e) {}
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

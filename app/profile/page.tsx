@@ -66,21 +66,23 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const uStr = localStorage.getItem('worklance_user');
-    if (uStr) {
-      try {
-        const u = JSON.parse(uStr);
-        setUser(u);
-        setName(u.name || '');
-        setTitle(u.title || '');
-        setCompany(u.company || '');
-        setBio(u.bio || '');
-        setResumeUrl(u.resumeUrl || '');
-        setSkills(Array.isArray(u.skills) ? u.skills.join(', ') : u.skills || '');
-        if (u.role === 'recruiter') {
-          setActiveTab('posted_jobs');
-        }
-      } catch (e) {}
+    if (!uStr) {
+      window.location.href = '/login?redirect=/profile';
+      return;
     }
+    try {
+      const u = JSON.parse(uStr);
+      setUser(u);
+      setName(u.name || '');
+      setTitle(u.title || '');
+      setCompany(u.company || '');
+      setBio(u.bio || '');
+      setResumeUrl(u.resumeUrl || '');
+      setSkills(Array.isArray(u.skills) ? u.skills.join(', ') : u.skills || '');
+      if (u.role === 'recruiter') {
+        setActiveTab('posted_jobs');
+      }
+    } catch (e) {}
 
     fetchFreshProfile();
     fetchMyApplications();

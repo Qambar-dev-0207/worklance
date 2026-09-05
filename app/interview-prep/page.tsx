@@ -114,6 +114,11 @@ export default function InterviewPrepPage() {
   const [practiceHistory, setPracticeHistory] = useState<PracticeHistoryItem[]>([]);
 
   useEffect(() => {
+    const userStr = localStorage.getItem('worklance_user');
+    if (!userStr) {
+      window.location.href = '/login?redirect=/interview-prep';
+      return;
+    }
     const histStr = localStorage.getItem('worklance_interview_history');
     if (histStr) {
       try {

@@ -48,13 +48,15 @@ export default function JobsPage() {
 
   useEffect(() => {
     const userStr = localStorage.getItem('worklance_user');
-    if (userStr) {
-      try {
-        const u = JSON.parse(userStr);
-        setCurrentUser(u);
-        if (u.resumeUrl) setResumeUrl(u.resumeUrl);
-      } catch (e) {}
+    if (!userStr) {
+      window.location.href = '/login?redirect=/jobs';
+      return;
     }
+    try {
+      const u = JSON.parse(userStr);
+      setCurrentUser(u);
+      if (u.resumeUrl) setResumeUrl(u.resumeUrl);
+    } catch (e) {}
 
     const savedStr = localStorage.getItem('worklance_saved_jobs');
     if (savedStr) {
