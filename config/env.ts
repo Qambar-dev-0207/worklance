@@ -7,7 +7,6 @@ export const config = {
   adminEmail: process.env.ADMIN_EMAIL || 'admin@worklance.com',
   adminLoginId: process.env.ADMIN_LOGIN_ID || 'WL-ADMIN-2026',
   adminPassword: process.env.ADMIN_PASSWORD || 'Worklance@Admin#2026',
-  adminPin: process.env.ADMIN_PIN || '8842',
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   isProd: process.env.NODE_ENV === 'production',
 };

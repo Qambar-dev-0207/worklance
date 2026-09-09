@@ -26,7 +26,6 @@ import {
   Search,
   Filter,
   Lock,
-  KeyRound,
   Eye,
   EyeOff,
 } from 'lucide-react';
@@ -41,9 +40,8 @@ export default function AdminPage() {
   const [adminData, setAdminData] = useState<any>(null);
 
   // Admin Login Gate State
-  const [adminLoginId, setAdminLoginId] = useState('WL-ADMIN-2026');
+  const [adminLoginId, setAdminLoginId] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
-  const [adminPin, setAdminPin] = useState('8842');
   const [showPassword, setShowPassword] = useState(false);
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState('');
@@ -230,7 +228,6 @@ export default function AdminPage() {
         body: JSON.stringify({
           loginId: adminLoginId,
           password: adminPassword,
-          pin: adminPin,
         }),
       });
 
@@ -269,13 +266,6 @@ export default function AdminPage() {
     setIsAdmin(false);
     setAdminPassword('');
     showToast('Administrator session locked.', 'error');
-  };
-
-  const autofillCredentials = () => {
-    setAdminLoginId('WL-ADMIN-2026');
-    setAdminPassword('Worklance@Admin#2026');
-    setAdminPin('8842');
-    setAdminLoginError('');
   };
 
   // LOADING STATE
@@ -379,7 +369,7 @@ export default function AdminPage() {
                 Operations Console Login
               </h2>
               <p style={{ fontSize: '13px', color: '#A1A1AA', lineHeight: 1.5, margin: 0 }}>
-                Enter your designated Secure Admin ID, Master Passkey, and 4-Digit Security PIN to access platform controls.
+                Enter your designated Secure Admin ID and Master Passkey to access platform controls.
               </p>
             </div>
 
@@ -484,82 +474,6 @@ export default function AdminPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-              </div>
-
-              {/* Secondary Security PIN */}
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    4-Digit Security PIN
-                  </label>
-                  <span style={{ fontSize: '10.5px', color: '#10B981', fontFamily: 'monospace' }}>2FA PROTECTED</span>
-                </div>
-                <div style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#71717A', display: 'flex', alignItems: 'center' }}>
-                    <KeyRound className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="password"
-                    maxLength={6}
-                    value={adminPin}
-                    onChange={(e) => setAdminPin(e.target.value)}
-                    placeholder="4-digit PIN (e.g. 8842)"
-                    required
-                    style={{
-                      width: '100%',
-                      background: '#18181D',
-                      border: '1px solid #27272A',
-                      borderRadius: '12px',
-                      padding: '12px 14px 12px 42px',
-                      color: '#FFFFFF',
-                      fontSize: '15px',
-                      letterSpacing: '0.25em',
-                      outline: 'none',
-                      fontFamily: 'monospace',
-                      boxSizing: 'border-box',
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Demo Credentials Quick Pill */}
-              <div
-                style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px dashed rgba(255, 255, 255, 0.12)',
-                  borderRadius: '10px',
-                  padding: '10px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '8px',
-                  fontSize: '11.5px',
-                  color: '#A1A1AA',
-                }}
-              >
-                <div>
-                  <span style={{ color: '#71717A' }}>Default: </span>
-                  <span style={{ fontFamily: 'monospace', color: '#FFFFFF', fontWeight: 700 }}>WL-ADMIN-2026</span>
-                  <span style={{ color: '#71717A' }}> · PIN: </span>
-                  <span style={{ fontFamily: 'monospace', color: '#10B981', fontWeight: 700 }}>8842</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={autofillCredentials}
-                  style={{
-                    background: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    color: '#10B981',
-                    fontSize: '10.5px',
-                    fontWeight: 700,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  ⚡ Autofill
-                </button>
               </div>
 
               {/* Submit Button */}

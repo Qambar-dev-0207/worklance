@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { loginId, password, pin } = body;
+    const { loginId, password } = body;
 
     if (!loginId || !password) {
       return NextResponse.json(
@@ -79,7 +79,6 @@ export async function POST(req: NextRequest) {
 
     const trimmedLoginId = String(loginId).trim().toLowerCase();
     const cleanPassword = String(password).trim();
-    const cleanPin = pin ? String(pin).trim() : '';
 
     // 2. Validate Admin Login ID
     const validLoginIds = [
@@ -98,18 +97,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Validate PIN if configured / submitted
-    if (config.adminPin) {
-      if (!cleanPin || cleanPin !== config.adminPin) {
-        recordFailure(clientIp);
-        return NextResponse.json(
-          { success: false, error: 'Invalid or missing Secondary Security PIN.' },
-          { status: 401 }
-        );
-      }
-    }
-
-    // 4. Validate Master Passkey
+    // 3. Validate Master Passkey
     let passwordMatches =
       cleanPassword === config.adminPassword ||
       cleanPassword === 'password123' ||
