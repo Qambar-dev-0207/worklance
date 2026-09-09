@@ -98,6 +98,11 @@ export default function ResumeBuilderPage() {
   const [isExportingDocx, setIsExportingDocx] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isSyncingProfile, setIsSyncingProfile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Load and listen for authenticated user session
   useEffect(() => {
@@ -406,6 +411,51 @@ export default function ResumeBuilderPage() {
       setUploadLoading(false);
     }
   };
+
+  if (!isMounted) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F4F4F5', display: 'flex', flexDirection: 'column' }}>
+        <Navbar />
+
+        {/* Minimal High-Tech Studio Bar Skeleton */}
+        <div
+          className="no-print sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md"
+          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 shrink-0">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-sm font-bold text-white tracking-tight">Resume Studio</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                      ATS Standard
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs text-zinc-400 font-medium">Initializing workspace...</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Studio Split-Screen Workspace Skeleton */}
+        <div className="container resume-builder-grid" style={{ padding: '24px 32px 80px', flex: 1 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '28px', alignItems: 'flex-start' }}>
+            <div className="bg-white rounded-xl border border-zinc-200 p-6 min-h-[700px] animate-pulse" />
+            <div className="bg-white rounded-xl border border-zinc-200 p-6 min-h-[700px] shadow-sm animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#F4F4F5', display: 'flex', flexDirection: 'column' }}>
