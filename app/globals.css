@@ -3397,6 +3397,118 @@ footer {
   }
 }
 
+/* ===== UNIFIED COMMAND PALETTE & MOBILE DOCK STYLES ===== */
+@keyframes paletteFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes paletteScaleUp {
+  from { opacity: 0; transform: scale(0.96) translateY(-6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.nav-command-btn:hover {
+  background: #E4E4E7 !important;
+  border-color: #D4D4D8 !important;
+  color: #18181B !important;
+}
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3F3F46;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nav-dropdown-item:hover {
+  background: #F4F4F5;
+  color: #09090B;
+}
+
+/* Responsive Navigation Rules */
+@media (max-width: 960px) {
+  .nav-links {
+    display: none !important;
+  }
+  .mobile-nav-toggle {
+    display: flex !important;
+  }
+}
+
+/* Floating Mobile Bottom Navigation Dock */
+.mobile-bottom-dock {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-bottom-dock {
+    display: block;
+    position: fixed;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 28px);
+    max-width: 380px;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  .mobile-bottom-dock-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: rgba(9, 9, 11, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    padding: 5px 6px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    pointer-events: auto;
+  }
+
+  .mobile-dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 10px;
+    border-radius: 100px;
+    color: #A1A1AA;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    min-width: 48px;
+  }
+
+  .mobile-dock-item:hover, .mobile-dock-item.active {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .mobile-dock-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-dock-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}
+
 @media print {
   @page {
     margin: 10mm 12mm;
