@@ -12,13 +12,16 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.3",
+    "docx": "^9.7.1",
     "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.43.0",
     "mammoth": "^1.12.2",
     "mongoose": "^9.9.1",
     "next": "^14.2.5",
     "pdf-parse": "^1.1.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",

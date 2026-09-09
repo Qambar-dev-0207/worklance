@@ -1,0 +1,321 @@
+import { ResumeData } from '@/types/resume';
+
+export const SOHAN_SETHI_RESUME: ResumeData = {
+  id: 'resume-sohan-sethi-master',
+  versionName: 'Master Resume (Sohan Sethi)',
+  targetJobRole: 'Business Analyst / Data Analyst',
+  targetCompany: 'General',
+  lastModified: Date.now(),
+  personal: {
+    fullName: 'SOHAN SETHI',
+    targetTitle: 'Business Analyst',
+    email: 'sohan.sethi@example.com',
+    phone: '+1 (312) 555-0199',
+    location: 'Chicago, IL',
+    linkedIn: 'linkedin.com/in/sohansethi',
+    github: 'github.com/sohansethi',
+    portfolio: '',
+  },
+  showSummary: false,
+  summary:
+    'Targeted for Business Analyst: Results-oriented Data & Business Analyst with MS in Business Analytics and extensive experience building automated SQL ETL pipelines, Tableau/Power BI executive KPI reporting, and predictive machine learning models. Proven track record of boosting operational throughput by 45% and driving high-impact decisions across high-risk accounts.',
+  education: [
+    {
+      id: 'edu-1',
+      institution: 'University of Illinois at Chicago',
+      degree: 'Master of Science in Business Analytics',
+      field: 'Business Analytics',
+      location: 'Chicago, IL',
+      graduationDate: 'Jan 2022 – May 2023',
+      gpa: '3.91/4.0',
+      coursework:
+        'Data Mining, Statistics, Data Visualization, Healthcare Analytics, Strategy Consulting, Project Management',
+    },
+    {
+      id: 'edu-2',
+      institution: 'Mumbai University',
+      degree: 'Bachelor of Engineering in Computer Science',
+      field: 'Computer Science',
+      location: 'Mumbai, India',
+      graduationDate: 'Aug 2016 – Oct 2020',
+      coursework:
+        'Advanced Database Management, Software Development, Machine Learning, Management Information Systems',
+    },
+  ],
+  skills: [
+    {
+      id: 'skill-1',
+      categoryName: 'Analysis & Visualization Tools',
+      skillsList:
+        'Power BI, Tableau, Microsoft Excel, Looker, Visio, Alteryx, Hadoop, Google Analytics',
+    },
+    {
+      id: 'skill-2',
+      categoryName: 'Programming Languages',
+      skillsList: 'SQL, Python, R, SPSS, Java, SAS, SAP',
+    },
+    {
+      id: 'skill-3',
+      categoryName: 'Database Management Systems',
+      skillsList:
+        'Microsoft SQL Server, MySQL, Oracle, PostgreSQL, NoSQL, SSRS, SSIS, MongoDB',
+    },
+    {
+      id: 'skill-4',
+      categoryName: 'Cloud & Workflow Automation',
+      skillsList: 'AWS, SharePoint, Power Automate, PowerApps, Git, Spark',
+    },
+  ],
+  experience: [
+    {
+      id: 'exp-1',
+      company: 'Health Care Service Corporation',
+      role: 'Business Analyst II',
+      location: 'Chicago, IL',
+      startDate: 'Aug 2023',
+      endDate: 'Present',
+      current: true,
+      bullets: [
+        {
+          id: 'b-1',
+          text: 'Performed data analysis across group insurance accounts to provide data-driven insights for BCBS leadership.',
+          metrics: ['group insurance accounts'],
+          powerVerb: 'Performed',
+        },
+        {
+          id: 'b-2',
+          text: 'Developed & integrated a performance reporting KPI metrics dashboard for a request management tool using Power BI.',
+          metrics: [],
+          powerVerb: 'Developed',
+        },
+        {
+          id: 'b-3',
+          text: 'Designed automated reporting to calculate end-to-end cycle time across multiple operation areas using Advanced DAX formulas in Power BI.',
+          metrics: [],
+          powerVerb: 'Designed',
+        },
+        {
+          id: 'b-4',
+          text: 'Spearheaded multiple new data collection processes using SharePoint and Power Automate, eliminating manual entry delays.',
+          metrics: [],
+          powerVerb: 'Spearheaded',
+        },
+        {
+          id: 'b-5',
+          text: 'Designed and curated cross-platform web-app for interdepartmental usability using PowerApps.',
+          metrics: [],
+          powerVerb: 'Designed',
+        },
+      ],
+    },
+    {
+      id: 'exp-2',
+      company: 'Discovery Partners Institute (UIC)',
+      role: 'Research Assistant – Data Science',
+      location: 'Chicago, IL',
+      startDate: 'May 2022',
+      endDate: 'May 2023',
+      current: false,
+      bullets: [
+        {
+          id: 'b-6',
+          text: 'Conducted market research and industry analysis using Python for the applied R&D department.',
+          metrics: [],
+          powerVerb: 'Conducted',
+        },
+        {
+          id: 'b-7',
+          text: 'Assessed the impact and effectiveness of inter-department processes; improved existing processes that resulted in increased overall KPIs by 30%.',
+          metrics: ['30%'],
+          powerVerb: 'Assessed',
+        },
+        {
+          id: 'b-8',
+          text: 'Curated business plans for incubated startups and product-based organizations that helped secure $20 Million in funding.',
+          metrics: ['$20 Million'],
+          powerVerb: 'Curated',
+        },
+      ],
+    },
+    {
+      id: 'exp-3',
+      company: 'Net Square Solutions',
+      role: 'Business Analyst',
+      location: 'Mumbai, India',
+      startDate: 'Oct 2020',
+      endDate: 'Dec 2021',
+      current: false,
+      bullets: [
+        {
+          id: 'b-9',
+          text: 'Performed descriptive, predictive, and prescriptive analytical techniques by working on large datasets of organizations with high-risk cybersecurity constraints.',
+          metrics: [],
+          powerVerb: 'Performed',
+        },
+        {
+          id: 'b-10',
+          text: 'Prepared & analyzed reports for sales team by tracking KPIs using Tableau, leading to a 30% increase in product sales.',
+          metrics: ['30%'],
+          powerVerb: 'Prepared',
+        },
+        {
+          id: 'b-11',
+          text: 'Championed new data collection processes that improved communication between client needs and 5 product development teams, exceeding quarterly KPI goals by 67%.',
+          metrics: ['5', '67%'],
+          powerVerb: 'Championed',
+        },
+        {
+          id: 'b-12',
+          text: 'Built an automated SQL ETL pipeline that improved data preprocessing efficiency by 45%.',
+          metrics: ['45%'],
+          powerVerb: 'Built',
+        },
+      ],
+    },
+  ],
+  projects: [
+    {
+      id: 'proj-1',
+      name: 'Bank Loan Default Prediction',
+      tech: 'RStudio, Data Mining',
+      link: '',
+      linkText: 'Link',
+      date: 'Aug 2022 – Dec 2022',
+      bullets: [
+        {
+          id: 'pb-1',
+          text: 'Analyzed financial data for 100,000 borrowers using RStudio to conduct loan default analysis.',
+          metrics: ['100,000'],
+          powerVerb: 'Analyzed',
+        },
+        {
+          id: 'pb-2',
+          text: 'Developed Random Forest and XGBoost models for loan-default prediction, achieving 96% classification accuracy across 100K borrower records.',
+          metrics: ['96%', '100K'],
+          powerVerb: 'Developed',
+        },
+      ],
+    },
+    {
+      id: 'proj-2',
+      name: 'Heart Disease Prediction Modelling',
+      tech: 'Python, SQL, Tableau, Spark',
+      link: '',
+      linkText: 'Link',
+      date: 'Aug 2022 – Dec 2022',
+      bullets: [
+        {
+          id: 'pb-3',
+          text: 'Examined heart disease clinical data of 1.3M patients with high probability of experiencing cardiac events.',
+          metrics: ['1.3M'],
+          powerVerb: 'Examined',
+        },
+        {
+          id: 'pb-4',
+          text: 'Predicted patients at highest risk by developing machine learning models (Random Forest, SVM) with 92% accuracy.',
+          metrics: ['92%'],
+          powerVerb: 'Predicted',
+        },
+      ],
+    },
+    {
+      id: 'proj-3',
+      name: 'Airline Comparison Analysis',
+      tech: 'Tableau and MS Excel',
+      link: '',
+      linkText: 'Link',
+      date: 'Mar 2022 – May 2022',
+      bullets: [
+        {
+          id: 'pb-5',
+          text: 'Investigated flight delay trends using Tableau, analyzing 3.9 million flight records for American Airlines in 2020.',
+          metrics: ['3.9 million'],
+          powerVerb: 'Investigated',
+        },
+        {
+          id: 'pb-6',
+          text: 'Developed 27 customized Tableau dashboards to identify 17% flight delays and compare comparative performance metrics with Delta Airlines.',
+          metrics: ['27', '17%'],
+          powerVerb: 'Developed',
+        },
+      ],
+    },
+  ],
+  leadership: [
+    {
+      id: 'lead-1',
+      text: "Nominated for the Chancellor's Award at UIC for excellence in academics and outstanding university contribution.",
+    },
+    {
+      id: 'lead-2',
+      text: 'Pioneered the construction of a primary school in Tanzania as Project Co-Lead through United Nations volunteering initiatives.',
+    },
+  ],
+  certifications: [
+    {
+      id: 'cert-1',
+      text: 'Microsoft Certified: Power BI Data Analyst Associate (PL-300)',
+      date: '2023',
+      organization: 'Microsoft',
+    },
+    {
+      id: 'cert-2',
+      text: 'AWS Certified Cloud Practitioner',
+      date: '2023',
+      organization: 'Amazon Web Services',
+    },
+  ],
+  publications: [],
+  achievements: [
+    {
+      id: 'ach-1',
+      text: 'Dean’s List for 4 consecutive academic semesters at University of Illinois at Chicago.',
+    },
+  ],
+  extracurricular: [
+    {
+      id: 'extra-1',
+      text: 'Coordinated student hackathon with 400+ participants, leading mentor recruitment and technical workshops.',
+    },
+  ],
+  sectionOrder: [
+    'education',
+    'skills',
+    'experience',
+    'projects',
+    'leadership',
+    'certifications',
+    'achievements',
+    'publications',
+    'extracurricular',
+  ],
+  sectionVisibility: {
+    summary: false,
+    education: true,
+    skills: true,
+    experience: true,
+    projects: true,
+    leadership: true,
+    certifications: true,
+    achievements: false,
+    publications: false,
+    extracurricular: false,
+  },
+  settings: {
+    pageSize: 'a4',
+    fontFamily: 'Times New Roman',
+    fontSize: 10,
+    headingSize: 11.5,
+    nameSize: 20,
+    lineHeight: 1.35,
+    sectionSpacing: 8,
+    entrySpacing: 6,
+    bulletSpacing: 2,
+    marginVertical: 0.5,
+    marginHorizontal: 0.6,
+    template: 'classic',
+    dateFormat: 'MMM YYYY – MMM YYYY',
+    showSectionDividers: true,
+    uppercaseHeadings: true,
+  },
+};
