@@ -45,16 +45,6 @@ function LoginForm() {
     }
   };
 
-  const handleQuickSeedLogin = (role: 'seeker' | 'recruiter') => {
-    if (role === 'seeker') {
-      setEmail('seeker@worklance.com');
-      setPassword('password123');
-    } else {
-      setEmail('recruiter@worklance.com');
-      setPassword('password123');
-    }
-  };
-
   return (
     <div
       style={{
@@ -157,49 +147,6 @@ function LoginForm() {
           {loading ? 'Authenticating...' : 'Sign in'}
         </button>
       </form>
-
-      {/* QUICK SEED LOGINS */}
-      <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--line)' }}>
-        <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '10px' }}>
-          One-Click Demo Profiles:
-        </p>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            type="button"
-            onClick={() => handleQuickSeedLogin('seeker')}
-            style={{
-              flex: 1,
-              padding: '8px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              background: 'var(--bg-soft)',
-              color: 'var(--navy)',
-              border: '1px solid var(--line)',
-              cursor: 'pointer',
-            }}
-          >
-            Demo Job Seeker
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickSeedLogin('recruiter')}
-            style={{
-              flex: 1,
-              padding: '8px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              background: 'var(--bg-soft)',
-              color: 'var(--navy)',
-              border: '1px solid var(--line)',
-              cursor: 'pointer',
-            }}
-          >
-            Demo Recruiter
-          </button>
-        </div>
-      </div>
 
       <p style={{ textAlign: 'center', fontSize: '13.5px', color: 'var(--text-muted)', marginTop: '24px' }}>
         Don&apos;t have an account?{' '}
