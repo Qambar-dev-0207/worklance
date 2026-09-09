@@ -87,9 +87,17 @@ export function printResumeToPdf(elementId: string, fileName: string, pageSize: 
           .no-print, .page-break-guide {
             display: none !important;
           }
+          .ats-entry {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
           a {
             color: inherit !important;
             text-decoration: none !important;
+          }
+          a.project-link-badge, .project-link-badge {
+            color: #1d4ed8 !important;
+            text-decoration: underline !important;
           }
         </style>
       </head>

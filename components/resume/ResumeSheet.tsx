@@ -308,7 +308,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                     Education
                   </div>
                   {resume.education.map((edu) => (
-                    <div key={edu.id} style={{ marginBottom: `${entrySpacingPx}px` }}>
+                    <div key={edu.id} className="ats-entry" style={{ marginBottom: `${entrySpacingPx}px`, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                       <div
                         style={{
                           display: 'flex',
@@ -491,7 +491,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                     const hasDates = exp.startDate || exp.endDate;
 
                     return (
-                      <div key={exp.id} style={{ marginBottom: `${entrySpacingPx}px` }}>
+                      <div key={exp.id} className="ats-entry" style={{ marginBottom: `${entrySpacingPx}px`, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                         {/* Company Name & Date */}
                         <div
                           style={{
@@ -636,7 +636,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                     Projects
                   </div>
                   {resume.projects.map((proj) => (
-                    <div key={proj.id} style={{ marginBottom: `${entrySpacingPx}px` }}>
+                    <div key={proj.id} className="ats-entry" style={{ marginBottom: `${entrySpacingPx}px`, breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                       <div
                         style={{
                           display: 'flex',
@@ -652,20 +652,26 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                             onBlur={(e) =>
                               handleInlineBlur(proj.id, e, (val) => updateProject(proj.id, { name: val }))
                             }
-                            style={{ fontWeight: 700, outline: 'none', cursor: 'text' }}
+                            style={{
+                              fontWeight: 700,
+                              fontSize: `${bodyPt + 0.5}pt`,
+                              color: '#000000',
+                              outline: 'none',
+                              cursor: 'text',
+                            }}
                           >
                             {proj.name}
                           </span>
                           {proj.tech && (
                             <>
-                              <span style={{ color: '#000000' }}> | </span>
+                              <span style={{ color: '#52525b', margin: '0 4px', fontStyle: 'normal' }}>|</span>
                               <span
                                 contentEditable
                                 suppressContentEditableWarning
                                 onBlur={(e) =>
                                   handleInlineBlur(proj.id, e, (val) => updateProject(proj.id, { tech: val }))
                                 }
-                                style={{ fontStyle: 'italic', outline: 'none', cursor: 'text' }}
+                                style={{ fontStyle: 'italic', color: '#18181b', outline: 'none', cursor: 'text' }}
                               >
                                 {proj.tech}
                               </span>
@@ -675,18 +681,27 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                             proj.link.trim().toLowerCase() !== 'link' &&
                             proj.link.trim().length > 0 && (
                               <>
-                                <span> | </span>
+                                <span style={{ color: '#71717a', margin: '0 4px' }}>|</span>
                                 <a
                                   href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`}
                                   target="_blank"
                                   rel="noreferrer"
-                                  style={{ color: '#000000', textDecoration: 'underline' }}
+                                  className="project-link-badge"
+                                  style={{
+                                    color: '#1d4ed8',
+                                    fontWeight: 600,
+                                    textDecoration: 'none',
+                                    borderBottom: '1px solid rgba(29, 78, 216, 0.4)',
+                                    fontSize: `${Math.max(bodyPt - 0.5, 8.5)}pt`,
+                                    cursor: 'pointer',
+                                  }}
+                                  title={`Open ${proj.link}`}
                                 >
                                   {proj.linkText && proj.linkText.trim().toLowerCase() !== 'link'
                                     ? proj.linkText
                                     : proj.link.includes('github')
                                     ? 'GitHub ↗'
-                                    : 'Demo ↗'}
+                                    : 'Live Demo ↗'}
                                 </a>
                               </>
                             )}
@@ -700,6 +715,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           style={{
                             fontWeight: 700,
                             textAlign: 'right',
+                            color: '#000000',
                             outline: 'none',
                             cursor: 'text',
                             fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
@@ -768,6 +784,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                     {resume.leadership.map((item) => (
                       <li
                         key={item.id}
+                        className="ats-entry"
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
@@ -779,6 +796,8 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           lineHeight: lineHeight,
                           outline: 'none',
                           cursor: 'text',
+                          breakInside: 'avoid',
+                          pageBreakInside: 'avoid',
                         }}
                       >
                         {item.text}
@@ -815,6 +834,7 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                     {resume.certifications.map((item) => (
                       <li
                         key={item.id}
+                        className="ats-entry"
                         contentEditable
                         suppressContentEditableWarning
                         onBlur={(e) =>
@@ -826,6 +846,8 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           lineHeight: lineHeight,
                           outline: 'none',
                           cursor: 'text',
+                          breakInside: 'avoid',
+                          pageBreakInside: 'avoid',
                         }}
                       >
                         {item.text}

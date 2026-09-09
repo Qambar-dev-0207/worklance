@@ -28,7 +28,19 @@ import { generateDocxResume, downloadBlob } from '@/lib/resume/docxExport';
 import { computeAtsDiagnosticScore } from '@/lib/resume/atsValidator';
 import { printResumeToPdf } from '@/lib/resume/printPdf';
 import { syncResumeToUserProfile } from '@/lib/resume/profileSync';
-import { Sparkles } from 'lucide-react';
+import {
+  Sparkles,
+  Printer,
+  FileDown,
+  Upload,
+  Download,
+  Target,
+  CheckCircle2,
+  Lightbulb,
+  Zap,
+  RotateCcw,
+  FileText,
+} from 'lucide-react';
 import { ResumeData } from '@/types/resume';
 
 export default function ResumeBuilderPage() {
@@ -44,6 +56,7 @@ export default function ResumeBuilderPage() {
     setPageSize,
     zoomLevel,
     setZoomLevel,
+    autoFitToOnePage,
   } = useResumeStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -295,6 +308,21 @@ export default function ResumeBuilderPage() {
         id: `lead-${idx}`,
         text: typeof item === 'string' ? item : item.text || '',
       })),
+      certifications: (parsed.certifications || parsed.certificationsList || []).map((item: any, idx: number) => ({
+        id: `cert-${idx}`,
+        text: typeof item === 'string' ? item : item.text || '',
+        date: item.date || '',
+        organization: item.organization || '',
+      })),
+      achievements: (parsed.achievements || []).map((item: any, idx: number) => ({
+        id: `ach-${idx}`,
+        text: typeof item === 'string' ? item : item.text || '',
+      })),
+      sectionVisibility: {
+        ...resume.sectionVisibility,
+        leadership: (parsed.leadership || []).length > 0,
+        certifications: (parsed.certifications || parsed.certificationsList || []).length > 0,
+      },
     };
 
     loadResumeData(converted);
@@ -383,64 +411,48 @@ export default function ResumeBuilderPage() {
     <div style={{ minHeight: '100vh', background: '#F4F4F5', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* TOP APPLICATION CONTROL BAR */}
+      {/* MINIMAL HIGH-TECH STUDIO BAR (TIER 1) */}
       <div
-        className="no-print"
-        style={{
-          background: '#09090B',
-          color: '#FFFFFF',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: '16px 0',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-        }}
+        className="no-print sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md"
+        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}
       >
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-          {/* Left: Title & Variant Selector */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '15px', fontWeight: 800, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
-                  ATS RESUME BUILDER
-                </span>
-                <span style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', fontSize: '10px', fontWeight: 800, padding: '2px 7px', borderRadius: '100px' }}>
-                  CONSULTING / TECH STANDARD
-                </span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+          {/* Left: Brand + Document Version Selector */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 shrink-0">
+                <FileText className="w-4 h-4" />
               </div>
-              <div style={{ fontSize: '11px', color: '#A1A1AA', marginTop: '1px' }}>
-                Single-column, recruiter-friendly, quantified achievements
+              <div className="hidden sm:block">
+                <div className="flex items-center gap-1.5 leading-none">
+                  <span className="text-sm font-bold text-white tracking-tight">Resume Studio</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                    ATS Standard
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Variant Switcher */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#18181B', padding: '4px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span style={{ fontSize: '11px', color: '#A1A1AA', fontWeight: 700 }}>VERSION:</span>
+            <div className="h-4 w-px bg-zinc-800 hidden md:block" />
+
+            {/* Version Switcher */}
+            <div className="flex items-center gap-1.5 bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-lg transition">
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ver:</span>
               <select
                 value={activeVariantId}
                 onChange={(e) => switchVariant(e.target.value)}
-                style={{
-                  background: 'transparent',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer',
-                  maxWidth: '180px',
-                }}
+                className="bg-transparent text-xs font-semibold text-zinc-200 outline-none cursor-pointer max-w-[130px] sm:max-w-[160px] truncate"
               >
                 {variants.map((v) => {
                   let label = v.versionName;
                   if (v.id === 'master') {
                     const candidateName = currentUser?.name || resume.personal.fullName;
                     if (candidateName && candidateName.toLowerCase() !== 'sohan sethi') {
-                      label = `Master Resume (${candidateName})`;
+                      label = `Master (${candidateName.split(' ')[0]})`;
                     }
                   }
                   return (
-                    <option key={v.id} value={v.id} style={{ background: '#18181B', color: '#FFF' }}>
+                    <option key={v.id} value={v.id} className="bg-zinc-900 text-white">
                       {label}
                     </option>
                   );
@@ -448,15 +460,7 @@ export default function ResumeBuilderPage() {
               </select>
               <button
                 onClick={() => setShowVersionModal(true)}
-                style={{
-                  background: '#27272A',
-                  color: '#D4D4D8',
-                  fontSize: '10.5px',
-                  padding: '2px 7px',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  border: 'none',
-                }}
+                className="text-[10.5px] text-zinc-400 hover:text-white font-medium ml-1 transition"
                 title="Manage job-specific resume variants"
               >
                 Manage
@@ -464,275 +468,213 @@ export default function ResumeBuilderPage() {
             </div>
           </div>
 
-          {/* Center & Right: Actions & Exports */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {/* Sync to Worklance Profile Button */}
-            <button
-              onClick={() => handleSyncToProfile()}
-              disabled={isSyncingProfile}
-              style={{
-                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                color: '#FFFFFF',
-                border: 'none',
-                padding: '7px 15px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 10px rgba(16, 185, 129, 0.35)',
-              }}
-              title="Synchronize your resume content (name, title, skills, experience, education) directly to your Worklance profile"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              {isSyncingProfile ? 'Syncing...' : '⚡ Sync to Profile'}
-            </button>
-            {/* ATS Score Diagnostic Button */}
+          {/* Center: Segmented Diagnostic & Intelligence Tools */}
+          <div className="hidden lg:flex items-center gap-1 bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-1">
+            {/* ATS Score Diagnostic */}
             <button
               onClick={() => setShowAtsModal(true)}
-              style={{
-                background: '#18181B',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '100px',
-                padding: '6px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: '#FFFFFF',
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              title="View ATS Diagnostic Breakdown"
             >
-              <span style={{ fontSize: '10.5px', color: '#A1A1AA', fontWeight: 700 }}>ATS SCORE:</span>
-              <span style={{ fontSize: '14px', fontWeight: 900, color: atsScore.overallScore >= 90 ? '#10B981' : '#F59E0B' }}>
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  atsScore.overallScore >= 90 ? 'bg-emerald-400' : 'bg-amber-400'
+                } animate-pulse`}
+              />
+              <span className="text-zinc-400 text-[11px]">ATS</span>
+              <span className={`font-bold ${atsScore.overallScore >= 90 ? 'text-emerald-400' : 'text-amber-400'}`}>
                 {atsScore.overallScore}%
               </span>
-              <span style={{ fontSize: '11px', color: '#6EE7B7' }}>📊 Diagnostic</span>
             </button>
+
+            <div className="h-3.5 w-px bg-zinc-800" />
 
             {/* Target JD Matcher */}
             <button
               onClick={() => setShowJdModal(true)}
-              style={{
-                background: resume.targetCompany ? 'rgba(16, 185, 129, 0.15)' : '#18181B',
-                color: resume.targetCompany ? '#6EE7B7' : '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '7px 14px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              title="Match resume against Target Job Description"
             >
-              🎯 Target JD Matcher {resume.targetCompany ? `(${resume.targetCompany})` : ''}
+              <Target className="w-3.5 h-3.5 text-zinc-400" />
+              <span>{resume.targetCompany ? resume.targetCompany : 'Match JD'}</span>
             </button>
 
-            {/* 10-Point Checklist */}
+            <div className="h-3.5 w-px bg-zinc-800" />
+
+            {/* ATS Audit */}
             <button
               onClick={() => setShowChecklistModal(true)}
-              style={{
-                background: '#18181B',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '7px 14px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              title="Recruiter 10-point Checklist"
             >
-              📋 ATS Audit
+              <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Audit</span>
             </button>
 
-            {/* Bullet Formula */}
+            <div className="h-3.5 w-px bg-zinc-800" />
+
+            {/* Formula Guide */}
             <button
               onClick={() => setShowFormulaModal(true)}
-              style={{
-                background: '#18181B',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '7px 14px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              title="Action + Context + Metric Formula Guide"
             >
-              💡 Formula Guide
+              <Lightbulb className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Guide</span>
             </button>
 
-            {/* Upload Button */}
+            <div className="h-3.5 w-px bg-zinc-800" />
+
+            {/* Import Resume */}
             <button
               onClick={() => setShowUploadModal(true)}
-              style={{
-                background: '#27272A',
-                color: '#FFFFFF',
-                border: '1px solid rgba(255,255,255,0.2)',
-                padding: '7px 14px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              title="Import resume from PDF, Word, or text"
             >
-              📤 Upload Resume
+              <Upload className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Import</span>
+            </button>
+          </div>
+
+          {/* Right: Primary Action Group */}
+          <div className="flex items-center gap-2">
+            {/* Sync to Worklance Profile */}
+            <button
+              onClick={() => handleSyncToProfile()}
+              disabled={isSyncingProfile}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-sm"
+              title="Synchronize resume content directly to your Worklance profile"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+              <span className="hidden sm:inline">{isSyncingProfile ? 'Syncing...' : 'Sync to Profile'}</span>
+              <span className="sm:hidden">{isSyncingProfile ? '...' : 'Sync'}</span>
             </button>
 
-            {/* Word DOCX Export */}
+            {/* Word .docx Export */}
             <button
               onClick={handleDownloadDocx}
               disabled={isExportingDocx}
-              style={{
-                background: '#1E293B',
-                color: '#93C5FD',
-                border: '1px solid #3B82F6',
-                padding: '7px 14px',
-                borderRadius: '100px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 font-medium text-xs transition"
               title="Exports native Microsoft Word (.docx) file matching the single-column ATS layout"
             >
-              {isExportingDocx ? 'Exporting...' : '📄 Word (.docx)'}
+              <FileDown className="w-3.5 h-3.5 text-zinc-400" />
+              <span>{isExportingDocx ? '...' : '.docx'}</span>
             </button>
 
             {/* Primary Print / Download PDF */}
             <button
               onClick={handlePrint}
-              style={{
-                background: '#FFFFFF',
-                color: '#000000',
-                border: 'none',
-                padding: '8px 18px',
-                borderRadius: '100px',
-                fontSize: '12.5px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: '0 2px 10px rgba(255,255,255,0.2)',
-              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs transition shadow-sm"
+              title="Export 100% Vector ATS Print PDF"
             >
-              🖨️ Download ATS PDF
+              <Printer className="w-3.5 h-3.5 text-zinc-950" />
+              <span>Export PDF</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* SECONDARY QUICK BAR (TEMPLATE / FONT / JSON / RESET) */}
+      {/* SECONDARY FORMATTING & CANVAS STRIP (TIER 2) */}
       <div
-        className="no-print"
-        style={{
-          background: '#FFFFFF',
-          borderBottom: '1px solid #E4E4E7',
-          padding: '8px 0',
-        }}
+        className="no-print w-full border-b border-zinc-800/80 bg-zinc-900/70 backdrop-blur-sm"
       >
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#71717A' }}>STYLE:</span>
-            {[
-              { id: 'classic', label: 'Classic ATS (Sohan Sethi Reference)' },
-              { id: 'modern', label: 'Modern Sans' },
-              { id: 'technical', label: 'Technical Compact' },
-            ].map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTemplate(t.id as any)}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: '100px',
-                  fontSize: '11.5px',
-                  fontWeight: 700,
-                  background: resume.settings.template === t.id ? '#000000' : '#F4F4F5',
-                  color: resume.settings.template === t.id ? '#FFFFFF' : '#3F3F46',
-                  cursor: 'pointer',
-                  border: 'none',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-3 text-xs">
+          {/* Left Controls: 1-Page Fit, Style, Font, Paper */}
+          <div className="flex items-center gap-2.5 overflow-x-auto py-1 scrollbar-none">
+            {/* 1-Page Auto-Fit Badge Button */}
+            <button
+              onClick={() => autoFitToOnePage(10)}
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition whitespace-nowrap"
+              title="Auto-tune margins, spacing, and density to fit 1 page"
+            >
+              <Zap className="w-3 h-3 text-amber-400" />
+              <span>1-Page Fit</span>
+            </button>
 
-            <span style={{ color: '#D4D4D8' }}>|</span>
+            <span className="text-zinc-700">|</span>
 
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#71717A' }}>FONT:</span>
-            {['Times New Roman', 'Georgia', 'Arial', 'Inter'].map((f) => (
-              <button
-                key={f}
-                onClick={() => setFontFamily(f as any)}
-                style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  background: resume.settings.fontFamily === f ? '#000000' : 'transparent',
-                  color: resume.settings.fontFamily === f ? '#FFFFFF' : '#52525B',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {f}
-              </button>
-            ))}
+            {/* Template Segmented Toggle */}
+            <div className="flex items-center gap-1">
+              <span className="text-[10.5px] font-semibold text-zinc-500">STYLE:</span>
+              {[
+                { id: 'classic', label: 'Classic' },
+                { id: 'modern', label: 'Modern' },
+                { id: 'technical', label: 'Tech' },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTemplate(t.id as any)}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+                    resume.settings.template === t.id
+                      ? 'bg-zinc-800 text-white font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-            <span style={{ color: '#D4D4D8' }}>|</span>
+            <span className="text-zinc-700">|</span>
 
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#71717A' }}>PAPER:</span>
-            {(['a4', 'letter'] as const).map((sz) => (
-              <button
-                key={sz}
-                onClick={() => setPageSize(sz)}
-                style={{
-                  padding: '3px 8px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  background: resume.settings.pageSize === sz ? '#000000' : '#F4F4F5',
-                  color: resume.settings.pageSize === sz ? '#FFFFFF' : '#71717A',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {sz}
-              </button>
-            ))}
+            {/* Font Family Selector */}
+            <div className="flex items-center gap-1">
+              <span className="text-[10.5px] font-semibold text-zinc-500">FONT:</span>
+              {['Times New Roman', 'Georgia', 'Arial', 'Inter'].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFontFamily(f as any)}
+                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
+                    resume.settings.fontFamily === f
+                      ? 'bg-zinc-800 text-white font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {f === 'Times New Roman' ? 'Times' : f}
+                </button>
+              ))}
+            </div>
+
+            <span className="text-zinc-700">|</span>
+
+            {/* Paper Size */}
+            <div className="flex items-center gap-1">
+              {(['a4', 'letter'] as const).map((sz) => (
+                <button
+                  key={sz}
+                  onClick={() => setPageSize(sz)}
+                  className={`px-2 py-0.5 rounded text-[10.5px] font-bold uppercase transition ${
+                    resume.settings.pageSize === sz
+                      ? 'bg-zinc-200 text-zinc-950'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {sz}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Right Controls: JSON Backup / Restore / Reset */}
+          <div className="flex items-center gap-2 whitespace-nowrap">
             <button
               onClick={handleExportJson}
-              style={{
-                fontSize: '11px',
-                color: '#52525B',
-                background: '#F4F4F5',
-                border: '1px solid #E4E4E7',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="text-[11px] text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
               title="Backup resume structure as JSON"
             >
-              ⬇ JSON
+              <Download className="w-3 h-3" />
+              <span className="hidden sm:inline">JSON</span>
             </button>
+
             <button
               onClick={() => fileInputRef.current?.click()}
-              style={{
-                fontSize: '11px',
-                color: '#52525B',
-                background: '#F4F4F5',
-                border: '1px solid #E4E4E7',
-                padding: '4px 8px',
-                borderRadius: '6px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="text-[11px] text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
               title="Restore resume from JSON backup"
             >
-              ⬆ JSON
+              <Upload className="w-3 h-3" />
+              <span className="hidden sm:inline">JSON</span>
             </button>
+
             <input
               type="file"
               ref={fileInputRef}
@@ -740,6 +682,8 @@ export default function ResumeBuilderPage() {
               accept=".json"
               style={{ display: 'none' }}
             />
+
+            <span className="text-zinc-700">|</span>
 
             <button
               onClick={() => {
@@ -749,16 +693,11 @@ export default function ResumeBuilderPage() {
                   setTimeout(() => setStatusBanner(''), 3000);
                 }
               }}
-              style={{
-                fontSize: '11px',
-                color: '#71717A',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                textDecoration: 'underline',
-              }}
+              className="text-[11px] text-zinc-500 hover:text-red-400 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
+              title="Reset to default reference resume"
             >
-              Reset to Reference
+              <RotateCcw className="w-3 h-3" />
+              <span className="hidden md:inline">Reset</span>
             </button>
           </div>
         </div>
