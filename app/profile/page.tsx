@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { syncResumeToUserProfile, getCachedResumeStore } from '@/lib/resume/profileSync';
+import { Sparkles } from 'lucide-react';
 
 interface ApplicationItem {
   _id: string;
@@ -268,6 +270,7 @@ export default function ProfilePage() {
 
       syncStateFromUser(data.user);
       localStorage.setItem('worklance_user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('worklance-user-updated'));
       setProfileMsg('✓ Profile updated successfully!');
       setIsEditing(false);
       setTimeout(() => setProfileMsg(''), 3500);
@@ -278,13 +281,40 @@ export default function ProfilePage() {
     }
   };
 
-  // 1-Click Auto-Fill from Resume Upload
+  // 1-Click Sync from Active Resume Builder
+  const handleSyncFromResumeBuilder = async () => {
+    const cachedResume = getCachedResumeStore();
+    if (!cachedResume) {
+      setProfileMsg('Notice: No active resume found in Resume Builder yet. Create or upload a resume in the Resume Builder first.');
+      setTimeout(() => setProfileMsg(''), 5000);
+      return;
+    }
+
+    setAutoFillingResume(true);
+    setProfileMsg('⏳ Synchronizing your profile with your active ATS Resume Builder...');
+
+    try {
+      const updatedUser = await syncResumeToUserProfile(cachedResume);
+      syncStateFromUser(updatedUser);
+      localStorage.setItem('worklance_user', JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event('worklance-user-updated'));
+      setProfileMsg(`✓ Success! Profile updated from Resume Builder for ${updatedUser.name}!`);
+      setTimeout(() => setProfileMsg(''), 5000);
+    } catch (err: any) {
+      setProfileMsg(`Sync failed: ${err.message}`);
+      setTimeout(() => setProfileMsg(''), 5000);
+    } finally {
+      setAutoFillingResume(false);
+    }
+  };
+
+  // 1-Click Auto-Fill & Save from Resume File Upload
   const handleAutoFillFromResume = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setAutoFillingResume(true);
-    setProfileMsg('⏳ Parsing resume and auto-generating profile fields...');
+    setProfileMsg('⏳ Parsing resume and updating your profile...');
 
     try {
       const formData = new FormData();
@@ -304,24 +334,32 @@ export default function ProfilePage() {
       const p = data.resume || data.data;
       if (!p) throw new Error('No resume structure returned from parser');
 
-      if (p.name || p.fullName) setName(p.name || p.fullName);
-      if (p.targetTitle || p.title) setTitle(p.targetTitle || p.title);
-      if (p.email && user && !user.email) user.email = p.email;
-      if (p.phone) setPhone(p.phone);
-      if (p.location) setLocation(p.location);
-      if (p.github || p.githubUrl) setGithubUrl(p.github || p.githubUrl);
-      if (p.linkedIn || p.linkedinUrl) setLinkedinUrl(p.linkedIn || p.linkedinUrl);
-      if (p.summary) setBio(p.summary);
-      if (p.skills) {
-        setSkills(typeof p.skills === 'string' ? p.skills : Array.isArray(p.skills) ? p.skills.join(', ') : '');
-      }
+      const newName = p.name || p.fullName || name;
+      const newTitle = p.targetTitle || p.title || title;
+      const newPhone = p.phone || phone;
+      const newLocation = p.location || location;
+      const newGithub = p.github || p.githubUrl || githubUrl;
+      const newLinkedin = p.linkedIn || p.linkedinUrl || linkedinUrl;
+      const newBio = p.summary || bio;
+      const newSkills = typeof p.skills === 'string' ? p.skills : Array.isArray(p.skills) ? p.skills.join(', ') : skills;
 
+      setName(newName);
+      setTitle(newTitle);
+      if (p.email && user && !user.email) user.email = p.email;
+      setPhone(newPhone);
+      setLocation(newLocation);
+      setGithubUrl(newGithub);
+      setLinkedinUrl(newLinkedin);
+      setBio(newBio);
+      setSkills(newSkills);
+
+      let newExp = experienceList;
       if (p.experience && p.experience.length > 0) {
-        const newExp = p.experience.map((exp: any) => ({
+        newExp = p.experience.map((exp: any) => ({
           id: 'exp_' + Math.random().toString(36).substring(2, 7),
           company: exp.company || 'Tech Company',
           role: exp.role || 'Software Engineer',
-          location: exp.location || location || '',
+          location: exp.location || newLocation || '',
           startDate: exp.duration?.split('-')?.[0]?.trim() || '2022',
           endDate: exp.duration?.split('-')?.[1]?.trim() || 'Present',
           current: exp.duration?.toLowerCase().includes('present') || false,
@@ -334,9 +372,10 @@ export default function ProfilePage() {
         setExperienceList(newExp);
       }
 
+      let newEdu = educationList;
       const eduArr = p.educationList || p.education;
       if (eduArr && Array.isArray(eduArr) && eduArr.length > 0) {
-        const newEdu = eduArr.map((edu: any) => ({
+        newEdu = eduArr.map((edu: any) => ({
           id: 'edu_' + Math.random().toString(36).substring(2, 7),
           school: edu.institution || edu.school || 'University',
           degree: edu.degree || 'Bachelor of Technology',
@@ -348,10 +387,43 @@ export default function ProfilePage() {
         setEducationList(newEdu);
       }
 
-      setIsEditing(true);
-      setProfileMsg('✓ Success! Your profile has been auto-filled from your resume. Review and click Save Profile.');
+      // Automatically persist to backend database
+      const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const updateRes = await fetch('/api/profile', {
+        method: 'PUT',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({
+          name: newName,
+          title: newTitle,
+          bio: newBio,
+          phone: newPhone,
+          location: newLocation,
+          githubUrl: newGithub,
+          linkedinUrl: newLinkedin,
+          skills: newSkills,
+          experience: newExp,
+          education: newEdu,
+        }),
+      });
+
+      const updateData = await updateRes.json();
+      if (updateData.success && updateData.user) {
+        syncStateFromUser(updateData.user);
+        localStorage.setItem('worklance_user', JSON.stringify(updateData.user));
+        window.dispatchEvent(new Event('worklance-user-updated'));
+        setProfileMsg(`✓ Success! Profile updated directly from uploaded resume for ${newName}!`);
+      } else {
+        setIsEditing(true);
+        setProfileMsg('✓ Resume parsed! Review details and click Save Profile.');
+      }
+      setTimeout(() => setProfileMsg(''), 5000);
     } catch (err: any) {
       setProfileMsg('Notice: Could not parse resume file. ' + err.message);
+      setTimeout(() => setProfileMsg(''), 5000);
     } finally {
       setAutoFillingResume(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -590,7 +662,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
             <input
               type="file"
               ref={fileInputRef}
@@ -598,15 +670,50 @@ export default function ProfilePage() {
               accept=".pdf,.docx,.txt"
               style={{ display: 'none' }}
             />
+            {/* Sync from Active Resume Builder */}
+            <button
+              onClick={handleSyncFromResumeBuilder}
+              disabled={autoFillingResume}
+              className="btn btn-outline"
+              style={{
+                borderRadius: '100px',
+                padding: '8px 18px',
+                fontSize: '12.5px',
+                fontWeight: 800,
+                background: '#ECFDF5',
+                color: '#065F46',
+                border: '1px solid #A7F3D0',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                cursor: 'pointer',
+              }}
+              title="Synchronize your profile directly with your active ATS Resume Builder"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              {autoFillingResume ? '⏳ Syncing...' : '⚡ Sync from Resume Builder'}
+            </button>
+
+            {/* Upload Resume File */}
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={autoFillingResume}
               className="btn btn-outline"
               style={{ borderRadius: '100px', padding: '8px 16px', fontSize: '12.5px', fontWeight: 700 }}
-              title="Upload existing resume to auto-populate all profile fields"
+              title="Upload existing resume file (PDF, Word, TXT) to auto-populate and update profile"
             >
-              {autoFillingResume ? '⏳ Parsing...' : '📄 1-Click Auto-Fill from Resume'}
+              📄 Upload Resume File
             </button>
+
+            {/* Link to Resume Builder */}
+            <Link
+              href="/resume-builder"
+              className="btn btn-outline"
+              style={{ borderRadius: '100px', padding: '8px 16px', fontSize: '12.5px', fontWeight: 700 }}
+            >
+              📝 Open Resume Builder ↗
+            </Link>
+
             <Link
               href={`/profile/${user._id || user.id || 'usr_2'}`}
               className="btn btn-outline"

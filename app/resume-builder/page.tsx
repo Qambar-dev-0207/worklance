@@ -27,6 +27,8 @@ import { useResumeStore } from '@/lib/resume/store';
 import { generateDocxResume, downloadBlob } from '@/lib/resume/docxExport';
 import { computeAtsDiagnosticScore } from '@/lib/resume/atsValidator';
 import { printResumeToPdf } from '@/lib/resume/printPdf';
+import { syncResumeToUserProfile } from '@/lib/resume/profileSync';
+import { Sparkles } from 'lucide-react';
 import { ResumeData } from '@/types/resume';
 
 export default function ResumeBuilderPage() {
@@ -81,12 +83,61 @@ export default function ResumeBuilderPage() {
   const [uploadError, setUploadError] = useState('');
   const [statusBanner, setStatusBanner] = useState('');
   const [isExportingDocx, setIsExportingDocx] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isSyncingProfile, setIsSyncingProfile] = useState(false);
+
+  // Load and listen for authenticated user session
+  useEffect(() => {
+    const loadUser = () => {
+      const uStr = localStorage.getItem('worklance_user');
+      if (uStr) {
+        try {
+          setCurrentUser(JSON.parse(uStr));
+        } catch (e) {}
+      }
+    };
+    loadUser();
+    window.addEventListener('worklance-user-updated', loadUser);
+    window.addEventListener('storage', loadUser);
+    return () => {
+      window.removeEventListener('worklance-user-updated', loadUser);
+      window.removeEventListener('storage', loadUser);
+    };
+  }, []);
 
   // Live ATS score
   const atsScore = computeAtsDiagnosticScore(resume);
 
   // Clean filename for exports
   const cleanFileName = `${(resume.personal.fullName || 'Resume').trim().replace(/[^a-zA-Z0-9]/g, '_')}_Resume`;
+
+  // Profile synchronization handler
+  const handleSyncToProfile = async (targetResume?: ResumeData) => {
+    const resumeToSync = targetResume || resume;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+    const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+
+    if (!token && !uStr) {
+      alert('Please log in first to synchronize your resume with your Worklance profile.');
+      window.location.href = '/login?redirect=/resume-builder';
+      return;
+    }
+
+    try {
+      setIsSyncingProfile(true);
+      setStatusBanner('⏳ Updating your Worklance profile from resume data...');
+      const updatedUser = await syncResumeToUserProfile(resumeToSync, atsScore.overallScore);
+      setCurrentUser(updatedUser);
+      setStatusBanner(`✓ Worklance profile successfully updated for ${updatedUser.name}!`);
+      setTimeout(() => setStatusBanner(''), 4500);
+    } catch (err: any) {
+      console.error('Profile sync error:', err);
+      setStatusBanner(`Sync notice: ${err.message}`);
+      setTimeout(() => setStatusBanner(''), 4500);
+    } finally {
+      setIsSyncingProfile(false);
+    }
+  };
 
   // Print PDF handler
   const handlePrint = () => {
@@ -248,7 +299,20 @@ export default function ResumeBuilderPage() {
 
     loadResumeData(converted);
     setStatusBanner(`✓ Imported resume for ${converted.personal.fullName}!`);
-    setTimeout(() => setStatusBanner(''), 4000);
+    const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+    if (uStr) {
+      syncResumeToUserProfile(converted, atsScore.overallScore)
+        .then((u) => {
+          setCurrentUser(u);
+          setStatusBanner(`✓ Imported resume & updated your profile for ${converted.personal.fullName}!`);
+          setTimeout(() => setStatusBanner(''), 5000);
+        })
+        .catch(() => {
+          setTimeout(() => setStatusBanner(''), 4000);
+        });
+    } else {
+      setTimeout(() => setStatusBanner(''), 4000);
+    }
   };
 
   // Upload resume handler (PDF, DOCX, TXT)
@@ -367,11 +431,20 @@ export default function ResumeBuilderPage() {
                   maxWidth: '180px',
                 }}
               >
-                {variants.map((v) => (
-                  <option key={v.id} value={v.id} style={{ background: '#18181B', color: '#FFF' }}>
-                    {v.versionName}
-                  </option>
-                ))}
+                {variants.map((v) => {
+                  let label = v.versionName;
+                  if (v.id === 'master') {
+                    const candidateName = currentUser?.name || resume.personal.fullName;
+                    if (candidateName && candidateName.toLowerCase() !== 'sohan sethi') {
+                      label = `Master Resume (${candidateName})`;
+                    }
+                  }
+                  return (
+                    <option key={v.id} value={v.id} style={{ background: '#18181B', color: '#FFF' }}>
+                      {label}
+                    </option>
+                  );
+                })}
               </select>
               <button
                 onClick={() => setShowVersionModal(true)}
@@ -393,6 +466,29 @@ export default function ResumeBuilderPage() {
 
           {/* Center & Right: Actions & Exports */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Sync to Worklance Profile Button */}
+            <button
+              onClick={() => handleSyncToProfile()}
+              disabled={isSyncingProfile}
+              style={{
+                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '7px 15px',
+                borderRadius: '100px',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 10px rgba(16, 185, 129, 0.35)',
+              }}
+              title="Synchronize your resume content (name, title, skills, experience, education) directly to your Worklance profile"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              {isSyncingProfile ? 'Syncing...' : '⚡ Sync to Profile'}
+            </button>
             {/* ATS Score Diagnostic Button */}
             <button
               onClick={() => setShowAtsModal(true)}

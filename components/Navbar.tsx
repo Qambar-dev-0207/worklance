@@ -31,34 +31,71 @@ export default function Navbar() {
   const isHomePage = pathname === '/';
 
   useEffect(() => {
-    // 1. Initial check from localStorage for instant hydration
-    const userStr = localStorage.getItem('worklance_user');
-    if (userStr) {
-      try {
-        setCurrentUser(JSON.parse(userStr));
-      } catch (e) {}
+    // 1. Initial check from localStorage for instant zero-latency hydration
+    const loadUserFromStorage = () => {
+      const userStr = localStorage.getItem('worklance_user');
+      if (userStr) {
+        try {
+          setCurrentUser(JSON.parse(userStr));
+        } catch (e) {}
+      } else {
+        setCurrentUser(null);
+      }
+    };
+
+    loadUserFromStorage();
+
+    // 2. Synchronize verified session with backend /api/auth/me using Bearer header fallback
+    const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // 2. Synchronize verified session with backend /api/auth/me
-    fetch('/api/auth/me')
-      .then((res) => res.json())
+    fetch('/api/auth/me', {
+      headers,
+      credentials: 'include',
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          // Only clear if server explicitly rejects authentication and no local session
+          const userStr = localStorage.getItem('worklance_user');
+          if (!userStr) {
+            localStorage.removeItem('worklance_token');
+            setCurrentUser(null);
+          }
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (data.success && data.user) {
+        if (data && data.success && data.user) {
           setCurrentUser(data.user);
           localStorage.setItem('worklance_user', JSON.stringify(data.user));
-        } else if (data.status === 401 || !data.success) {
-          localStorage.removeItem('worklance_user');
-          setCurrentUser(null);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        // Network or offline glitch - preserve localStorage user state
+        console.warn('Navbar auth check transient error:', err);
+      });
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
+    const handleUserUpdate = () => {
+      loadUserFromStorage();
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('worklance-user-updated', handleUserUpdate);
+    window.addEventListener('storage', handleUserUpdate);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('worklance-user-updated', handleUserUpdate);
+      window.removeEventListener('storage', handleUserUpdate);
+    };
   }, [pathname]);
 
   // Close menus on route change or outside click
@@ -83,8 +120,10 @@ export default function Navbar() {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch (e) {}
     localStorage.removeItem('worklance_user');
+    localStorage.removeItem('worklance_token');
     setCurrentUser(null);
     setLoggingOut(false);
+    window.dispatchEvent(new Event('worklance-user-updated'));
     window.location.href = '/login';
   };
 

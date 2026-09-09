@@ -38,6 +38,10 @@ function RegisterForm() {
       }
 
       localStorage.setItem('worklance_user', JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem('worklance_token', data.token);
+      }
+      window.dispatchEvent(new Event('worklance-user-updated'));
       
       const destination = redirectTarget || (role === 'recruiter' ? '/jobs/post' : '/jobs');
       window.location.href = destination;

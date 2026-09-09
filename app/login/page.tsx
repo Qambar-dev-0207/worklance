@@ -35,6 +35,10 @@ function LoginForm() {
 
       // Store in localStorage for fast initial render
       localStorage.setItem('worklance_user', JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem('worklance_token', data.token);
+      }
+      window.dispatchEvent(new Event('worklance-user-updated'));
       
       // Redirect to intended protected page or /jobs
       window.location.href = redirectTarget;

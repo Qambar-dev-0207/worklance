@@ -18,20 +18,44 @@ export async function GET(req: NextRequest) {
         (u) => u._id === authData.userId || u.id === authData.userId || u.email === authData.email
       );
 
-      if (!mockUser) {
-        return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+      if (mockUser) {
+        const { password, ...userWithoutPassword } = mockUser as any;
+        return NextResponse.json({ success: true, user: userWithoutPassword });
       }
 
-      const { password, ...userWithoutPassword } = mockUser as any;
-      return NextResponse.json({ success: true, user: userWithoutPassword });
+      // Graceful fallback to verified token claims if mock store was reset
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: authData.userId,
+          _id: authData.userId,
+          email: authData.email,
+          role: authData.role,
+          name: authData.name,
+        },
+      });
     }
 
-    const user = await User.findById(authData.userId).select('-password');
-    if (!user) {
-      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+    try {
+      const user = await User.findById(authData.userId).select('-password');
+      if (user) {
+        return NextResponse.json({ success: true, user });
+      }
+    } catch (dbErr) {
+      console.warn('DB lookup failed in /api/auth/me, falling back to token payload:', dbErr);
     }
 
-    return NextResponse.json({ success: true, user });
+    // Fallback to verified token payload to keep session intact
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: authData.userId,
+        _id: authData.userId,
+        email: authData.email,
+        role: authData.role,
+        name: authData.name,
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
