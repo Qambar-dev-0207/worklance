@@ -6,6 +6,18 @@ const defaultSeedHash = bcrypt.hashSync('password123', 10);
 export const mockStore = {
   users: [
     {
+      _id: 'usr_admin',
+      id: 'usr_admin',
+      name: 'System Administrator',
+      email: 'admin@worklance.com',
+      password: defaultSeedHash,
+      role: 'admin',
+      company: 'Worklance HQ',
+      title: 'Platform Administrator',
+      avatar: 'AD',
+      createdAt: new Date().toISOString(),
+    },
+    {
       _id: 'usr_1',
       id: 'usr_1',
       name: 'Ankit Kapoor',

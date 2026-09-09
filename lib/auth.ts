@@ -52,6 +52,22 @@ export function isRecruiterOrAdmin(role?: string): boolean {
   return role === 'recruiter' || role === 'admin';
 }
 
+export function isAdminUser(req: NextRequest): boolean {
+  // 1. Check for valid Admin API Secret Key header
+  const adminKey = req.headers.get('x-admin-key');
+  if (adminKey && adminKey === config.adminSecretKey) {
+    return true;
+  }
+
+  // 2. Check for authenticated session with role === 'admin' or matching adminEmail
+  const user = getUserFromRequest(req);
+  if (user && (user.role === 'admin' || user.email === config.adminEmail)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -59,3 +75,4 @@ export function isValidEmail(email: string): boolean {
 export function isValidPassword(password: string): boolean {
   return typeof password === 'string' && password.length >= 6;
 }
+

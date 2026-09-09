@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, isMockDB } from '@/lib/db';
 import User from '@/models/User';
-import { comparePassword, signToken } from '@/lib/auth';
+import { comparePassword, signToken, hashPassword } from '@/lib/auth';
 import { mockStore } from '@/lib/mockStore';
+import { config } from '@/config/env';
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,9 +60,29 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
-    const user = await User.findOne({ email: lowerEmail });
+    let user = await User.findOne({ email: lowerEmail });
+    
+    // Auto-provision initial administrator account if not yet created in MongoDB
+    if (!user && lowerEmail === config.adminEmail.toLowerCase()) {
+      const hashedPassword = await hashPassword(password);
+      user = await User.create({
+        name: 'System Administrator',
+        email: lowerEmail,
+        password: hashedPassword,
+        role: 'admin',
+        company: 'Worklance HQ',
+        title: 'Platform Administrator',
+        avatar: 'AD',
+      });
+    }
+
     if (!user) {
       return NextResponse.json({ success: false, error: 'Invalid email or password' }, { status: 401 });
+    }
+
+    if (user.email === config.adminEmail.toLowerCase() && user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
     }
 
     const isMatch = await comparePassword(password, user.password);

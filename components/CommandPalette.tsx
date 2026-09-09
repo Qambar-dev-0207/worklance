@@ -19,7 +19,8 @@ import {
   Check,
   PlusCircle,
   ExternalLink,
-  Laptop
+  Laptop,
+  ShieldCheck
 } from 'lucide-react';
 
 interface CommandItem {
@@ -148,6 +149,15 @@ export default function CommandPalette() {
       icon: <Compass className="w-4 h-4 text-zinc-300" />,
       badge: '/profile',
       action: () => { router.push('/profile'); setIsOpen(false); },
+    },
+    {
+      id: 'nav-admin',
+      title: 'Admin Operations Console',
+      description: 'Scraper engine master control, platform health, and database telemetry',
+      category: 'Navigation',
+      icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
+      badge: '/admin',
+      action: () => { router.push('/admin'); setIsOpen(false); },
     },
 
     // QUICK JOB FILTERS

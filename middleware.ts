@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const PROTECTED_ROUTES = [
+  '/admin',
   '/jobs',
   '/hackathons',
   '/hr-database',
@@ -59,6 +60,8 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin',
+    '/admin/:path*',
     '/jobs',
     '/jobs/:path*',
     '/hackathons',

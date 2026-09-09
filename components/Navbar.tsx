@@ -12,7 +12,8 @@ import {
   Briefcase, 
   ChevronDown, 
   PlusCircle, 
-  Sparkles 
+  Sparkles,
+  ShieldCheck 
 } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import MobileBottomDock from './MobileBottomDock';
@@ -313,6 +314,18 @@ export default function Navbar() {
                       <span>Explore Jobs</span>
                     </Link>
 
+                    {(currentUser.role === 'admin' || currentUser.email === 'admin@worklance.com') && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="nav-dropdown-item"
+                        style={{ color: '#09090B', fontWeight: 600, background: '#F4F4F5' }}
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Admin Console</span>
+                      </Link>
+                    )}
+
                     <div style={{ height: '1px', background: '#F4F4F5', margin: '4px 0' }}></div>
 
                     <button
@@ -483,6 +496,16 @@ export default function Navbar() {
                 >
                   My Profile
                 </Link>
+                {(currentUser.role === 'admin' || currentUser.email === 'admin@worklance.com') && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="btn btn-primary"
+                    style={{ width: '100%', textAlign: 'center', justifyContent: 'center', background: '#09090B' }}
+                  >
+                    Admin Operations Console
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="btn btn-ghost"

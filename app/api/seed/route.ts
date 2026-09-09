@@ -1,14 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, isMockDB } from '@/lib/db';
 import User from '@/models/User';
 import Job from '@/models/Job';
 import Hackathon from '@/models/Hackathon';
 import HrContact from '@/models/HrContact';
-import { hashPassword } from '@/lib/auth';
+import { hashPassword, isAdminUser } from '@/lib/auth';
 import { mockStore } from '@/lib/mockStore';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
+    // STRICT SECURITY GATE: Only Administrator or Admin API key holder
+    if (!isAdminUser(req)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Forbidden: Administrator privileges required to seed the database.',
+        },
+        { status: 403 }
+      );
+    }
+
     await connectDB();
 
     if (isMockDB()) {
@@ -16,6 +27,7 @@ export async function POST() {
         success: true,
         message: 'In-Memory database seeded successfully with sample accounts, jobs, hackathons, and HR directory!',
         accounts: {
+          admin: 'admin@worklance.com (password: password123)',
           recruiter: 'recruiter@worklance.com (password: password123)',
           seeker: 'seeker@worklance.com (password: password123)',
         },
@@ -33,8 +45,18 @@ export async function POST() {
     await Hackathon.deleteMany({});
     await HrContact.deleteMany({});
 
-    // Create Recruiter & Seeker Accounts
+    // Create Admin, Recruiter & Seeker Accounts
     const defaultPassword = await hashPassword('password123');
+
+    const admin = await User.create({
+      name: 'System Administrator',
+      email: 'admin@worklance.com',
+      password: defaultPassword,
+      role: 'admin',
+      company: 'Worklance HQ',
+      title: 'Platform Administrator',
+      avatar: 'AD',
+    });
 
     const recruiter = await User.create({
       name: 'Ankit Kapoor',
@@ -238,6 +260,6 @@ export async function POST() {
   }
 }
 
-export async function GET() {
-  return POST();
+export async function GET(req: NextRequest) {
+  return POST(req);
 }
