@@ -12,6 +12,7 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [heroQuery, setHeroQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // New interactive states for AI ROI Chart & Pricing
   const [activeRoiMetric, setActiveRoiMetric] = useState<'time' | 'cost' | 'quality' | 'manual' | 'team'>('time');
@@ -132,7 +133,143 @@ export default function Home() {
               </>
             )}
           </div>
+
+          {/* MOBILE MENU TOGGLE BUTTON */}
+          <button
+            className="mobile-nav-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            style={{
+              display: 'none',
+              flexDirection: 'column',
+              gap: '5px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              zIndex: 110,
+            }}
+          >
+            <span style={{
+              display: 'block',
+              width: '22px',
+              height: '2px',
+              background: '#000000',
+              transition: 'all 0.3s ease',
+              transform: mobileMenuOpen ? 'rotate(45deg) translate(5px, 5px)' : 'none'
+            }}></span>
+            <span style={{
+              display: 'block',
+              width: '22px',
+              height: '2px',
+              background: '#000000',
+              transition: 'all 0.3s ease',
+              opacity: mobileMenuOpen ? 0 : 1
+            }}></span>
+            <span style={{
+              display: 'block',
+              width: '22px',
+              height: '2px',
+              background: '#000000',
+              transition: 'all 0.3s ease',
+              transform: mobileMenuOpen ? 'rotate(-45deg) translate(5px, -5px)' : 'none'
+            }}></span>
+          </button>
         </div>
+
+        {/* MOBILE DRAWER */}
+        {mobileMenuOpen && (
+          <div
+            className="mobile-drawer"
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              background: '#FFFFFF',
+              borderBottom: '1px solid #E4E4E7',
+              padding: '20px 24px 28px',
+              boxShadow: '0 16px 36px rgba(0,0,0,0.12)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              zIndex: 105,
+            }}
+          >
+            <Link
+              href="/jobs"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ fontSize: '15.5px', fontWeight: 600, color: '#18181B', padding: '6px 0' }}
+            >
+              Job Hub
+            </Link>
+            <Link
+              href="/hackathons"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ fontSize: '15.5px', fontWeight: 600, color: '#18181B', padding: '6px 0' }}
+            >
+              Hackathons
+            </Link>
+            <Link
+              href="/hr-database"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ fontSize: '15.5px', fontWeight: 600, color: '#18181B', padding: '6px 0' }}
+            >
+              HR Directory
+            </Link>
+            <Link
+              href="/interview-prep"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ fontSize: '15.5px', fontWeight: 600, color: '#18181B', padding: '6px 0' }}
+            >
+              Interview Prep
+            </Link>
+            <Link
+              href="/resume-builder"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ fontSize: '15.5px', fontWeight: 600, color: '#18181B', padding: '6px 0' }}
+            >
+              Resume Builder
+            </Link>
+
+            <div style={{ height: '1px', background: '#F4F4F5', margin: '4px 0' }}></div>
+
+            {currentUser ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: '#18181B' }}>
+                  Signed in as {currentUser.name}
+                </span>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn btn-outline"
+                  style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
+                >
+                  My Profile
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn btn-ghost"
+                  style={{ width: '100%', textAlign: 'center', justifyContent: 'center', border: '1px solid #E4E4E7' }}
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn btn-primary"
+                  style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* 3D SLEEK HERO SECTION */}

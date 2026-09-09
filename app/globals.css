@@ -23,6 +23,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -30,6 +32,7 @@ body {
   color: var(--navy);
   background: var(--white);
   overflow-x: hidden;
+  max-width: 100vw;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -1502,8 +1505,8 @@ footer {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 980px) {
   .nav-links { display: none; }
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero h1 { font-size: 40px; }
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .hero h1 { font-size: 42px; }
   .journey-wrap { height: 300px; margin-top: 20px; }
   .feat-grid { grid-template-columns: 1fr 1fr; }
   .steps-track.active { grid-template-columns: 1fr 1fr; gap: 28px; }
@@ -1519,12 +1522,170 @@ footer {
   .hack-banner .stats { justify-content: center; }
 }
 
+@media (max-width: 768px) {
+  .hero {
+    padding: 100px 0 50px;
+    overflow: hidden;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 7.5vw, 36px);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  .hero p.lead {
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .hero-command-box {
+    max-width: 100%;
+    padding: 6px 6px 6px 14px;
+  }
+  .hero-command-input {
+    font-size: 13.5px;
+  }
+  .hero-tags-row {
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .hero-tag-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .hero-trust-metrics {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 26px;
+    font-size: 12px;
+  }
+  .hero-trust-metrics span {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px 14px;
+    border-radius: 100px;
+    width: 100%;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* FLATTEN 3D DECK ON MOBILE TO ELIMINATE HORIZONTAL OVERFLOW */
+  .hero-3d-stage {
+    perspective: none !important;
+    min-height: auto !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+    padding: 0 !important;
+  }
+  .hero-3d-card-deck {
+    transform: none !important;
+    animation: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+  .hero-main-deck {
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* SATELLITE PILLS BECOME IN-FLOW CLEAN BADGES ON MOBILE */
+  .hero-sat-card {
+    position: relative !important;
+    transform: none !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    box-sizing: border-box !important;
+  }
+  .sat-top-right {
+    margin-bottom: 12px !important;
+    display: inline-flex !important;
+    width: auto !important;
+    align-self: flex-start !important;
+    font-size: 11.5px !important;
+    padding: 8px 14px !important;
+  }
+  .sat-bottom-left {
+    margin-top: 14px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 12px 14px !important;
+  }
+  .hero-deck-header {
+    margin-bottom: 16px !important;
+    padding-bottom: 14px !important;
+  }
+  .hero-candidate-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 13px !important;
+  }
+  .hero-candidate-name {
+    font-size: 14px !important;
+  }
+  .hero-candidate-role {
+    font-size: 11.5px !important;
+  }
+  .hero-match-badge {
+    padding: 4px 10px !important;
+    font-size: 10.5px !important;
+  }
+  .hero-pipeline-tracker {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    margin-bottom: 14px !important;
+  }
+  .hero-p-dot {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 9px !important;
+  }
+  .hero-p-label {
+    font-size: 9.5px !important;
+  }
+}
+
 @media (max-width: 600px) {
-  .container { padding: 0 20px; }
-  .hero { padding: 150px 0 70px; }
+  .container { padding: 0 16px; }
+  .hero { padding: 95px 0 45px; }
   .feat-grid, .price-grid { grid-template-columns: 1fr; }
   .steps-track.active { grid-template-columns: 1fr; }
-  .section-pad { padding: 70px 0; }
+  .section-pad { padding: 50px 0; }
+  .sec-head { margin-bottom: 36px; }
+  .sec-head h2 { font-size: 28px; }
+  .sec-head p { font-size: 14.5px; }
+  .ai-maze-img { max-height: 280px; }
+  .ai-maze-badge { font-size: 11px; padding: 6px 12px; }
+  .ai-badge-1 { top: 10px; left: 10px; }
+  .ai-badge-2 { bottom: 10px; left: 10px; }
+  .ai-badge-3 { top: 10px; right: 10px; }
+  .ai-magenta-quote { padding: 30px 18px; }
+  .ai-quote-text { font-size: 19px; }
+  .speed-quote-title { font-size: 20px; }
+}
+
+@media (max-width: 480px) {
+  .hero-command-box {
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 5px 5px 5px 12px;
+  }
+  .hero-command-input {
+    font-size: 13px;
+  }
+  .hero-command-box .btn-primary {
+    padding: 8px 14px !important;
+    font-size: 11.5px !important;
+  }
+  .sat-waveform {
+    height: 10px;
+  }
 }
 
 /* ===== JOB OPPORTUNITY CARD HOVER ===== */
