@@ -3560,3 +3560,365 @@ footer {
   }
 }
 
+/* ==========================================================================
+   RESUME STUDIO MINIMAL 2-TIER TOOLBAR
+   ========================================================================== */
+.resume-studio-tier1 {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  background: #09090B;
+  border-bottom: 1px solid #27272A;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.resume-studio-tier1-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.studio-left-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.studio-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.studio-brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10B981;
+  flex-shrink: 0;
+}
+
+.studio-brand-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-badge-pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.studio-version-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.studio-version-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #71717A;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.studio-version-select {
+  background: transparent;
+  color: #F4F4F5;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  max-width: 170px;
+}
+
+.studio-manage-btn {
+  background: #27272A;
+  color: #D4D4D8;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.studio-manage-btn:hover {
+  background: #3F3F46;
+  color: #FFFFFF;
+}
+
+.studio-center-tools {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  border-radius: 10px;
+  padding: 3px 6px;
+}
+
+.studio-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #D4D4D8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.studio-tool-btn:hover {
+  background: #27272A;
+  color: #FFFFFF;
+}
+
+.studio-ats-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.studio-ats-pill:hover {
+  background: #27272A;
+}
+
+.studio-tool-divider {
+  width: 1px;
+  height: 16px;
+  background: #27272A;
+  margin: 0 2px;
+}
+
+.studio-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-btn-sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  color: #FFFFFF;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+.studio-btn-sync:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.studio-btn-docx {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #18181B;
+  border: 1px solid #27272A;
+  color: #D4D4D8;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.studio-btn-docx:hover {
+  background: #27272A;
+  color: #FFFFFF;
+}
+
+.studio-btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  color: #09090B;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.studio-btn-pdf:hover {
+  background: #F4F4F5;
+  transform: translateY(-1px);
+}
+
+/* TIER 2: FORMATTING & CANVAS STRIP */
+.resume-studio-tier2 {
+  width: 100%;
+  background: #111114;
+  border-bottom: 1px solid #1F1F23;
+}
+
+.resume-studio-tier2-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11.5px;
+}
+
+.studio-tier2-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.studio-btn-autofit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #F59E0B;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.studio-btn-autofit:hover {
+  background: rgba(245, 158, 11, 0.22);
+}
+
+.studio-control-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #71717A;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.studio-seg-btn {
+  background: transparent;
+  border: none;
+  color: #A1A1AA;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.studio-seg-btn.active {
+  background: #27272A;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.studio-seg-btn:hover:not(.active) {
+  color: #F4F4F5;
+}
+
+.studio-tier2-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.studio-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #A1A1AA;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.studio-ghost-btn:hover {
+  background: #1F1F23;
+  color: #FFFFFF;
+}
+
+.studio-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #71717A;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.studio-reset-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #EF4444;
+}
+

@@ -418,30 +418,23 @@ export default function ResumeBuilderPage() {
         <Navbar />
 
         {/* Minimal High-Tech Studio Bar Skeleton */}
-        <div
-          className="no-print sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md"
-          style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 shrink-0">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-sm font-bold text-white tracking-tight">Resume Studio</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                      ATS Standard
-                    </span>
-                  </div>
-                </div>
+        <div className="no-print resume-studio-tier1" style={{ position: 'sticky', top: 0, zIndex: 1000, width: '100%', background: '#09090B', borderBottom: '1px solid #27272A', boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}>
+          <div className="resume-studio-tier1-inner" style={{ maxWidth: '1360px', margin: '0 auto', padding: '0 24px', height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <div className="studio-left-group" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="studio-brand-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#18181B', border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', flexShrink: 0 }}>
+                <FileText style={{ width: '16px', height: '16px' }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em' }}>Resume Studio</span>
+                <span className="studio-badge-pill" style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '2px 7px', borderRadius: '6px' }}>
+                  ATS Standard
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs text-zinc-400 font-medium">Initializing workspace...</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: '2px solid #10B981', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }} />
+              <span style={{ fontSize: '12px', color: '#A1A1AA', fontWeight: 500 }}>Initializing workspace...</span>
             </div>
           </div>
         </div>
@@ -449,8 +442,8 @@ export default function ResumeBuilderPage() {
         {/* Studio Split-Screen Workspace Skeleton */}
         <div className="container resume-builder-grid" style={{ padding: '24px 32px 80px', flex: 1 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.15fr', gap: '28px', alignItems: 'flex-start' }}>
-            <div className="bg-white rounded-xl border border-zinc-200 p-6 min-h-[700px] animate-pulse" />
-            <div className="bg-white rounded-xl border border-zinc-200 p-6 min-h-[700px] shadow-sm animate-pulse" />
+            <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E4E4E7', padding: '24px', minHeight: '700px', opacity: 0.6 }} />
+            <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E4E4E7', padding: '24px', minHeight: '700px', opacity: 0.6, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }} />
           </div>
         </div>
       </div>
@@ -463,35 +456,63 @@ export default function ResumeBuilderPage() {
 
       {/* MINIMAL HIGH-TECH STUDIO BAR (TIER 1) */}
       <div
-        className="no-print sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md"
-        style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}
+        className="no-print resume-studio-tier1"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1000,
+          width: '100%',
+          background: '#09090B',
+          borderBottom: '1px solid #27272A',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+        <div
+          className="resume-studio-tier1-inner"
+          style={{
+            maxWidth: '1360px',
+            margin: '0 auto',
+            padding: '0 24px',
+            height: '54px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+          }}
+        >
           {/* Left: Brand + Document Version Selector */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-400 shrink-0">
-                <FileText className="w-4 h-4" />
+          <div className="studio-left-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+            <div className="studio-brand-badge" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="studio-brand-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#18181B', border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', flexShrink: 0 }}>
+                <FileText style={{ width: '16px', height: '16px' }} />
               </div>
-              <div className="hidden sm:block">
-                <div className="flex items-center gap-1.5 leading-none">
-                  <span className="text-sm font-bold text-white tracking-tight">Resume Studio</span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                    ATS Standard
-                  </span>
-                </div>
+              <div className="studio-brand-title" style={{ fontSize: '14px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Resume Studio</span>
+                <span className="studio-badge-pill" style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#10B981', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '2px 7px', borderRadius: '6px' }}>
+                  ATS Standard
+                </span>
               </div>
             </div>
 
-            <div className="h-4 w-px bg-zinc-800 hidden md:block" />
+            <div style={{ width: '1px', height: '16px', background: '#27272A' }} />
 
             {/* Version Switcher */}
-            <div className="flex items-center gap-1.5 bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 px-2.5 py-1 rounded-lg transition">
-              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Ver:</span>
+            <div className="studio-version-box" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#18181B', border: '1px solid #27272A', padding: '4px 10px', borderRadius: '8px' }}>
+              <span className="studio-version-label" style={{ fontSize: '10.5px', fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ver:</span>
               <select
                 value={activeVariantId}
                 onChange={(e) => switchVariant(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-zinc-200 outline-none cursor-pointer max-w-[130px] sm:max-w-[160px] truncate"
+                className="studio-version-select"
+                style={{
+                  background: 'transparent',
+                  color: '#F4F4F5',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  maxWidth: '170px',
+                }}
               >
                 {variants.map((v) => {
                   let label = v.versionName;
@@ -502,7 +523,7 @@ export default function ResumeBuilderPage() {
                     }
                   }
                   return (
-                    <option key={v.id} value={v.id} className="bg-zinc-900 text-white">
+                    <option key={v.id} value={v.id} style={{ background: '#18181B', color: '#FFF' }}>
                       {label}
                     </option>
                   );
@@ -510,7 +531,18 @@ export default function ResumeBuilderPage() {
               </select>
               <button
                 onClick={() => setShowVersionModal(true)}
-                className="text-[10.5px] text-zinc-400 hover:text-white font-medium ml-1 transition"
+                className="studio-manage-btn"
+                style={{
+                  background: '#27272A',
+                  color: '#D4D4D8',
+                  fontSize: '10.5px',
+                  fontWeight: 600,
+                  padding: '2px 7px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
                 title="Manage job-specific resume variants"
               >
                 Manage
@@ -519,105 +551,163 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Center: Segmented Diagnostic & Intelligence Tools */}
-          <div className="hidden lg:flex items-center gap-1 bg-zinc-900/80 border border-zinc-800/80 rounded-xl p-1">
+          <div className="studio-center-tools" style={{ display: 'flex', alignItems: 'center', gap: '3px', background: '#18181B', border: '1px solid #27272A', borderRadius: '10px', padding: '3px 6px' }}>
             {/* ATS Score Diagnostic */}
             <button
               onClick={() => setShowAtsModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              className="studio-ats-pill"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: 'transparent',
+                border: 'none',
+              }}
               title="View ATS Diagnostic Breakdown"
             >
               <span
-                className={`w-2 h-2 rounded-full ${
-                  atsScore.overallScore >= 90 ? 'bg-emerald-400' : 'bg-amber-400'
-                } animate-pulse`}
+                className="studio-ats-indicator"
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: atsScore.overallScore >= 90 ? '#10B981' : '#F59E0B',
+                }}
               />
-              <span className="text-zinc-400 text-[11px]">ATS</span>
-              <span className={`font-bold ${atsScore.overallScore >= 90 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              <span style={{ fontSize: '11px', color: '#A1A1AA', fontWeight: 600 }}>ATS</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: atsScore.overallScore >= 90 ? '#10B981' : '#F59E0B' }}>
                 {atsScore.overallScore}%
               </span>
             </button>
 
-            <div className="h-3.5 w-px bg-zinc-800" />
+            <div className="studio-tool-divider" style={{ width: '1px', height: '16px', background: '#27272A', margin: '0 2px' }} />
 
             {/* Target JD Matcher */}
             <button
               onClick={() => setShowJdModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              className="studio-tool-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#D4D4D8', background: 'transparent', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
               title="Match resume against Target Job Description"
             >
-              <Target className="w-3.5 h-3.5 text-zinc-400" />
+              <Target style={{ width: '14px', height: '14px', color: '#A1A1AA' }} />
               <span>{resume.targetCompany ? resume.targetCompany : 'Match JD'}</span>
             </button>
 
-            <div className="h-3.5 w-px bg-zinc-800" />
+            <div className="studio-tool-divider" style={{ width: '1px', height: '16px', background: '#27272A', margin: '0 2px' }} />
 
             {/* ATS Audit */}
             <button
               onClick={() => setShowChecklistModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              className="studio-tool-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#D4D4D8', background: 'transparent', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
               title="Recruiter 10-point Checklist"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+              <CheckCircle2 style={{ width: '14px', height: '14px', color: '#A1A1AA' }} />
               <span>Audit</span>
             </button>
 
-            <div className="h-3.5 w-px bg-zinc-800" />
+            <div className="studio-tool-divider" style={{ width: '1px', height: '16px', background: '#27272A', margin: '0 2px' }} />
 
             {/* Formula Guide */}
             <button
               onClick={() => setShowFormulaModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              className="studio-tool-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#D4D4D8', background: 'transparent', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
               title="Action + Context + Metric Formula Guide"
             >
-              <Lightbulb className="w-3.5 h-3.5 text-zinc-400" />
+              <Lightbulb style={{ width: '14px', height: '14px', color: '#A1A1AA' }} />
               <span>Guide</span>
             </button>
 
-            <div className="h-3.5 w-px bg-zinc-800" />
+            <div className="studio-tool-divider" style={{ width: '1px', height: '16px', background: '#27272A', margin: '0 2px' }} />
 
             {/* Import Resume */}
             <button
               onClick={() => setShowUploadModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/60 transition"
+              className="studio-tool-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#D4D4D8', background: 'transparent', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
               title="Import resume from PDF, Word, or text"
             >
-              <Upload className="w-3.5 h-3.5 text-zinc-400" />
+              <Upload style={{ width: '14px', height: '14px', color: '#A1A1AA' }} />
               <span>Import</span>
             </button>
           </div>
 
           {/* Right: Primary Action Group */}
-          <div className="flex items-center gap-2">
+          <div className="studio-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {/* Sync to Worklance Profile */}
             <button
               onClick={() => handleSyncToProfile()}
               disabled={isSyncingProfile}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-sm"
+              className="studio-btn-sync"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '7px 14px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 10px rgba(16, 185, 129, 0.3)',
+              }}
               title="Synchronize resume content directly to your Worklance profile"
             >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
-              <span className="hidden sm:inline">{isSyncingProfile ? 'Syncing...' : 'Sync to Profile'}</span>
-              <span className="sm:hidden">{isSyncingProfile ? '...' : 'Sync'}</span>
+              <Sparkles style={{ width: '14px', height: '14px', color: '#A7F3D0' }} />
+              <span>{isSyncingProfile ? 'Syncing...' : 'Sync to Profile'}</span>
             </button>
 
             {/* Word .docx Export */}
             <button
               onClick={handleDownloadDocx}
               disabled={isExportingDocx}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 font-medium text-xs transition"
+              className="studio-btn-docx"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: '#18181B',
+                border: '1px solid #27272A',
+                color: '#D4D4D8',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
               title="Exports native Microsoft Word (.docx) file matching the single-column ATS layout"
             >
-              <FileDown className="w-3.5 h-3.5 text-zinc-400" />
+              <FileDown style={{ width: '14px', height: '14px', color: '#A1A1AA' }} />
               <span>{isExportingDocx ? '...' : '.docx'}</span>
             </button>
 
             {/* Primary Print / Download PDF */}
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs transition shadow-sm"
+              className="studio-btn-pdf"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: '#FFFFFF',
+                color: '#09090B',
+                border: 'none',
+                padding: '7px 16px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+              }}
               title="Export 100% Vector ATS Print PDF"
             >
-              <Printer className="w-3.5 h-3.5 text-zinc-950" />
+              <Printer style={{ width: '14px', height: '14px', color: '#09090B' }} />
               <span>Export PDF</span>
             </button>
           </div>
@@ -626,26 +716,58 @@ export default function ResumeBuilderPage() {
 
       {/* SECONDARY FORMATTING & CANVAS STRIP (TIER 2) */}
       <div
-        className="no-print w-full border-b border-zinc-800/80 bg-zinc-900/70 backdrop-blur-sm"
+        className="no-print resume-studio-tier2"
+        style={{
+          width: '100%',
+          background: '#111114',
+          borderBottom: '1px solid #1F1F23',
+        }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between gap-3 text-xs">
+        <div
+          className="resume-studio-tier2-inner"
+          style={{
+            maxWidth: '1360px',
+            margin: '0 auto',
+            padding: '0 24px',
+            height: '38px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            fontSize: '11.5px',
+          }}
+        >
           {/* Left Controls: 1-Page Fit, Style, Font, Paper */}
-          <div className="flex items-center gap-2.5 overflow-x-auto py-1 scrollbar-none">
+          <div className="studio-tier2-left" style={{ display: 'flex', alignItems: 'center', gap: '12px', overflowX: 'auto' }}>
             {/* 1-Page Auto-Fit Badge Button */}
             <button
               onClick={() => autoFitToOnePage(10)}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-semibold text-[11px] bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition whitespace-nowrap"
+              className="studio-btn-autofit"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                color: '#F59E0B',
+                padding: '3px 10px',
+                borderRadius: '100px',
+                fontSize: '11px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
               title="Auto-tune margins, spacing, and density to fit 1 page"
             >
-              <Zap className="w-3 h-3 text-amber-400" />
+              <Zap style={{ width: '12px', height: '12px', color: '#F59E0B' }} />
               <span>1-Page Fit</span>
             </button>
 
-            <span className="text-zinc-700">|</span>
+            <span style={{ color: '#27272A' }}>|</span>
 
             {/* Template Segmented Toggle */}
-            <div className="flex items-center gap-1">
-              <span className="text-[10.5px] font-semibold text-zinc-500">STYLE:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span className="studio-control-label" style={{ fontSize: '10.5px', fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: '0.04em' }}>STYLE:</span>
               {[
                 { id: 'classic', label: 'Classic' },
                 { id: 'modern', label: 'Modern' },
@@ -654,50 +776,69 @@ export default function ResumeBuilderPage() {
                 <button
                   key={t.id}
                   onClick={() => setTemplate(t.id as any)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
-                    resume.settings.template === t.id
-                      ? 'bg-zinc-800 text-white font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
+                  className={`studio-seg-btn ${resume.settings.template === t.id ? 'active' : ''}`}
+                  style={{
+                    background: resume.settings.template === t.id ? '#27272A' : 'transparent',
+                    color: resume.settings.template === t.id ? '#FFFFFF' : '#A1A1AA',
+                    fontSize: '11px',
+                    fontWeight: resume.settings.template === t.id ? 700 : 600,
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
 
-            <span className="text-zinc-700">|</span>
+            <span style={{ color: '#27272A' }}>|</span>
 
             {/* Font Family Selector */}
-            <div className="flex items-center gap-1">
-              <span className="text-[10.5px] font-semibold text-zinc-500">FONT:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span className="studio-control-label" style={{ fontSize: '10.5px', fontWeight: 700, color: '#71717A', textTransform: 'uppercase', letterSpacing: '0.04em' }}>FONT:</span>
               {['Times New Roman', 'Georgia', 'Arial', 'Inter'].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFontFamily(f as any)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
-                    resume.settings.fontFamily === f
-                      ? 'bg-zinc-800 text-white font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
+                  className={`studio-seg-btn ${resume.settings.fontFamily === f ? 'active' : ''}`}
+                  style={{
+                    background: resume.settings.fontFamily === f ? '#27272A' : 'transparent',
+                    color: resume.settings.fontFamily === f ? '#FFFFFF' : '#A1A1AA',
+                    fontSize: '11px',
+                    fontWeight: resume.settings.fontFamily === f ? 700 : 600,
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
                   {f === 'Times New Roman' ? 'Times' : f}
                 </button>
               ))}
             </div>
 
-            <span className="text-zinc-700">|</span>
+            <span style={{ color: '#27272A' }}>|</span>
 
             {/* Paper Size */}
-            <div className="flex items-center gap-1">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
               {(['a4', 'letter'] as const).map((sz) => (
                 <button
                   key={sz}
                   onClick={() => setPageSize(sz)}
-                  className={`px-2 py-0.5 rounded text-[10.5px] font-bold uppercase transition ${
-                    resume.settings.pageSize === sz
-                      ? 'bg-zinc-200 text-zinc-950'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
+                  className={`studio-seg-btn ${resume.settings.pageSize === sz ? 'active' : ''}`}
+                  style={{
+                    background: resume.settings.pageSize === sz ? '#FFFFFF' : 'transparent',
+                    color: resume.settings.pageSize === sz ? '#09090B' : '#A1A1AA',
+                    fontSize: '10.5px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    padding: '3px 8px',
+                    borderRadius: '5px',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
                 >
                   {sz}
                 </button>
@@ -706,23 +847,25 @@ export default function ResumeBuilderPage() {
           </div>
 
           {/* Right Controls: JSON Backup / Restore / Reset */}
-          <div className="flex items-center gap-2 whitespace-nowrap">
+          <div className="studio-tier2-right" style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
             <button
               onClick={handleExportJson}
-              className="text-[11px] text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
+              className="studio-ghost-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: '#A1A1AA', fontSize: '11px', fontWeight: 600, padding: '3px 6px', borderRadius: '4px', cursor: 'pointer' }}
               title="Backup resume structure as JSON"
             >
-              <Download className="w-3 h-3" />
-              <span className="hidden sm:inline">JSON</span>
+              <Download style={{ width: '12px', height: '12px' }} />
+              <span>JSON</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="text-[11px] text-zinc-400 hover:text-zinc-200 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
+              className="studio-ghost-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: '#A1A1AA', fontSize: '11px', fontWeight: 600, padding: '3px 6px', borderRadius: '4px', cursor: 'pointer' }}
               title="Restore resume from JSON backup"
             >
-              <Upload className="w-3 h-3" />
-              <span className="hidden sm:inline">JSON</span>
+              <Upload style={{ width: '12px', height: '12px' }} />
+              <span>JSON</span>
             </button>
 
             <input
@@ -733,7 +876,7 @@ export default function ResumeBuilderPage() {
               style={{ display: 'none' }}
             />
 
-            <span className="text-zinc-700">|</span>
+            <span style={{ color: '#27272A' }}>|</span>
 
             <button
               onClick={() => {
@@ -743,11 +886,12 @@ export default function ResumeBuilderPage() {
                   setTimeout(() => setStatusBanner(''), 3000);
                 }
               }}
-              className="text-[11px] text-zinc-500 hover:text-red-400 inline-flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-zinc-800/60 transition"
+              className="studio-reset-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', color: '#71717A', fontSize: '11px', fontWeight: 600, padding: '3px 6px', borderRadius: '4px', cursor: 'pointer' }}
               title="Reset to default reference resume"
             >
-              <RotateCcw className="w-3 h-3" />
-              <span className="hidden md:inline">Reset</span>
+              <RotateCcw style={{ width: '12px', height: '12px' }} />
+              <span>Reset</span>
             </button>
           </div>
         </div>
