@@ -11,12 +11,14 @@ export interface EducationItem {
   institution: string;
   degree: string;
   duration: string;
+  location?: string;
 }
 
 export interface ProjectItem {
   name: string;
   tech: string;
   link?: string;
+  linkText?: string;
   date?: string;
   points: string[];
 }
@@ -25,6 +27,7 @@ export interface ExperienceItem {
   company: string;
   role: string;
   duration: string;
+  location?: string;
   points: string[];
 }
 
@@ -345,18 +348,18 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
 
     if (institution || degree) {
       educationList.push({
-        institution: institution || 'Kalinga Institute of Industrial Technology',
-        degree: degree || 'Bachelor of Technology in Computer Engineering',
-        duration: duration || 'Oct 2021-May 2025(Pursuing)',
+        institution: institution || 'University',
+        degree: degree || 'Degree',
+        duration: duration || '2020 – 2024',
       });
     }
   }
 
   if (educationList.length === 0) {
     educationList.push({
-      institution: 'Kalinga Institute of Industrial Technology',
-      degree: 'Bachelor of Technology in Computer Engineering',
-      duration: 'Oct 2021-May 2025(Pursuing)',
+      institution: 'University',
+      degree: 'Degree Program',
+      duration: '2020 – 2024',
     });
   }
 
@@ -428,9 +431,10 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
         }
 
         let name = line;
-        let tech = 'Python, AI';
-        let date = '2024';
-        let link = 'Link';
+        let tech = '';
+        let date = '';
+        let link = '';
+        let linkText = '';
 
         const dMatch = line.match(/(?:January|February|March|April|May|June|July|August|September|October|November|December|[0-9]{4})\s*,?\s*[0-9]{4}/i);
         if (dMatch) {
@@ -438,16 +442,32 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
           name = name.replace(dMatch[0], '').trim();
         }
 
+        // Check for actual URLs
+        const urlMatch = name.match(/https?:\/\/[^\s|)]+|github\.com\/[^\s|)]+/i);
+        if (urlMatch) {
+          link = urlMatch[0];
+          linkText = link.includes('github') ? 'GitHub' : 'Live Demo';
+          name = name.replace(urlMatch[0], '').trim();
+        }
+
         if (name.includes('|')) {
           const parts = name.split('|');
           name = parts[0].trim();
-          tech = parts[1].replace(/link/i, '').trim();
+          tech = parts[1]?.replace(/link/i, '').trim() || '';
+          if (parts[2] && !link) {
+            const possibleUrl = parts[2].trim();
+            if (possibleUrl.toLowerCase() !== 'link') {
+              link = possibleUrl;
+              linkText = link.includes('github') ? 'GitHub' : 'Live Demo';
+            }
+          }
         }
 
         currentProj = {
           name: name.replace(/^[#*_\s]+|[#*_\s]+$/g, '').trim(),
-          tech: tech || 'Python',
-          link,
+          tech: tech || 'Python, AI',
+          link: link,
+          linkText: linkText,
           date,
           points: [],
         };
@@ -475,33 +495,76 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
       const isBullet = line.startsWith('*') || line.startsWith('•') || line.startsWith('-') || /^\d+\.\s/.test(line);
 
       if (!isBullet && (dateRegex.test(line) || !currentExp)) {
-        if (currentExp && (currentExp.points.length > 0 || currentExp.role)) {
+        if (currentExp && (currentExp.points.length > 0 || currentExp.role || currentExp.company)) {
           experienceList.push(currentExp);
         }
 
         const dateMatch = line.match(dateRegex);
-        let duration = dateMatch ? dateMatch[0] : 'January, 2022 - Present';
+        let duration = dateMatch ? dateMatch[0] : '';
         let titleLine = line.replace(dateRegex, '').trim().replace(/[|•–—,-]+$/, '');
 
-        let role = titleLine;
+        let role = '';
         let company = '';
+        let location = '';
 
-        if (titleLine.includes(',')) {
-          const parts = titleLine.split(',');
-          role = parts[0].trim();
-          company = parts.slice(1).join(',').trim();
+        if (titleLine.includes('|')) {
+          const parts = titleLine.split('|').map((p) => p.trim());
+          if (parts.length >= 3) {
+            company = parts[0];
+            role = parts[1];
+            location = parts[2];
+          } else if (parts.length === 2) {
+            role = parts[0];
+            company = parts[1];
+          }
         } else if (titleLine.includes(' at ')) {
           const parts = titleLine.split(' at ');
           role = parts[0].trim();
           company = parts[1].trim();
+        } else if (titleLine.includes(' – ') || titleLine.includes(' - ')) {
+          const parts = titleLine.split(/\s+[–-]\s+/);
+          if (parts.length >= 2) {
+            role = parts[0].trim();
+            company = parts[1].trim();
+          } else {
+            role = titleLine;
+          }
+        } else if (titleLine.includes(',')) {
+          const parts = titleLine.split(',');
+          role = parts[0].trim();
+          company = parts.slice(1).join(',').trim();
+        } else {
+          role = titleLine;
         }
 
         currentExp = {
-          role: role || 'Freelance AI and ML Engineer',
-          company,
-          duration,
+          role: role || 'AI Engineer',
+          company: company || '',
+          location: location || '',
+          duration: duration || 'Present',
           points: [],
         };
+      } else if (currentExp && !currentExp.company && currentExp.points.length === 0 && !isBullet && line.length < 80) {
+        // Line directly below the role header is typically the company name (e.g. "Norma AI, Inc.")
+        let compLine = line.trim();
+        let loc = '';
+        if (compLine.includes('|')) {
+          const parts = compLine.split('|');
+          compLine = parts[0].trim();
+          loc = parts.slice(1).join('|').trim();
+        } else if (compLine.includes(' - ')) {
+          const parts = compLine.split(' - ');
+          compLine = parts[0].trim();
+          loc = parts.slice(1).join(' - ').trim();
+        } else if (compLine.includes(',')) {
+          const parts = compLine.split(',');
+          compLine = parts[0].trim();
+          loc = parts.slice(1).join(',').trim();
+        }
+        currentExp.company = compLine;
+        if (loc && !currentExp.location) {
+          currentExp.location = loc;
+        }
       } else if (currentExp) {
         const bulletText = line.replace(/^[•\-\*\d.]+\s*/, '').trim();
         if (bulletText.length > 10) {

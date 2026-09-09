@@ -26,6 +26,7 @@ import AdditionalSectionsEditor from '@/components/resume/editors/AdditionalSect
 import { useResumeStore } from '@/lib/resume/store';
 import { generateDocxResume, downloadBlob } from '@/lib/resume/docxExport';
 import { computeAtsDiagnosticScore } from '@/lib/resume/atsValidator';
+import { printResumeToPdf } from '@/lib/resume/printPdf';
 import { ResumeData } from '@/types/resume';
 
 export default function ResumeBuilderPage() {
@@ -89,12 +90,9 @@ export default function ResumeBuilderPage() {
 
   // Print PDF handler
   const handlePrint = () => {
-    const originalTitle = document.title;
-    document.title = cleanFileName;
-    window.print();
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 1000);
+    setStatusBanner('Preparing 100% full-scale ATS PDF export...');
+    printResumeToPdf('resume-document-root', cleanFileName, resume.settings.pageSize);
+    setTimeout(() => setStatusBanner(''), 4000);
   };
 
   // DOCX Export handler
@@ -173,15 +171,20 @@ export default function ResumeBuilderPage() {
       },
       showSummary: parsed.showSummary ?? !!parsed.summary,
       summary: parsed.summary || resume.summary,
-      education: (parsed.educationList || []).map((e: any, idx: number) => ({
-        id: `edu-${idx}`,
-        institution: e.institution || 'University',
-        degree: e.degree || 'Degree',
-        location: e.location || 'Location',
-        graduationDate: e.duration || e.graduationDate || '2024',
-        coursework: e.coursework || '',
-        gpa: e.gpa || '',
-      })),
+      education: (parsed.educationList || []).map((e: any, idx: number) => {
+        const loc = e.location && e.location.toLowerCase() !== 'location' && e.location.toLowerCase() !== 'city, state'
+          ? e.location
+          : '';
+        return {
+          id: `edu-${idx}`,
+          institution: e.institution || '',
+          degree: e.degree || '',
+          location: loc,
+          graduationDate: e.duration || e.graduationDate || '',
+          coursework: e.coursework || '',
+          gpa: e.gpa || '',
+        };
+      }),
       skills: parsed.skillsCategorized
         ? Object.entries(parsed.skillsCategorized).map(([k, v], idx) => ({
             id: `skill-${idx}`,
@@ -189,31 +192,54 @@ export default function ResumeBuilderPage() {
             skillsList: String(v),
           }))
         : resume.skills,
-      experience: (parsed.experience || []).map((exp: any, idx: number) => ({
-        id: `exp-${idx}`,
-        company: exp.company || exp.role || 'Company',
-        role: exp.role || 'Role Title',
-        location: exp.location || 'City, State',
-        startDate: (exp.duration || '2022').split(/[-–]/)[0]?.trim() || '2022',
-        endDate: (exp.duration || 'Present').split(/[-–]/)[1]?.trim() || 'Present',
-        current: (exp.duration || '').toLowerCase().includes('present'),
-        bullets: (exp.points || exp.bulletPoints || []).map((pt: string, pIdx: number) => ({
-          id: `b-${idx}-${pIdx}`,
-          text: pt,
-        })),
-      })),
-      projects: (parsed.projects || []).map((proj: any, idx: number) => ({
-        id: `proj-${idx}`,
-        name: proj.name || 'Project Name',
-        tech: proj.tech || 'Python, SQL',
-        date: proj.date || '2024',
-        link: proj.link || '',
-        linkText: proj.linkText || 'Link',
-        bullets: (proj.points || []).map((pt: string, pIdx: number) => ({
-          id: `pb-${idx}-${pIdx}`,
-          text: pt,
-        })),
-      })),
+      experience: (parsed.experience || []).map((exp: any, idx: number) => {
+        const rawComp = (exp.company || '').trim();
+        const rawRole = (exp.role || exp.title || '').trim();
+        const isDuplicate = rawComp.toLowerCase() === rawRole.toLowerCase();
+        // Never duplicate role as company
+        const company = rawComp;
+        const role = isDuplicate ? rawRole : (rawRole || 'Role Title');
+        const loc = exp.location && exp.location.toLowerCase() !== 'city, state' && exp.location.toLowerCase() !== 'location'
+          ? exp.location
+          : '';
+
+        const durationParts = (exp.duration || '').split(/[-–—]/);
+        const startDate = durationParts[0]?.trim() || '';
+        const endDate = durationParts[1]?.trim() || (exp.duration?.toLowerCase().includes('present') ? 'Present' : '');
+
+        return {
+          id: `exp-${idx}`,
+          company: company,
+          role: role,
+          location: loc,
+          startDate: startDate,
+          endDate: endDate,
+          current: (exp.duration || '').toLowerCase().includes('present'),
+          bullets: (exp.points || exp.bulletPoints || []).map((pt: string, pIdx: number) => ({
+            id: `b-${idx}-${pIdx}`,
+            text: pt,
+          })),
+        };
+      }),
+      projects: (parsed.projects || []).map((proj: any, idx: number) => {
+        const link = proj.link && proj.link.toLowerCase() !== 'link' ? proj.link : '';
+        const linkText = proj.linkText && proj.linkText.toLowerCase() !== 'link'
+          ? proj.linkText
+          : (link ? (link.includes('github') ? 'GitHub' : 'Live Demo') : '');
+
+        return {
+          id: `proj-${idx}`,
+          name: proj.name || '',
+          tech: proj.tech || '',
+          date: proj.date || '',
+          link: link,
+          linkText: linkText,
+          bullets: (proj.points || []).map((pt: string, pIdx: number) => ({
+            id: `pb-${idx}-${pIdx}`,
+            text: pt,
+          })),
+        };
+      }),
       leadership: (parsed.leadership || []).map((item: any, idx: number) => ({
         id: `lead-${idx}`,
         text: typeof item === 'string' ? item : item.text || '',

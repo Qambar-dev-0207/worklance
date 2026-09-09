@@ -362,22 +362,26 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           {edu.degree}
                           {edu.gpa ? `, GPA: ${edu.gpa}` : ''}
                         </span>
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleInlineBlur(edu.id, e, (val) => updateEducation(edu.id, { location: val }))
-                          }
-                          style={{
-                            fontStyle: 'italic',
-                            textAlign: 'right',
-                            outline: 'none',
-                            cursor: 'text',
-                            fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
-                          }}
-                        >
-                          {edu.location}
-                        </span>
+                        {edu.location &&
+                          edu.location.trim().toLowerCase() !== 'location' &&
+                          edu.location.trim().toLowerCase() !== 'city, state' && (
+                            <span
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) =>
+                                handleInlineBlur(edu.id, e, (val) => updateEducation(edu.id, { location: val }))
+                              }
+                              style={{
+                                fontStyle: 'italic',
+                                textAlign: 'right',
+                                outline: 'none',
+                                cursor: 'text',
+                                fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
+                              }}
+                            >
+                              {edu.location}
+                            </span>
+                          )}
                       </div>
 
                       {edu.coursework && (
@@ -468,89 +472,117 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                   >
                     Experience
                   </div>
-                  {resume.experience.map((exp) => (
-                    <div key={exp.id} style={{ marginBottom: `${entrySpacingPx}px` }}>
-                      {/* Company Name & Date */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'baseline',
-                        }}
-                      >
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleInlineBlur(exp.id, e, (val) => updateExperience(exp.id, { company: val }))
-                          }
-                          style={{
-                            fontWeight: 700,
-                            fontSize: `${bodyPt + 0.5}pt`,
-                            outline: 'none',
-                            cursor: 'text',
-                          }}
-                        >
-                          {exp.company}
-                        </span>
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) => {
-                            const val = e.currentTarget.innerText.trim();
-                            if (val.includes('–') || val.includes('-')) {
-                              const [start, end] = val.split(/[–-]/);
-                              updateExperience(exp.id, { startDate: start.trim(), endDate: end.trim() });
-                            }
-                          }}
-                          style={{
-                            fontWeight: 700,
-                            textAlign: 'right',
-                            outline: 'none',
-                            cursor: 'text',
-                            fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
-                          }}
-                        >
-                          {exp.startDate} – {exp.endDate}
-                        </span>
-                      </div>
+                  {resume.experience.map((exp) => {
+                    const compTrim = (exp.company || '').trim();
+                    const roleTrim = (exp.role || '').trim();
+                    const isSameRoleAndComp =
+                      compTrim.length > 0 &&
+                      roleTrim.length > 0 &&
+                      compTrim.toLowerCase() === roleTrim.toLowerCase();
 
-                      {/* Job Title & Location */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'baseline',
-                          marginBottom: '2px',
-                        }}
-                      >
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleInlineBlur(exp.id, e, (val) => updateExperience(exp.id, { role: val }))
-                          }
-                          style={{ fontStyle: 'italic', outline: 'none', cursor: 'text' }}
-                        >
-                          {exp.role}
-                        </span>
-                        <span
-                          contentEditable
-                          suppressContentEditableWarning
-                          onBlur={(e) =>
-                            handleInlineBlur(exp.id, e, (val) => updateExperience(exp.id, { location: val }))
-                          }
+                    // If company is provided, use it on top line; if not, show role
+                    const topHeader = compTrim || roleTrim || 'Company';
+                    // Second line only shows role if distinct from company
+                    const subRole = !isSameRoleAndComp && compTrim ? roleTrim : '';
+                    const hasLocation =
+                      exp.location &&
+                      exp.location.trim().toLowerCase() !== 'city, state' &&
+                      exp.location.trim().toLowerCase() !== 'location';
+                    const hasDates = exp.startDate || exp.endDate;
+
+                    return (
+                      <div key={exp.id} style={{ marginBottom: `${entrySpacingPx}px` }}>
+                        {/* Company Name & Date */}
+                        <div
                           style={{
-                            fontStyle: 'italic',
-                            textAlign: 'right',
-                            outline: 'none',
-                            cursor: 'text',
-                            fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'baseline',
                           }}
                         >
-                          {exp.location}
-                        </span>
-                      </div>
+                          <span
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) =>
+                              handleInlineBlur(exp.id, e, (val) =>
+                                compTrim
+                                  ? updateExperience(exp.id, { company: val })
+                                  : updateExperience(exp.id, { role: val })
+                              )
+                            }
+                            style={{
+                              fontWeight: 700,
+                              fontSize: `${bodyPt + 0.5}pt`,
+                              outline: 'none',
+                              cursor: 'text',
+                            }}
+                          >
+                            {topHeader}
+                          </span>
+                          {hasDates && (
+                            <span
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) => {
+                                const val = e.currentTarget.innerText.trim();
+                                if (val.includes('–') || val.includes('-')) {
+                                  const [start, end] = val.split(/[–-]/);
+                                  updateExperience(exp.id, { startDate: start.trim(), endDate: end.trim() });
+                                }
+                              }}
+                              style={{
+                                fontWeight: 700,
+                                textAlign: 'right',
+                                outline: 'none',
+                                cursor: 'text',
+                                fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
+                              }}
+                            >
+                              {exp.startDate ? `${exp.startDate}${exp.endDate ? ` – ${exp.endDate}` : ''}` : exp.endDate}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Job Title & Location (Only render if there is a distinct role or valid location) */}
+                        {(subRole || hasLocation) && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'baseline',
+                              marginBottom: '2px',
+                            }}
+                          >
+                            <span
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) =>
+                                handleInlineBlur(exp.id, e, (val) => updateExperience(exp.id, { role: val }))
+                              }
+                              style={{ fontStyle: 'italic', outline: 'none', cursor: 'text' }}
+                            >
+                              {subRole}
+                            </span>
+                            {hasLocation && (
+                              <span
+                                contentEditable
+                                suppressContentEditableWarning
+                                onBlur={(e) =>
+                                  handleInlineBlur(exp.id, e, (val) => updateExperience(exp.id, { location: val }))
+                                }
+                                style={{
+                                  fontStyle: 'italic',
+                                  textAlign: 'right',
+                                  outline: 'none',
+                                  cursor: 'text',
+                                  fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
+                                }}
+                              >
+                                {exp.location}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                       {/* Bullets with hanging indent */}
                       <ul
@@ -581,8 +613,9 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                         ))}
                       </ul>
                     </div>
-                  ))}
-                </section>
+                  );
+                })}
+              </section>
               );
 
             case 'projects':
@@ -623,30 +656,40 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           >
                             {proj.name}
                           </span>
-                          <span style={{ color: '#000000' }}> | </span>
-                          <span
-                            contentEditable
-                            suppressContentEditableWarning
-                            onBlur={(e) =>
-                              handleInlineBlur(proj.id, e, (val) => updateProject(proj.id, { tech: val }))
-                            }
-                            style={{ fontStyle: 'italic', outline: 'none', cursor: 'text' }}
-                          >
-                            {proj.tech}
-                          </span>
-                          {proj.link && (
+                          {proj.tech && (
                             <>
-                              <span> | </span>
-                              <a
-                                href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ color: '#000000', textDecoration: 'underline' }}
+                              <span style={{ color: '#000000' }}> | </span>
+                              <span
+                                contentEditable
+                                suppressContentEditableWarning
+                                onBlur={(e) =>
+                                  handleInlineBlur(proj.id, e, (val) => updateProject(proj.id, { tech: val }))
+                                }
+                                style={{ fontStyle: 'italic', outline: 'none', cursor: 'text' }}
                               >
-                                {proj.linkText || 'Link'}
-                              </a>
+                                {proj.tech}
+                              </span>
                             </>
                           )}
+                          {proj.link &&
+                            proj.link.trim().toLowerCase() !== 'link' &&
+                            proj.link.trim().length > 0 && (
+                              <>
+                                <span> | </span>
+                                <a
+                                  href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{ color: '#000000', textDecoration: 'underline' }}
+                                >
+                                  {proj.linkText && proj.linkText.trim().toLowerCase() !== 'link'
+                                    ? proj.linkText
+                                    : proj.link.includes('github')
+                                    ? 'GitHub ↗'
+                                    : 'Demo ↗'}
+                                </a>
+                              </>
+                            )}
                         </div>
                         <span
                           contentEditable

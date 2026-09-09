@@ -3511,34 +3511,52 @@ footer {
 
 @media print {
   @page {
-    margin: 10mm 12mm;
-    size: auto;
+    size: letter portrait;
+    margin: 0 !important; /* Strips browser-injected header (date, title) and footer (URL, page numbers) */
   }
-  body {
+  html, body {
     background: #FFFFFF !important;
     color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  nav, footer, .no-print, .nav, .btn, .eyebrow {
+  nav, footer, .no-print, .nav, .btn, .eyebrow, .page-break-guide {
     display: none !important;
+  }
+  .resume-builder-grid {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    position: static !important;
+  }
+  .resume-builder-grid > div {
+    display: block !important;
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
   .ats-resume-sheet {
     box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    width: 8.5in !important;
+    min-height: 11in !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
   }
   .ats-section-title {
     break-after: avoid;
   }
-  .resume-builder-grid {
-    padding: 0 !important;
-    max-width: 100% !important;
-  }
-  .resume-builder-grid > div {
-    display: block !important;
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
   }
 }
 
