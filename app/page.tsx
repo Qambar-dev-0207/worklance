@@ -120,7 +120,7 @@ export default function Home() {
           <div className="nav-cta">
             {currentUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Hi, {currentUser.name}</span>
+                <span style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--navy-deep)' }}>Hi, {currentUser.name}</span>
                 <Link href="/profile" className="btn btn-outline" style={{ padding: '7px 16px', fontSize: '13px' }}>
                   My Profile
                 </Link>
