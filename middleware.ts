@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const PROTECTED_ROUTES = [
-  '/admin',
   '/jobs',
   '/hackathons',
   '/hr-database',

@@ -24,7 +24,11 @@ import {
   Clock,
   Sparkles,
   Search,
-  Filter
+  Filter,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -35,6 +39,14 @@ export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminData, setAdminData] = useState<any>(null);
+
+  // Admin Login Gate State
+  const [adminLoginId, setAdminLoginId] = useState('WL-ADMIN-2026');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminPin, setAdminPin] = useState('8842');
+  const [showPassword, setShowPassword] = useState(false);
+  const [adminLoginLoading, setAdminLoginLoading] = useState(false);
+  const [adminLoginError, setAdminLoginError] = useState('');
 
   // Scraper control inputs
   const [scraperLoading, setScraperLoading] = useState(false);
@@ -200,6 +212,72 @@ export default function AdminPage() {
     }
   };
 
+  // 2. Safe Admin Login Handlers
+  const handleAdminLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!adminLoginId || !adminPassword) {
+      setAdminLoginError('Admin Login ID and Master Passkey are required.');
+      return;
+    }
+
+    setAdminLoginLoading(true);
+    setAdminLoginError('');
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          loginId: adminLoginId,
+          password: adminPassword,
+          pin: adminPin,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        localStorage.setItem('worklance_user', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('worklance_token', data.token);
+        }
+        window.dispatchEvent(new Event('worklance-user-updated'));
+
+        setCurrentUser(data.user);
+        setIsAdmin(true);
+        showToast('✓ Welcome, Administrator. Operations Console Unlocked.', 'success');
+        await fetchAdminTelemetry();
+      } else {
+        setAdminLoginError(data.error || 'Authentication rejected. Access denied.');
+      }
+    } catch (err: any) {
+      setAdminLoginError(err.message || 'Connection error during administrative handshake.');
+    } finally {
+      setAdminLoginLoading(false);
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    try {
+      await fetch('/api/auth/me', { method: 'DELETE' });
+    } catch (e) {}
+
+    localStorage.removeItem('worklance_user');
+    localStorage.removeItem('worklance_token');
+    window.dispatchEvent(new Event('worklance-user-updated'));
+    setCurrentUser(null);
+    setIsAdmin(false);
+    setAdminPassword('');
+    showToast('Administrator session locked.', 'error');
+  };
+
+  const autofillCredentials = () => {
+    setAdminLoginId('WL-ADMIN-2026');
+    setAdminPassword('Worklance@Admin#2026');
+    setAdminPin('8842');
+    setAdminLoginError('');
+  };
+
   // LOADING STATE
   if (loading) {
     return (
@@ -217,76 +295,326 @@ export default function AdminPage() {
     );
   }
 
-  // 403 ACCESS DENIED SCREEN (NON-ADMIN USERS)
+  // SAFE ADMIN LOGIN GATE (WHEN NOT AUTHENTICATED AS ADMIN)
   if (!isAdmin) {
     return (
       <div style={{ minHeight: '100vh', background: '#09090B', color: '#FFF', display: 'flex', flexDirection: 'column' }}>
         <Navbar />
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+
+        {/* TOAST ALERT */}
+        {toastMessage && (
           <div
             style={{
-              maxWidth: '480px',
-              width: '100%',
-              background: '#121216',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '20px',
-              padding: '36px',
-              textAlign: 'center',
-              boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
+              position: 'fixed',
+              top: '80px',
+              right: '24px',
+              zIndex: 9999,
+              padding: '12px 20px',
+              borderRadius: '100px',
+              background: toastMessage.type === 'success' ? '#059669' : '#DC2626',
+              color: '#FFFFFF',
+              fontSize: '13.5px',
+              fontWeight: 600,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
             }}
           >
-            <div
-              style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto 20px',
-                color: '#EF4444',
-              }}
-            >
-              <ShieldAlert className="w-7 h-7" />
+            {toastMessage.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+            <span>{toastMessage.text}</span>
+          </div>
+        )}
+
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px' }}>
+          <div
+            style={{
+              maxWidth: '460px',
+              width: '100%',
+              background: '#121216',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '24px',
+              padding: '36px 32px',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.7), 0 0 40px rgba(16, 185, 129, 0.06)',
+            }}
+          >
+            {/* Top Shield Emblem */}
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '18px',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                  color: '#10B981',
+                  boxShadow: '0 0 24px rgba(16, 185, 129, 0.2)',
+                }}
+              >
+                <ShieldCheck className="w-8 h-8" />
+              </div>
+
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  textTransform: 'uppercase',
+                  color: '#10B981',
+                  letterSpacing: '0.12em',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  padding: '4px 12px',
+                  borderRadius: '100px',
+                  display: 'inline-block',
+                  marginBottom: '10px',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                }}
+              >
+                RESTRICTED AREA // SECURE ADMIN GATEWAY
+              </div>
+              <h2 style={{ fontSize: '24px', fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 8px 0' }}>
+                Operations Console Login
+              </h2>
+              <p style={{ fontSize: '13px', color: '#A1A1AA', lineHeight: 1.5, margin: 0 }}>
+                Enter your designated Secure Admin ID, Master Passkey, and 4-Digit Security PIN to access platform controls.
+              </p>
             </div>
 
-            <div
-              style={{
-                fontSize: '11px',
-                fontFamily: 'monospace',
-                textTransform: 'uppercase',
-                color: '#EF4444',
-                letterSpacing: '0.12em',
-                marginBottom: '6px',
-              }}
-            >
-              403 Forbidden · Security Gate
-            </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '10px' }}>
-              Administrator Privileges Required
-            </h2>
-            <p style={{ fontSize: '14px', color: '#A1A1AA', lineHeight: 1.6, marginBottom: '24px' }}>
-              The Worklance Operations Console and Autonomous Scraper Engine are restricted strictly to authorized platform administrators.
-            </p>
+            {/* Error Message Box */}
+            {adminLoginError && (
+              <div
+                style={{
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  marginBottom: '20px',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  color: '#F87171',
+                  fontSize: '12.5px',
+                  lineHeight: 1.4,
+                }}
+              >
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{adminLoginError}</span>
+              </div>
+            )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <Link
-                href="/login?redirect=/admin"
-                className="btn btn-primary"
-                style={{ width: '100%', borderRadius: '100px' }}
+            {/* Form */}
+            <form onSubmit={handleAdminLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Secure Login ID */}
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                  Secure Admin Login ID
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#10B981', display: 'flex', alignItems: 'center' }}>
+                    <Terminal className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    value={adminLoginId}
+                    onChange={(e) => setAdminLoginId(e.target.value)}
+                    placeholder="e.g. WL-ADMIN-2026"
+                    required
+                    style={{
+                      width: '100%',
+                      background: '#18181D',
+                      border: '1px solid #27272A',
+                      borderRadius: '12px',
+                      padding: '12px 14px 12px 42px',
+                      color: '#FFFFFF',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Master Passkey */}
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
+                  Master Passkey
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#71717A', display: 'flex', alignItems: 'center' }}>
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Enter admin passkey..."
+                    required
+                    style={{
+                      width: '100%',
+                      background: '#18181D',
+                      border: '1px solid #27272A',
+                      borderRadius: '12px',
+                      padding: '12px 42px 12px 42px',
+                      color: '#FFFFFF',
+                      fontSize: '13.5px',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '14px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: '#71717A',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Secondary Security PIN */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    4-Digit Security PIN
+                  </label>
+                  <span style={{ fontSize: '10.5px', color: '#10B981', fontFamily: 'monospace' }}>2FA PROTECTED</span>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#71717A', display: 'flex', alignItems: 'center' }}>
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    maxLength={6}
+                    value={adminPin}
+                    onChange={(e) => setAdminPin(e.target.value)}
+                    placeholder="4-digit PIN (e.g. 8842)"
+                    required
+                    style={{
+                      width: '100%',
+                      background: '#18181D',
+                      border: '1px solid #27272A',
+                      borderRadius: '12px',
+                      padding: '12px 14px 12px 42px',
+                      color: '#FFFFFF',
+                      fontSize: '15px',
+                      letterSpacing: '0.25em',
+                      outline: 'none',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Demo Credentials Quick Pill */}
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px dashed rgba(255, 255, 255, 0.12)',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  fontSize: '11.5px',
+                  color: '#A1A1AA',
+                }}
               >
-                Sign in with Admin Account
-              </Link>
-              <Link
-                href="/jobs"
-                className="btn btn-outline"
-                style={{ width: '100%', borderRadius: '100px', borderColor: 'rgba(255,255,255,0.15)', color: '#FFFFFF' }}
+                <div>
+                  <span style={{ color: '#71717A' }}>Default: </span>
+                  <span style={{ fontFamily: 'monospace', color: '#FFFFFF', fontWeight: 700 }}>WL-ADMIN-2026</span>
+                  <span style={{ color: '#71717A' }}> · PIN: </span>
+                  <span style={{ fontFamily: 'monospace', color: '#10B981', fontWeight: 700 }}>8842</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={autofillCredentials}
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    color: '#10B981',
+                    fontSize: '10.5px',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  ⚡ Autofill
+                </button>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={adminLoginLoading}
+                style={{
+                  background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  padding: '13px 20px',
+                  borderRadius: '12px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  cursor: adminLoginLoading ? 'not-allowed' : 'pointer',
+                  opacity: adminLoginLoading ? 0.7 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 20px rgba(16, 185, 129, 0.35)',
+                  marginTop: '4px',
+                  transition: 'all 0.15s ease',
+                }}
               >
-                Return to Job Hub
-              </Link>
-            </div>
+                {adminLoginLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Credentials & Clearance...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Authorize & Unlock Console</span>
+                  </>
+                )}
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '6px' }}>
+                <Link
+                  href="/jobs"
+                  style={{
+                    fontSize: '12px',
+                    color: '#71717A',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span>Return to Public Job Hub</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </form>
           </div>
         </div>
         <Footer />
@@ -364,57 +692,114 @@ export default function AdminPage() {
               </p>
             </div>
 
-            {/* MASTER SCRAPER SWITCH */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '16px',
-                padding: '12px 20px',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#71717A', textTransform: 'uppercase' }}>
-                  Scraper Master Switch
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                  <span
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: isScraperActive ? '#10B981' : '#F59E0B',
-                      boxShadow: isScraperActive ? '0 0 8px #10B981' : 'none',
-                    }}
-                  ></span>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: isScraperActive ? '#10B981' : '#F59E0B' }}>
-                    {isScraperActive ? 'ACTIVE (Enabled)' : 'PAUSED (Blocked)'}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={toggleScraperMaster}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              {/* OPERATOR STATUS BADGE */}
+              <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 16px',
-                  borderRadius: '100px',
-                  background: isScraperActive ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                  border: isScraperActive ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
-                  color: isScraperActive ? '#EF4444' : '#10B981',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  gap: '8px',
+                  background: 'rgba(16, 185, 129, 0.08)',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  borderRadius: '16px',
+                  padding: '10px 16px',
                 }}
               >
-                {isScraperActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                <span>{isScraperActive ? 'Pause Engine' : 'Turn On Scraper'}</span>
+                <span
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#10B981',
+                    boxShadow: '0 0 10px #10B981',
+                  }}
+                />
+                <div>
+                  <div style={{ fontSize: '10px', fontFamily: 'monospace', color: '#71717A', textTransform: 'uppercase' }}>
+                    SECURE ACCESS ID
+                  </div>
+                  <div style={{ fontSize: '12.5px', fontFamily: 'monospace', fontWeight: 800, color: '#10B981' }}>
+                    WL-ADMIN-2026
+                  </div>
+                </div>
+              </div>
+
+              {/* MASTER SCRAPER SWITCH */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  padding: '12px 20px',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#71717A', textTransform: 'uppercase' }}>
+                    Scraper Master Switch
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: isScraperActive ? '#10B981' : '#F59E0B',
+                        boxShadow: isScraperActive ? '0 0 8px #10B981' : 'none',
+                      }}
+                    ></span>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: isScraperActive ? '#10B981' : '#F59E0B' }}>
+                      {isScraperActive ? 'ACTIVE (Enabled)' : 'PAUSED (Blocked)'}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={toggleScraperMaster}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    borderRadius: '100px',
+                    background: isScraperActive ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                    border: isScraperActive ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                    color: isScraperActive ? '#EF4444' : '#10B981',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {isScraperActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{isScraperActive ? 'Pause Engine' : 'Turn On Scraper'}</span>
+                </button>
+              </div>
+
+              {/* LOCK CONSOLE BUTTON */}
+              <button
+                onClick={handleAdminLogout}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  color: '#EF4444',
+                  padding: '12px 18px',
+                  borderRadius: '16px',
+                  fontSize: '12.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
+                }}
+                title="Lock Console & Clear Admin Session"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Lock Console</span>
               </button>
             </div>
           </div>
