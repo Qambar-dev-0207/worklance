@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AiToolkitShowcase from '@/components/AiToolkitShowcase';
+import HeroSection from '@/components/HeroSection';
 
 export default function Home() {
   const router = useRouter();
@@ -11,22 +12,12 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'seeker' | 'recruiter'>('seeker');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [heroQuery, setHeroQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // New interactive states for AI ROI Chart & Pricing
   const [activeRoiMetric, setActiveRoiMetric] = useState<'time' | 'cost' | 'quality' | 'manual' | 'team'>('time');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [pricingCategory, setPricingCategory] = useState<'recruiter' | 'seeker'>('recruiter');
-
-  const handleHeroSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (heroQuery.trim()) {
-      router.push(`/jobs?keyword=${encodeURIComponent(heroQuery.trim())}`);
-    } else {
-      router.push('/jobs');
-    }
-  };
 
   const roiMetrics = {
     time: {
@@ -272,143 +263,8 @@ export default function Home() {
         )}
       </nav>
 
-      {/* 3D SLEEK HERO SECTION */}
-      <header className="hero">
-        <div className="hero-3d-grid-floor"></div>
-        <div className="hero-3d-spotlight"></div>
-
-        <div className="container hero-grid">
-          {/* LEFT: MINIMALIST BOLD TYPOGRAPHY & COMMAND SEARCH */}
-          <div>
-            <div className="eyebrow" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.18)', marginBottom: '18px' }}>
-              <span className="hero-beacon"></span>
-              Autonomous Career OS · AI Automated
-            </div>
-
-            <h1>
-              Architect Your Career.<br />
-              <span className="hero-3d-gradient-text">Hired in 10 Minutes.</span>
-            </h1>
-
-            <p className="lead">
-              The unified intelligence platform that merges AI job matchmaking, verified recruiter direct access, automated voice screening, and bot-proof ATS resume engineering.
-            </p>
-
-            {/* COMMAND SEARCH BAR */}
-            <form onSubmit={handleHeroSearch} className="hero-command-box">
-              <span style={{ fontSize: '16px', opacity: 0.7 }}>🔍</span>
-              <input
-                type="text"
-                value={heroQuery}
-                onChange={(e) => setHeroQuery(e.target.value)}
-                placeholder="Search 10,000+ AI-screened tech roles..."
-                className="hero-command-input"
-              />
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ background: '#FFFFFF', color: '#000000', borderRadius: '100px', padding: '10px 22px', fontSize: '13px', fontWeight: 800, whiteSpace: 'nowrap' }}
-              >
-                Find Roles
-              </button>
-            </form>
-
-            {/* QUICK SHORTCUT PILLS */}
-            <div className="hero-tags-row">
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>Quick Filter:</span>
-              <button type="button" onClick={() => router.push('/jobs?keyword=Remote')} className="hero-tag-btn">⚡ Remote</button>
-              <button type="button" onClick={() => router.push('/jobs?keyword=Full%20Stack')} className="hero-tag-btn">💻 Full Stack</button>
-              <button type="button" onClick={() => router.push('/jobs?keyword=AI')} className="hero-tag-btn">🤖 AI / ML</button>
-              <button type="button" onClick={() => router.push('/jobs?location=Bengaluru')} className="hero-tag-btn">📍 Bengaluru</button>
-            </div>
-
-            {/* TRUST INDICATORS */}
-            <div className="hero-trust-metrics">
-              <span><span className="hero-beacon"></span> 10-Minute Offer Pipeline</span>
-              <span><span className="hero-beacon"></span> 98.4% ATS Accuracy</span>
-              <span><span className="hero-beacon"></span> Verified Direct HRs</span>
-            </div>
-          </div>
-
-          {/* RIGHT: 3D MULTI-LAYER FLOATING INTERFACE DECK */}
-          <div className="hero-3d-stage">
-            <div className="hero-3d-card-deck">
-              {/* SATELLITE 1: TOP-RIGHT FAST-TRACK PILL */}
-              <div className="hero-sat-card sat-top-right">
-                <span className="hero-beacon"></span>
-                <span>⚡ 10-Min Fast Track Verified</span>
-              </div>
-
-              {/* MAIN 3D GLASS DECK */}
-              <div className="hero-main-deck">
-                <div className="cross-corner cross-tl">+</div>
-                <div className="cross-corner cross-tr">+</div>
-                <div className="cross-corner cross-bl">+</div>
-                <div className="cross-corner cross-br">+</div>
-
-                {/* Candidate Header */}
-                <div className="hero-deck-header">
-                  <div className="hero-candidate-info">
-                    <div className="hero-candidate-avatar">RS</div>
-                    <div>
-                      <div className="hero-candidate-name">Riya Sharma</div>
-                      <div className="hero-candidate-role">Senior Full Stack Engineer</div>
-                    </div>
-                  </div>
-                  <div className="hero-match-badge">99.2% MATCH</div>
-                </div>
-
-                {/* 3-Stage Pipeline Tracker */}
-                <div className="hero-pipeline-tracker">
-                  <div className="hero-pipeline-title">
-                    <span>Autonomous Pipeline</span>
-                    <span style={{ color: '#FFFFFF' }}>00:09:42 Elapsed</span>
-                  </div>
-                  <div className="hero-pipeline-steps">
-                    <div className="hero-p-step done">
-                      <div className="hero-p-dot">✓</div>
-                      <span className="hero-p-label">AI Screen</span>
-                    </div>
-                    <div className="hero-p-step done">
-                      <div className="hero-p-dot">✓</div>
-                      <span className="hero-p-label">AI Video</span>
-                    </div>
-                    <div className="hero-p-step active">
-                      <div className="hero-p-dot">●</div>
-                      <span className="hero-p-label">Offer Out</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Matched Role Details */}
-                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '4px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Matched Company:</span>
-                    <span style={{ fontWeight: 800, color: '#FFFFFF' }}>Zenith Tech Labs</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.6)' }}>Compensation Benchmark:</span>
-                    <span style={{ fontWeight: 800, color: '#FFFFFF' }}>₹28,00,000 - ₹35,00,000</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* SATELLITE 2: BOTTOM-LEFT AI VOICE SCREENING CARD */}
-              <div className="hero-sat-card sat-bottom-left">
-                <div style={{ fontSize: '11px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  🤖 AI Voice Interview Bot
-                </div>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#FFFFFF', marginTop: '3px' }}>
-                  &ldquo;Candidate demonstrated deep Next.js 14 RSC and microservices knowledge.&rdquo;
-                </div>
-                <div className="sat-waveform">
-                  <span></span><span></span><span></span><span></span><span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* NEXT-GEN 3D MINIMAL HERO SECTION */}
+      <HeroSection currentUser={currentUser} />
 
       {/* AI CAREER TOOLKIT SHOWCASE (MOCKUP SECTION) */}
       <AiToolkitShowcase />
