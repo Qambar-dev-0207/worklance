@@ -14,6 +14,8 @@ import {
   ShieldCheck, 
   Clock 
 } from 'lucide-react';
+import TextRotator from '@/components/ui/TextRotator';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 interface HeroSectionProps {
   currentUser?: any;
@@ -101,7 +103,17 @@ export default function HeroSection({ currentUser }: HeroSectionProps) {
           {/* Main Hero Headline */}
           <h1 className="hero-title-nextgen">
             Architect Your Career.<br />
-            <span className="hero-metallic-gradient">Hired in 10 Minutes.</span>
+            <TextRotator
+              texts={[
+                'Hired in 10 Minutes.',
+                'ATS Pass Rate 98.4%.',
+                'Direct HR Direct Access.',
+                '10x Faster Offer Pipeline.',
+                'AI Voice & Technical Prep.',
+              ]}
+              interval={3200}
+              className="hero-metallic-gradient"
+            />
           </h1>
 
           {/* Subtitle */}
@@ -156,22 +168,30 @@ export default function HeroSection({ currentUser }: HeroSectionProps) {
           {/* Platform Telemetry Strip */}
           <div className="hero-telemetry-strip">
             <div className="hero-telemetry-item">
-              <span className="hero-telemetry-num">10,000+</span>
+              <span className="hero-telemetry-num">
+                <AnimatedCounter value={10000} suffix="+" duration={1800} />
+              </span>
               <span className="hero-telemetry-sub">AI-Screened Roles</span>
             </div>
             <div className="hero-telemetry-divider"></div>
             <div className="hero-telemetry-item">
-              <span className="hero-telemetry-num">98.4%</span>
+              <span className="hero-telemetry-num">
+                <AnimatedCounter value={98.4} suffix="%" decimals={1} duration={1600} />
+              </span>
               <span className="hero-telemetry-sub">ATS Pass Accuracy</span>
             </div>
             <div className="hero-telemetry-divider"></div>
             <div className="hero-telemetry-item">
-              <span className="hero-telemetry-num">10 Min</span>
+              <span className="hero-telemetry-num">
+                <AnimatedCounter value={10} suffix=" Min" duration={1200} />
+              </span>
               <span className="hero-telemetry-sub">Avg. Offer Pipeline</span>
             </div>
             <div className="hero-telemetry-divider"></div>
             <div className="hero-telemetry-item">
-              <span className="hero-telemetry-num">1,200+</span>
+              <span className="hero-telemetry-num">
+                <AnimatedCounter value={1200} suffix="+" duration={1600} />
+              </span>
               <span className="hero-telemetry-sub">Direct HR Contacts</span>
             </div>
           </div>

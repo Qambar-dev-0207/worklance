@@ -68,11 +68,7 @@ export function isAdminUser(req: NextRequest): boolean {
   return false;
 }
 
-export function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+// Re-export email and password validation utilities
+export * from './validation';
 
-export function isValidPassword(password: string): boolean {
-  return typeof password === 'string' && password.length >= 6;
-}
 

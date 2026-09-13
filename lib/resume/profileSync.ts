@@ -1,5 +1,85 @@
-// Helper to synchronize ATS Resume data into the user profile in MongoDB Atlas & localStorage
+// Helper to synchronize and save ATS Resume data into MongoDB Atlas & localStorage
 import { ResumeData } from '@/types/resume';
+
+export async function saveResumeToDatabase(
+  resume: ResumeData,
+  source: 'upload' | 'builder' | 'import' = 'builder',
+  options?: { fileName?: string; rawText?: string; atsScore?: number; title?: string }
+) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+  const userStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+  const currentUser = userStr ? JSON.parse(userStr) : null;
+
+  if (!currentUser && !token) {
+    // Guest / offline mode: resume is stored locally
+    return null;
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const payload = {
+    resumeData: resume,
+    source,
+    title: options?.title || resume.personal?.targetTitle || 'My Resume',
+    fileName: options?.fileName || '',
+    rawText: options?.rawText || '',
+    atsScore: options?.atsScore,
+  };
+
+  const res = await fetch('/api/resume', {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'Failed to save resume to database');
+  }
+
+  if (typeof window !== 'undefined' && data.user) {
+    localStorage.setItem('worklance_user', JSON.stringify(data.user));
+    window.dispatchEvent(new Event('worklance-user-updated'));
+  }
+
+  return data;
+}
+
+export async function fetchActiveResumeFromDatabase(): Promise<ResumeData | null> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+  const userStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+
+  if (!userStr && !token) return null;
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await fetch('/api/resume', {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.success && data.resume) {
+      return data.resume.resumeData || data.resume;
+    }
+    return null;
+  } catch (e) {
+    console.warn('Could not fetch resume from database:', e);
+    return null;
+  }
+}
 
 export async function syncResumeToUserProfile(resume: ResumeData, atsScoreNum?: number) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
@@ -8,6 +88,13 @@ export async function syncResumeToUserProfile(resume: ResumeData, atsScoreNum?: 
 
   if (!currentUser && !token) {
     throw new Error('Please log in to synchronize your resume with your Worklance profile.');
+  }
+
+  // First save full structured resume document in MongoDB
+  try {
+    await saveResumeToDatabase(resume, 'builder', { atsScore: atsScoreNum });
+  } catch (err: any) {
+    console.warn('Warning: Could not save full resume document, continuing profile sync:', err?.message);
   }
 
   // 1. Format Skills

@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose'],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

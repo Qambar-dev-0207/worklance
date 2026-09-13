@@ -321,8 +321,13 @@ export default function ProfilePage() {
       formData.append('file', file);
       formData.append('resume', file);
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+      const parseHeaders: Record<string, string> = {};
+      if (token) parseHeaders['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/resume/parse', {
         method: 'POST',
+        headers: parseHeaders,
         body: formData,
       });
 
@@ -388,7 +393,6 @@ export default function ProfilePage() {
       }
 
       // Automatically persist to backend database
-      const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 

@@ -3922,3 +3922,57 @@ footer {
   color: #EF4444;
 }
 
+/* ===== WORKLANCE MODERN UI & TEXT ANIMATION UTILITIES ===== */
+.worklance-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #FFFFFF 0%,
+    #A1A1AA 20%,
+    #FFFFFF 40%,
+    #71717A 70%,
+    #FFFFFF 100%
+  );
+  background-size: 200% auto;
+  color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  animation: worklanceShimmerSweep 5s linear infinite;
+}
+
+@keyframes worklanceShimmerSweep {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.worklance-spotlight-card {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.worklance-spotlight-card:hover {
+  transform: translateY(-5px);
+  border-color: #A1A1AA;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12);
+}
+
+@keyframes gentleFloatBadge {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-badge {
+  animation: gentleFloatBadge 3.5s ease-in-out infinite;
+}
+
+

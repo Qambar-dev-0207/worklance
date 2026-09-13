@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import AiToolkitShowcase from '@/components/AiToolkitShowcase';
 import HeroSection from '@/components/HeroSection';
 import Navbar from '@/components/Navbar';
+import ScrollProgressBar from '@/components/ui/ScrollProgressBar';
+import LiveActivityTicker from '@/components/ui/LiveActivityTicker';
+import InteractiveAtsTester from '@/components/ui/InteractiveAtsTester';
+import SpotlightCard from '@/components/ui/SpotlightCard';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 export default function Home() {
   const router = useRouter();
@@ -95,6 +100,9 @@ export default function Home() {
 
   return (
     <>
+      {/* Scroll Progress Bar */}
+      <ScrollProgressBar />
+
       {/* UNIFIED GLOBAL NAVBAR */}
       <Navbar />
 
@@ -103,6 +111,9 @@ export default function Home() {
 
       {/* AI CAREER TOOLKIT SHOWCASE (MOCKUP SECTION) */}
       <AiToolkitShowcase />
+
+      {/* INTERACTIVE ATS RESUME & KEYWORD DIAGNOSTIC PLAYGROUND */}
+      <InteractiveAtsTester />
 
       {/* FEATURES */}
       <section className="section-pad" id="features">
@@ -113,48 +124,48 @@ export default function Home() {
             <p>No more juggling five tabs for a job search. Worklance connects every step so nothing falls through the cracks.</p>
           </div>
           <div className="feat-grid">
-            <div className="feat-card reveal">
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">01</span>
               <div className="feat-icon">📄</div>
               <h3>ATS Resume Builder</h3>
               <p>Professional, ATS-friendly templates with AI suggestions, a live resume score and grammar checks — export as PDF in minutes.</p>
               <div className="feat-tags"><span>AI Suggestions</span><span>Resume Score</span><span>Cover Letters</span></div>
-            </div>
-            <div className="feat-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">02</span>
               <div className="feat-icon">🔍</div>
               <h3>Job Search</h3>
               <p>Filter by location, salary, skills and work type. Save roles, apply in one click and track every application from one dashboard.</p>
               <div className="feat-tags"><span>Easy Apply</span><span>Remote/Hybrid</span><span>Tracking</span></div>
-            </div>
-            <div className="feat-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">03</span>
               <div className="feat-icon">👤</div>
               <h3>HR Database</h3>
               <p>Reach verified HR contacts directly — name, company, designation, email and LinkedIn — filtered by industry, city and role.</p>
               <div className="feat-tags"><span>Verified Contacts</span><span>Premium</span></div>
-            </div>
-            <div className="feat-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">04</span>
               <div className="feat-icon">📚</div>
               <h3>Previous Year Questions</h3>
               <p>Company-wise interview questions from TCS, Infosys, Google, Amazon and more — sorted by HR, technical, coding and GD rounds.</p>
               <div className="feat-tags"><span>Company-wise</span><span>Coding</span><span>Aptitude</span></div>
-            </div>
-            <div className="feat-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">05</span>
               <div className="feat-icon">🎤</div>
               <h3>Interview Preparation</h3>
               <p>Practice with AI-powered mock interviews, get instant feedback and prep with company-specific questions and tips.</p>
               <div className="feat-tags"><span>AI Practice</span><span>Feedback</span></div>
-            </div>
-            <div className="feat-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="feat-card reveal" spotlightColor="rgba(59, 130, 246, 0.12)">
               <span className="num">06</span>
               <div className="feat-icon">🎓</div>
               <h3>Skills & Training</h3>
               <p>Learn Excel, SQL, Python, React, communication and more — with videos, notes, practice sets and certificates.</p>
               <div className="feat-tags"><span>Courses</span><span>Certificates</span></div>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
@@ -450,7 +461,7 @@ export default function Home() {
           </div>
 
           <div className="hack-grid">
-            <div className="hack-card reveal">
+            <SpotlightCard className="hack-card reveal" spotlightColor="rgba(59, 130, 246, 0.14)">
               <div className="hack-card-top"><div className="hack-logo-badge">ZN</div><span className="hack-status live">Live</span></div>
               <h4>Zenith Labs AI Challenge</h4>
               <div className="org">Hosted by Zenith Labs</div>
@@ -459,8 +470,8 @@ export default function Home() {
               <div className="hack-meta-row"><span>Team Size</span><span>Up to 4</span></div>
               <div className="hack-meta-row"><span>Ends in</span><span>2 days</span></div>
               <Link href="/hackathons" className="btn btn-dark" style={{ width: '100%', marginTop: '18px' }}>Join Hackathon</Link>
-            </div>
-            <div className="hack-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="hack-card reveal" spotlightColor="rgba(59, 130, 246, 0.14)">
               <div className="hack-card-top"><div className="hack-logo-badge">NX</div><span className="hack-status upcoming">Upcoming</span></div>
               <h4>Nexora Fintech Sprint</h4>
               <div className="org">Hosted by Nexora Tech</div>
@@ -469,8 +480,8 @@ export default function Home() {
               <div className="hack-meta-row"><span>Team Size</span><span>Up to 5</span></div>
               <div className="hack-meta-row"><span>Starts in</span><span>6 days</span></div>
               <Link href="/hackathons" className="btn btn-outline" style={{ width: '100%', marginTop: '18px' }}>Notify Me</Link>
-            </div>
-            <div className="hack-card reveal">
+            </SpotlightCard>
+            <SpotlightCard className="hack-card reveal" spotlightColor="rgba(59, 130, 246, 0.14)">
               <div className="hack-card-top"><div className="hack-logo-badge">CD</div><span className="hack-status upcoming">Upcoming</span></div>
               <h4>Codeloop Campus Build</h4>
               <div className="org">Hosted by Codeloop · Campus Only</div>
@@ -479,7 +490,7 @@ export default function Home() {
               <div className="hack-meta-row"><span>Team Size</span><span>Up to 3</span></div>
               <div className="hack-meta-row"><span>Starts in</span><span>12 days</span></div>
               <Link href="/hackathons" className="btn btn-outline" style={{ width: '100%', marginTop: '18px' }}>Notify Me</Link>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
@@ -489,12 +500,14 @@ export default function Home() {
         <div className="container why-wrap">
           <div className="why-visual reveal">
             <div className="score">
-              <div className="score-num">92%</div>
+              <div className="score-num">
+                <AnimatedCounter value={92} suffix="%" duration={1600} />
+              </div>
               <div className="score-label">Average resume ATS score after AI review</div>
-              <div className="mini-row"><span>Resume completion</span><span>100%</span></div>
-              <div className="mini-row"><span>Applications sent</span><span>18</span></div>
-              <div className="mini-row"><span>Interviews scheduled</span><span>4</span></div>
-              <div className="mini-row"><span>Profile views by HR</span><span>27</span></div>
+              <div className="mini-row"><span>Resume completion</span><span><AnimatedCounter value={100} suffix="%" duration={1500} /></span></div>
+              <div className="mini-row"><span>Applications sent</span><span><AnimatedCounter value={18} duration={1300} /></span></div>
+              <div className="mini-row"><span>Interviews scheduled</span><span><AnimatedCounter value={4} duration={1000} /></span></div>
+              <div className="mini-row"><span>Profile views by HR</span><span><AnimatedCounter value={27} duration={1400} /></span></div>
             </div>
           </div>
           <div>
@@ -895,6 +908,9 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* FLOATING LIVE SOCIAL PROOF TICKER */}
+      <LiveActivityTicker />
     </>
   );
 }

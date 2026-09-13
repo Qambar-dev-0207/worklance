@@ -27,7 +27,11 @@ import { useResumeStore } from '@/lib/resume/store';
 import { generateDocxResume, downloadBlob } from '@/lib/resume/docxExport';
 import { computeAtsDiagnosticScore } from '@/lib/resume/atsValidator';
 import { printResumeToPdf } from '@/lib/resume/printPdf';
-import { syncResumeToUserProfile } from '@/lib/resume/profileSync';
+import {
+  syncResumeToUserProfile,
+  saveResumeToDatabase,
+  fetchActiveResumeFromDatabase,
+} from '@/lib/resume/profileSync';
 import {
   Sparkles,
   Printer,
@@ -40,6 +44,9 @@ import {
   Zap,
   RotateCcw,
   FileText,
+  Save,
+  Cloud,
+  Check,
 } from 'lucide-react';
 import { ResumeData } from '@/types/resume';
 
@@ -98,19 +105,34 @@ export default function ResumeBuilderPage() {
   const [isExportingDocx, setIsExportingDocx] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isSyncingProfile, setIsSyncingProfile] = useState(false);
+  const [isSavingResume, setIsSavingResume] = useState(false);
+  const [cloudSaveStatus, setCloudSaveStatus] = useState<'saved' | 'saving' | 'unsaved' | 'idle'>('idle');
   const [isMounted, setIsMounted] = useState(false);
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Load and listen for authenticated user session
+  // Load and listen for authenticated user session & fetch cloud resume
   useEffect(() => {
-    const loadUser = () => {
+    const loadUser = async () => {
       const uStr = localStorage.getItem('worklance_user');
       if (uStr) {
         try {
-          setCurrentUser(JSON.parse(uStr));
+          const u = JSON.parse(uStr);
+          setCurrentUser(u);
+
+          // Fetch active saved resume from MongoDB Atlas
+          try {
+            const dbResume = await fetchActiveResumeFromDatabase();
+            if (dbResume && dbResume.personal) {
+              loadResumeData(dbResume);
+              setCloudSaveStatus('saved');
+            }
+          } catch (dbErr) {
+            console.warn('Could not hydrate resume from DB:', dbErr);
+          }
         } catch (e) {}
       }
     };
@@ -121,13 +143,81 @@ export default function ResumeBuilderPage() {
       window.removeEventListener('worklance-user-updated', loadUser);
       window.removeEventListener('storage', loadUser);
     };
-  }, []);
+  }, [loadResumeData]);
+
+  // Debounced auto-save updated resume to cloud when user modifies it
+  useEffect(() => {
+    if (isInitialLoad.current) {
+      isInitialLoad.current = false;
+      return;
+    }
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+    const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+    if (!token && !uStr) return;
+
+    setCloudSaveStatus('unsaved');
+    const timer = setTimeout(async () => {
+      try {
+        setCloudSaveStatus('saving');
+        await saveResumeToDatabase(resume, 'builder', {
+          atsScore: atsScore.overallScore,
+          title: resume.personal?.targetTitle || 'My Resume',
+        });
+        setCloudSaveStatus('saved');
+      } catch (err) {
+        console.warn('Debounced cloud auto-save failed:', err);
+        setCloudSaveStatus('unsaved');
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [resume]);
 
   // Live ATS score
   const atsScore = computeAtsDiagnosticScore(resume);
 
   // Clean filename for exports
   const cleanFileName = `${(resume.personal.fullName || 'Resume').trim().replace(/[^a-zA-Z0-9]/g, '_')}_Resume`;
+
+  // Manual Save to Cloud Database handler
+  const handleSaveResume = async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+    const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
+
+    if (!token && !uStr) {
+      setStatusBanner('Please log in first to save your resume to the database.');
+      setTimeout(() => setStatusBanner(''), 4000);
+      window.location.href = '/login?redirect=/resume-builder';
+      return;
+    }
+
+    try {
+      setIsSavingResume(true);
+      setCloudSaveStatus('saving');
+      setStatusBanner('⏳ Saving resume to MongoDB database...');
+
+      const res = await saveResumeToDatabase(resume, 'builder', {
+        atsScore: atsScore.overallScore,
+        title: resume.personal?.targetTitle || 'My Resume',
+      });
+
+      if (res && res.user) {
+        setCurrentUser(res.user);
+      }
+
+      setCloudSaveStatus('saved');
+      setStatusBanner('✓ Resume successfully saved to database & synchronized with your profile!');
+      setTimeout(() => setStatusBanner(''), 4500);
+    } catch (err: any) {
+      console.error('Error saving resume:', err);
+      setCloudSaveStatus('unsaved');
+      setStatusBanner(`Save notice: ${err.message}`);
+      setTimeout(() => setStatusBanner(''), 4500);
+    } finally {
+      setIsSavingResume(false);
+    }
+  };
 
   // Profile synchronization handler
   const handleSyncToProfile = async (targetResume?: ResumeData) => {
@@ -334,13 +424,18 @@ export default function ResumeBuilderPage() {
     setStatusBanner(`✓ Imported resume for ${converted.personal.fullName}!`);
     const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
     if (uStr) {
-      syncResumeToUserProfile(converted, atsScore.overallScore)
-        .then((u) => {
-          setCurrentUser(u);
-          setStatusBanner(`✓ Imported resume & updated your profile for ${converted.personal.fullName}!`);
+      saveResumeToDatabase(converted, 'upload', {
+        atsScore: atsScore.overallScore,
+        title: converted.personal?.targetTitle || `${converted.personal.fullName}'s Uploaded Resume`,
+      })
+        .then((res) => {
+          if (res?.user) setCurrentUser(res.user);
+          setCloudSaveStatus('saved');
+          setStatusBanner(`✓ Uploaded resume saved to database for ${converted.personal.fullName}!`);
           setTimeout(() => setStatusBanner(''), 5000);
         })
-        .catch(() => {
+        .catch((err) => {
+          console.warn('Could not save uploaded resume to DB:', err);
           setTimeout(() => setStatusBanner(''), 4000);
         });
     } else {
@@ -360,8 +455,13 @@ export default function ResumeBuilderPage() {
       const formData = new FormData();
       formData.append('file', file);
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/resume/parse', {
         method: 'POST',
+        headers,
         body: formData,
       });
 
@@ -391,9 +491,13 @@ export default function ResumeBuilderPage() {
     setUploadError('');
 
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('worklance_token') : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/resume/parse', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ text: pastedResumeText }),
       });
 
@@ -638,6 +742,46 @@ export default function ResumeBuilderPage() {
 
           {/* Right: Primary Action Group */}
           <div className="studio-right-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Save Resume to Database */}
+            <button
+              onClick={handleSaveResume}
+              disabled={isSavingResume}
+              className="studio-btn-save-db"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: cloudSaveStatus === 'saved' ? '#18181B' : '#2563EB',
+                color: '#FFFFFF',
+                border: cloudSaveStatus === 'saved' ? '1px solid #27272A' : 'none',
+                padding: '7px 14px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: cloudSaveStatus === 'saved' ? 'none' : '0 2px 10px rgba(37, 99, 235, 0.3)',
+                transition: 'all 0.2s ease',
+              }}
+              title="Save updated resume directly to your MongoDB Atlas database"
+            >
+              {isSavingResume || cloudSaveStatus === 'saving' ? (
+                <>
+                  <Cloud style={{ width: '14px', height: '14px', color: '#60A5FA' }} />
+                  <span>Saving...</span>
+                </>
+              ) : cloudSaveStatus === 'saved' ? (
+                <>
+                  <Check style={{ width: '14px', height: '14px', color: '#10B981' }} />
+                  <span style={{ color: '#10B981' }}>Saved to DB</span>
+                </>
+              ) : (
+                <>
+                  <Save style={{ width: '14px', height: '14px', color: '#93C5FD' }} />
+                  <span>Save Resume</span>
+                </>
+              )}
+            </button>
+
             {/* Sync to Worklance Profile */}
             <button
               onClick={() => handleSyncToProfile()}

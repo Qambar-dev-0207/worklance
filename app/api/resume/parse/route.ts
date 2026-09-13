@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
+import { getUserFromRequest } from '@/lib/auth';
+import { connectDB, isMockDB } from '@/lib/db';
+import Resume from '@/models/Resume';
+import User from '@/models/User';
 
 // Use direct lib import to avoid pdf-parse index.js debug test file read in webpack
 // @ts-ignore
@@ -213,10 +217,90 @@ export async function POST(req: NextRequest) {
       achievements: parsedResume.achievements || [],
     };
 
+    let savedToDb = false;
+    let resumeId: string | null = null;
+    try {
+      const authUser = getUserFromRequest(req);
+      if (authUser) {
+        await connectDB();
+        if (!isMockDB()) {
+          const skillsList = parsedResume.skills ? parsedResume.skills.split(',').map((s) => s.trim()).filter(Boolean) : [];
+          const expList = (parsedResume.experience || []).map((e) => ({
+            company: e.company || '',
+            role: e.role || '',
+            location: e.location || '',
+            startDate: e.duration?.split(/[-–—]/)?.[0]?.trim() || '',
+            endDate: e.duration?.split(/[-–—]/)?.[1]?.trim() || '',
+            current: (e.duration || '').toLowerCase().includes('present'),
+            description: (e.points || []).join(' '),
+          }));
+          const eduList = (parsedResume.educationList || []).map((e) => ({
+            school: e.institution || '',
+            degree: e.degree || '',
+            grade: '',
+            fieldOfStudy: '',
+            startYear: e.duration?.split(/[-–—]/)?.[0]?.trim() || '',
+            endYear: e.duration?.split(/[-–—]/)?.[1]?.trim() || '',
+          }));
+          const projList = (parsedResume.projects || []).map((p) => ({
+            title: p.name || '',
+            description: (p.points || []).join(' '),
+            liveUrl: p.link || '',
+            techStack: p.tech ? p.tech.split(',').map((t) => t.trim()).filter(Boolean) : [],
+          }));
+
+          const savedDoc = await Resume.findOneAndUpdate(
+            { userId: authUser.userId, source: 'upload' },
+            {
+              $set: {
+                title: parsedResume.targetTitle || `${parsedResume.fullName || 'User'}'s Uploaded Resume`,
+                resumeData: enhancedResume,
+                source: 'upload',
+                fileName: fileName || 'uploaded_resume.pdf',
+                rawText: rawText,
+                atsScore: 85,
+                isCurrent: true,
+                updatedAt: new Date(),
+              },
+              $inc: { version: 1 },
+            },
+            { returnDocument: 'after', upsert: true }
+          );
+
+          if (savedDoc) {
+            resumeId = savedDoc._id.toString();
+            savedToDb = true;
+
+            const userUpdates: any = {
+              resumeData: enhancedResume,
+              activeResumeId: savedDoc._id,
+            };
+            if (parsedResume.fullName) userUpdates.name = parsedResume.fullName;
+            if (parsedResume.targetTitle) userUpdates.title = parsedResume.targetTitle;
+            if (parsedResume.summary) userUpdates.bio = parsedResume.summary;
+            if (parsedResume.phone) userUpdates.phone = parsedResume.phone;
+            if (parsedResume.location) userUpdates.location = parsedResume.location;
+            if (parsedResume.github) userUpdates.githubUrl = parsedResume.github;
+            if (parsedResume.linkedIn) userUpdates.linkedinUrl = parsedResume.linkedIn;
+            if (skillsList.length > 0) userUpdates.skills = skillsList;
+            if (expList.length > 0) userUpdates.experience = expList;
+            if (eduList.length > 0) userUpdates.education = eduList;
+            if (projList.length > 0) userUpdates.projects = projList;
+
+            await User.findByIdAndUpdate(authUser.userId, { $set: userUpdates });
+          }
+        }
+      }
+    } catch (saveErr) {
+      console.warn('Warning: Auto-saving parsed resume to DB failed:', saveErr);
+    }
+
     return NextResponse.json({
       success: true,
       resume: enhancedResume,
       data: enhancedResume,
+      savedToDb,
+      resumeId,
     });
   } catch (error: any) {
     console.error('Error parsing resume:', error);

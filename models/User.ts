@@ -56,6 +56,8 @@ export interface IUser extends Document {
   education?: IEducationItem[];
   projects?: IProjectItem[];
   atsScore?: number;
+  resumeData?: any;
+  activeResumeId?: mongoose.Types.ObjectId | string;
   createdAt: Date;
 }
 
@@ -71,6 +73,8 @@ const UserSchema: Schema = new Schema(
     bio: { type: String, default: '' },
     skills: { type: [String], default: [] },
     resumeUrl: { type: String, default: '' },
+    resumeData: { type: Schema.Types.Mixed, default: null },
+    activeResumeId: { type: Schema.Types.ObjectId, ref: 'Resume', default: null },
     phone: { type: String, default: '' },
     location: { type: String, default: '' },
     githubUrl: { type: String, default: '' },
