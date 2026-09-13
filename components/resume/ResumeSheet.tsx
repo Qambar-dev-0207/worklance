@@ -592,7 +592,13 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           listStyleType: 'disc',
                         }}
                       >
-                        {exp.bullets.map((b) => (
+                        {exp.bullets
+                          .filter((b) => {
+                            const t = b.text.trim().replace(/^[•\-\*\d.]+\s*/, '');
+                            if (exp.company && t.toLowerCase() === exp.company.toLowerCase()) return false;
+                            return true;
+                          })
+                          .map((b) => (
                           <li
                             key={b.id}
                             contentEditable
@@ -719,6 +725,8 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                             outline: 'none',
                             cursor: 'text',
                             fontSize: `${Math.max(bodyPt - 0.5, 9)}pt`,
+                            whiteSpace: 'nowrap',
+                            marginLeft: '8px',
                           }}
                         >
                           {proj.date}
@@ -732,7 +740,9 @@ export default function ResumeSheet({ isPrintPreview = false }: ResumeSheetProps
                           listStyleType: 'disc',
                         }}
                       >
-                        {proj.bullets.map((b) => (
+                        {proj.bullets
+                          .filter((b) => !/^(?:•\s*)?(?:github|link|demo|repo|code):\s*(?:https?:\/\/|github\.com)/i.test(b.text.trim()))
+                          .map((b) => (
                           <li
                             key={b.id}
                             contentEditable

@@ -92,6 +92,200 @@ interface ResumeStoreState {
   renameVariant: (variantId: string, newName: string) => void;
 }
 
+const bulletVerbs = /^(?:building|architected|implemented|built|developed|engineered|deployed|created|reduced|raised|automated|designed|spearheaded|led|managed|optimized|integrated|conducted|established|produced|organized|evaluated|visualized|accelerated|delivered|pioneered|constructed|trained|fine-tuned|orchestrated|collaborated|authored|published|maintained|resolved|facilitated|transformed|scaled|leveraged|utilized|applied|achieved|increased|decreased|eliminated|saved|generated|formulated|executed|configured|secured|researched|analyzed|gathered|tested|programmed|devised|launched|supervised|directed|negotiated|administered|audited|monitored|improved|enhanced|upgraded|streamlined|centralized|revamped|expanded|overhauled|boosted|cut|spearheading|responsible|assisted|helped|participated|contributed|worked)\b/i;
+
+const monthName = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+const yearDigits = '(?:19|20)\\d{2}';
+const projectDateRegex = new RegExp(
+  `(${monthName}\\.?\\s*${yearDigits}\\s*[-–—to\\s]+\\s*(?:Present|Current|Pursuing|${monthName}\\.?\\s*${yearDigits}|${yearDigits})|` +
+  `${monthName}\\.?\\s*${yearDigits}|` +
+  `${yearDigits}\\s*[-–—to\\s]+\\s*(?:Present|Current|${yearDigits})|` +
+  `\\b${yearDigits}\\b)`,
+  'i'
+);
+
+function parseProjectHeaderString(rawLine: string) {
+  let line = rawLine.trim();
+  let date = '';
+  const dateMatch = line.match(projectDateRegex);
+  if (dateMatch) {
+    date = dateMatch[0].trim();
+    line = line.replace(dateMatch[0], '').trim();
+  }
+  line = line.replace(/Link(?:\s*20\d\d)?/gi, '').trim();
+  line = line.replace(/\|\s*Python,\s*AI\s*/gi, '').trim();
+  line = line.replace(/\|\s*GitHub\s*/gi, '').trim();
+  line = line.replace(/[|\s–—-]+$/, '').trim();
+
+  let link = '';
+  let linkText = '';
+  const urlMatch = line.match(/(https?:\/\/[^\s|)]+|github\.com\/[^\s|)]+)/i);
+  if (urlMatch) {
+    link = urlMatch[0].startsWith('http') ? urlMatch[0] : `https://${urlMatch[0]}`;
+    linkText = link.includes('github') ? 'GitHub' : 'Live Demo';
+    line = line.replace(urlMatch[0], '').trim();
+  }
+
+  let name = '';
+  let tech = '';
+
+  if (line.includes('|')) {
+    const parts = line.split('|').map((p) => p.trim()).filter(Boolean);
+    name = parts[0] || '';
+    tech = parts.slice(1).join(' · ');
+  } else if (line.includes('·') || line.includes('•')) {
+    const dotChar = line.includes('·') ? '·' : '•';
+    const tokens = line.split(dotChar).map((t) => t.trim());
+    const firstPart = tokens[0];
+    const restTech = tokens.slice(1);
+
+    if (firstPart.includes('—') || firstPart.includes('–')) {
+      const dash = firstPart.includes('—') ? '—' : '–';
+      const [projTitle, subAndFirstTech] = firstPart.split(dash).map((s) => s.trim());
+      const words = (subAndFirstTech || '').split(' ');
+      if (words.length > 1) {
+        const firstTech = words[words.length - 1];
+        const subTitle = words.slice(0, words.length - 1).join(' ');
+        name = `${projTitle} — ${subTitle}`;
+        tech = [firstTech, ...restTech].join(' · ');
+      } else {
+        name = `${projTitle} — ${subAndFirstTech}`;
+        tech = restTech.join(' · ');
+      }
+    } else {
+      name = firstPart;
+      tech = restTech.join(' · ');
+    }
+  } else if (line.includes('—') || line.includes('–')) {
+    const dash = line.includes('—') ? '—' : '–';
+    const parts = line.split(dash).map((p) => p.trim());
+    name = parts[0];
+    tech = parts.slice(1).join(' · ');
+  } else {
+    name = line;
+  }
+
+  return { name: name.trim(), tech: tech.trim(), link, linkText, date };
+}
+
+export function healResumeProjects(projects: ProjectItem[]): ProjectItem[] {
+  if (!projects || !Array.isArray(projects)) return [];
+  const result: ProjectItem[] = [];
+
+  for (const proj of projects) {
+    let current: ProjectItem = {
+      ...proj,
+      bullets: [],
+    };
+    let currentBullets: ProjectItem['bullets'] = [];
+
+    for (const b of proj.bullets || []) {
+      const text = (b.text || '').trim();
+      const clean = text.replace(/^[•\-\*\d.]+\s*/, '').trim();
+
+      // Check if bullet is a GitHub/Demo link
+      const linkMatch = clean.match(/(?:(?:github|link|demo|repo|code):\s*)?(https?:\/\/[^\s|)]+|github\.com\/[^\s|)]+)/i);
+      if (/^(?:(?:github|link|demo|repo|code):\s*|https?:\/\/|github\.com\/)/i.test(clean) && linkMatch) {
+        const url = linkMatch[1].startsWith('http') ? linkMatch[1] : `https://${linkMatch[1]}`;
+        current.link = url;
+        current.linkText = url.includes('github') ? 'GitHub' : 'Live Demo';
+        continue;
+      }
+
+      const isVerb = bulletVerbs.test(clean);
+      const hasDashOrPipe = clean.includes('—') || clean.includes('–') || clean.includes('|');
+      const hasTechDots = clean.includes('·');
+      const hasDate = projectDateRegex.test(clean);
+
+      const isHeader = !isVerb && (
+        (hasDashOrPipe && (hasTechDots || hasDate || clean.length < 130)) ||
+        (hasTechDots && (hasDashOrPipe || hasDate))
+      ) && clean.length < 160;
+
+      if (isHeader) {
+        // Save current project with its accumulated bullets
+        current.bullets = currentBullets;
+        result.push(current);
+
+        // Start new project from this bullet
+        const parsed = parseProjectHeaderString(clean);
+        current = {
+          id: `proj-${Date.now()}-${result.length}`,
+          name: parsed.name,
+          tech: parsed.tech,
+          date: parsed.date,
+          link: parsed.link,
+          linkText: parsed.linkText,
+          bullets: [],
+        };
+        currentBullets = [];
+      } else {
+        currentBullets.push(b);
+      }
+    }
+
+    current.bullets = currentBullets;
+    result.push(current);
+  }
+
+  return result;
+}
+
+const companyKeywords = /\b(?:Inc\.?|LLC|Ltd\.?|Technologies|Solutions|Corp\.?|Corporation|University|College|Lab|Robotics|Labs|Studio|Group|Company|Co\.)\b/i;
+
+export function healResumeExperiences(experiences: ExperienceItem[]): ExperienceItem[] {
+  if (!experiences || !Array.isArray(experiences)) return [];
+  const result: ExperienceItem[] = [];
+
+  for (const exp of experiences) {
+    let current: ExperienceItem = { ...exp, bullets: [] };
+    let currentBullets: ExperienceItem['bullets'] = [];
+
+    for (const b of exp.bullets || []) {
+      const text = (b.text || '').trim();
+      const clean = text.replace(/^[•\-\*\d.]+\s*/, '').trim();
+
+      const isVerb = bulletVerbs.test(clean);
+      const isCompany = companyKeywords.test(clean) || (!isVerb && clean.length < 50 && !clean.endsWith('.'));
+
+      if (isCompany && !isVerb) {
+        if (!current.company || current.company.toLowerCase() === current.role.toLowerCase()) {
+          current.company = clean;
+          continue;
+        } else if (currentBullets.length > 0) {
+          current.bullets = currentBullets;
+          result.push(current);
+          current = {
+            id: `exp-${Date.now()}-${result.length}`,
+            company: clean,
+            role: 'AI Engineer Intern',
+            location: '',
+            startDate: '',
+            endDate: '',
+            current: false,
+            bullets: [],
+          };
+          currentBullets = [];
+          continue;
+        }
+      }
+      currentBullets.push(b);
+    }
+    current.bullets = currentBullets;
+    result.push(current);
+  }
+  return result;
+}
+
+export function normalizeResumeData(data: ResumeData): ResumeData {
+  if (!data) return data;
+  return {
+    ...data,
+    projects: healResumeProjects(data.projects || []),
+    experience: healResumeExperiences(data.experience || []),
+  };
+}
+
 function loadInitialState(): { resume: ResumeData; variants: ResumeData[]; activeVariantId: string } {
   if (typeof window !== 'undefined') {
     try {
@@ -99,10 +293,12 @@ function loadInitialState(): { resume: ResumeData; variants: ResumeData[]; activ
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed.resume && Array.isArray(parsed.variants) && parsed.variants.length > 0) {
+          const healedResume = normalizeResumeData(parsed.resume);
+          const healedVariants = parsed.variants.map((v: ResumeData) => normalizeResumeData(v));
           return {
-            resume: parsed.resume,
-            variants: parsed.variants,
-            activeVariantId: parsed.activeVariantId || parsed.resume.id,
+            resume: healedResume,
+            variants: healedVariants,
+            activeVariantId: parsed.activeVariantId || healedResume.id,
           };
         }
       }
@@ -633,9 +829,10 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => ({
 
   loadResumeData: (data) => {
     const { variants, activeVariantId } = get();
-    const updatedVariants = variants.map((v) => (v.id === activeVariantId ? data : v));
-    set({ resume: data, variants: updatedVariants });
-    persistState(data, updatedVariants, activeVariantId);
+    const normalized = normalizeResumeData(data);
+    const updatedVariants = variants.map((v) => (v.id === activeVariantId ? normalized : v));
+    set({ resume: normalized, variants: updatedVariants });
+    persistState(normalized, updatedVariants, activeVariantId);
   },
 
   resetToDefaultReference: () => {

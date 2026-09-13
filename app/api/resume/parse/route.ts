@@ -529,14 +529,24 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
   const projLines = getSectionLines('projects');
   const projectList: ProjectItem[] = [];
 
-  const bulletVerbs = /^(?:building|architected|implemented|built|developed|engineered|deployed|created|reduced|raised|automated|designed|spearheaded|led|managed|optimized|integrated|conducted|established|produced|organized|evaluated|visualized)\b/i;
+  const bulletVerbs = /^(?:building|architected|implemented|built|developed|engineered|deployed|created|reduced|raised|automated|designed|spearheaded|led|managed|optimized|integrated|conducted|established|produced|organized|evaluated|visualized|accelerated|delivered|pioneered|constructed|trained|fine-tuned|orchestrated|collaborated|authored|published|maintained|resolved|facilitated|transformed|scaled|leveraged|utilized|applied|achieved|increased|decreased|eliminated|saved|generated|formulated|executed|configured|secured|researched|analyzed|gathered|tested|programmed|devised|launched|supervised|directed|negotiated|administered|audited|monitored|improved|enhanced|upgraded|streamlined|centralized|revamped|expanded|overhauled|boosted|cut|spearheading|responsible|assisted|helped|participated|contributed|worked)\b/i;
+
+  const monthName = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+  const yearDigits = '(?:19|20)\\d{2}';
+  const projectDateRegex = new RegExp(
+    `(${monthName}\\.?\\s*${yearDigits}\\s*[-–—to\\s]+\\s*(?:Present|Current|Pursuing|${monthName}\\.?\\s*${yearDigits}|${yearDigits})|` +
+    `${monthName}\\.?\\s*${yearDigits}|` +
+    `${yearDigits}\\s*[-–—to\\s]+\\s*(?:Present|Current|${yearDigits})|` +
+    `\\b${yearDigits}\\b)`,
+    'i'
+  );
 
   const parseProjectLine = (rawLine: string) => {
     let line = rawLine.trim();
     let date = '';
-    const dateMatch = line.match(/(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*(?:19|20)\d{2}\s*[-–—]?\s*(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*)?(?:19|20)\d{2}|(?:\b(?:19|20)\d{2}\b)|(?:Link(20\d\d))/i);
+    const dateMatch = line.match(projectDateRegex);
     if (dateMatch) {
-      date = (dateMatch[1] || dateMatch[0]).trim();
+      date = dateMatch[0].trim();
       line = line.replace(dateMatch[0], '').trim();
     }
     line = line.replace(/Link(?:\s*20\d\d)?/gi, '').trim();
@@ -600,15 +610,17 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
 
     for (let i = 0; i < projLines.length; i++) {
       const rawLine = projLines[i];
-      const line = rawLine.trim();
+      const isBulletChar = rawLine.startsWith('•') || rawLine.startsWith('*') || rawLine.startsWith('-') || /^\d+\.\s/.test(rawLine);
+      const cleanLine = rawLine.replace(/^[•\-\*\d.]+\s*/, '').trim();
 
+      // Check for project link line (even if prefixed with bullet)
       if (
-        /^(?:github|link|demo|repo|live demo|code):\s*/i.test(line) ||
-        /^github\.com\//i.test(line) ||
-        /^https?:\/\//i.test(line)
+        /^(?:github|link|demo|repo|live demo|code):\s*/i.test(cleanLine) ||
+        /^github\.com\//i.test(cleanLine) ||
+        /^https?:\/\//i.test(cleanLine)
       ) {
         if (currentProj) {
-          const uMatch = line.match(/(https?:\/\/[^\s]+|github\.com\/[^\s]+)/i);
+          const uMatch = cleanLine.match(/(https?:\/\/[^\s|)]+|github\.com\/[^\s|)]+)/i);
           if (uMatch) {
             const url = uMatch[0].startsWith('http') ? uMatch[0] : `https://${uMatch[0]}`;
             currentProj.link = url;
@@ -618,16 +630,20 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
         continue;
       }
 
-      const isBulletChar = line.startsWith('•') || line.startsWith('*') || line.startsWith('-') || /^\d+\.\s/.test(line);
-      const cleanLine = line.replace(/^[•\-\*\d.]+\s*/, '').trim();
+      const isVerb = bulletVerbs.test(cleanLine);
+      const hasDashOrPipe = cleanLine.includes('—') || cleanLine.includes('–') || cleanLine.includes('|');
+      const hasTechDots = cleanLine.includes('·');
+      const hasDate = projectDateRegex.test(cleanLine);
 
-      const isHeader =
-        (!isBulletChar && (line.includes('—') || line.includes('–') || line.includes('|') || !bulletVerbs.test(cleanLine))) &&
-        !bulletVerbs.test(cleanLine) &&
-        cleanLine.length < 130;
+      // Recognize header even if prefixed with bullet
+      const isHeader = !isVerb && (
+        (hasDashOrPipe && (hasTechDots || hasDate || cleanLine.length < 130)) ||
+        (hasTechDots && (hasDashOrPipe || hasDate)) ||
+        (!isBulletChar && cleanLine.length < 60 && !cleanLine.endsWith('.'))
+      ) && cleanLine.length < 160;
 
       if (isHeader) {
-        if (currentProj && currentProj.points.length > 0) {
+        if (currentProj && (currentProj.points.length > 0 || currentProj.name)) {
           projectList.push(currentProj);
         }
         const parsed = parseProjectLine(cleanLine);
@@ -654,52 +670,74 @@ function extractResumeFromText(text: string, fileName: string): ParsedResume {
   const expLines = getSectionLines('experience');
   const experienceList: ExperienceItem[] = [];
 
+  const companyKeywords = /\b(?:Inc\.?|LLC|Ltd\.?|Technologies|Solutions|Corp\.?|Corporation|University|College|Lab|Robotics|Labs|Studio|Group|Company|Co\.)\b/i;
+
   if (expLines.length > 0) {
     let currentExp: ExperienceItem | null = null;
 
     for (let i = 0; i < expLines.length; i++) {
       const rawLine = expLines[i];
-      const line = rawLine.trim();
+      const isBulletChar = rawLine.startsWith('*') || rawLine.startsWith('•') || rawLine.startsWith('-') || /^\d+\.\s/.test(rawLine);
+      const cleanLine = rawLine.replace(/^[•\-\*\d.]+\s*/, '').trim();
 
       // Skip repeated placeholder role lines with City, State
-      if (/^(?:AI Engineering Intern|AI Engineer Intern)\s*[–-]\s*(?:Present|City,\s*State|Location)/i.test(line) && currentExp) {
+      if (/^(?:AI Engineering Intern|AI Engineer Intern)\s*[–-]\s*(?:Present|City,\s*State|Location)/i.test(cleanLine) && currentExp && currentExp.company) {
         continue;
       }
 
-      const isBullet = line.startsWith('*') || line.startsWith('•') || line.startsWith('-') || /^\d+\.\s/.test(line) || line.length > 90;
+      const isVerb = bulletVerbs.test(cleanLine);
+      const hasDate = dateRegex.test(cleanLine) || projectDateRegex.test(cleanLine) || /[-–—]\s*(?:Present|Current)/i.test(cleanLine);
+      const isCompanyLikely = companyKeywords.test(cleanLine) || (!isVerb && cleanLine.length < 50 && !cleanLine.endsWith('.') && !hasDate);
 
-      if (!isBullet && (dateRegex.test(line) || (!currentExp && line.length < 80))) {
-        if (currentExp && currentExp.points.length > 0) {
+      if (isCompanyLikely && !isVerb) {
+        if (currentExp && !currentExp.company) {
+          currentExp.company = cleanLine.replace(/[–-]\s*(?:City,\s*State|Location)/i, '').trim();
+          continue;
+        } else if (currentExp && currentExp.points.length > 0) {
+          // New company starting
           experienceList.push(currentExp);
-        } else if (currentExp && !currentExp.company && line.length < 80 && !dateRegex.test(line)) {
-          currentExp.company = line.replace(/[–-]\s*(?:City,\s*State|Location)/i, '').trim();
+          currentExp = {
+            role: '',
+            company: cleanLine.replace(/[–-]\s*(?:City,\s*State|Location)/i, '').trim(),
+            location: '',
+            duration: '',
+            points: [],
+          };
           continue;
         }
+      }
 
-        const dateMatch = line.match(dateRegex);
-        const duration = dateMatch ? dateMatch[0].trim() : '';
-        let cleanRole = line.replace(dateRegex, '')
+      if (!isBulletChar && (hasDate || (!currentExp && cleanLine.length < 80))) {
+        if (currentExp && currentExp.points.length > 0) {
+          experienceList.push(currentExp);
+          currentExp = null;
+        }
+
+        const dateMatch = cleanLine.match(projectDateRegex) || cleanLine.match(dateRegex);
+        const duration = dateMatch ? dateMatch[0].trim().replace(/^[-–—]\s*/, '') : '';
+        let cleanRole = cleanLine.replace(projectDateRegex, '')
+          .replace(dateRegex, '')
           .replace(/[–-]\s*Present/gi, '')
           .replace(/[–-]\s*(?:City,\s*State|Location)/gi, '')
           .trim()
           .replace(/[|•–—,-]+$/, '')
           .trim();
 
-        currentExp = {
-          role: cleanRole || 'AI Engineer Intern',
-          company: '',
-          location: '',
-          duration: duration || 'Mar 2026 – Present',
-          points: [],
-        };
-      } else if (currentExp && !currentExp.company && currentExp.points.length === 0 && !isBullet && line.length < 70) {
-        if (!line.toLowerCase().includes('city, state') && !line.toLowerCase().includes('location')) {
-          currentExp.company = line;
+        if (currentExp) {
+          if (!currentExp.role) currentExp.role = cleanRole;
+          if (!currentExp.duration) currentExp.duration = duration;
+        } else {
+          currentExp = {
+            role: cleanRole || 'AI Engineer Intern',
+            company: '',
+            location: '',
+            duration: duration || 'Mar 2026 – Present',
+            points: [],
+          };
         }
       } else if (currentExp) {
-        const bulletText = line.replace(/^[•\-\*\d.]+\s*/, '').trim();
-        if (bulletText.length > 12) {
-          currentExp.points.push(bulletText);
+        if (cleanLine.length > 10 && (isVerb || isBulletChar)) {
+          currentExp.points.push(cleanLine);
         }
       }
     }

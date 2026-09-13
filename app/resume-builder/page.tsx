@@ -23,7 +23,7 @@ import ProjectsEditor from '@/components/resume/editors/ProjectsEditor';
 import LeadershipEditor from '@/components/resume/editors/LeadershipEditor';
 import AdditionalSectionsEditor from '@/components/resume/editors/AdditionalSectionsEditor';
 
-import { useResumeStore } from '@/lib/resume/store';
+import { useResumeStore, healResumeProjects, healResumeExperiences } from '@/lib/resume/store';
 import { generateDocxResume, downloadBlob } from '@/lib/resume/docxExport';
 import { computeAtsDiagnosticScore } from '@/lib/resume/atsValidator';
 import { printResumeToPdf } from '@/lib/resume/printPdf';
@@ -385,7 +385,7 @@ export default function ResumeBuilderPage() {
             skillsList: String(v),
           }))
         : resume.skills,
-      experience: (parsed.experience || []).map((exp: any, idx: number) => {
+      experience: healResumeExperiences((parsed.experience || []).map((exp: any, idx: number) => {
         const rawComp = (exp.company || '').trim();
         const rawRole = (exp.role || exp.title || '').trim();
         const isDuplicate = rawComp.toLowerCase() === rawRole.toLowerCase();
@@ -413,8 +413,8 @@ export default function ResumeBuilderPage() {
             text: pt,
           })),
         };
-      }),
-      projects: (parsed.projects || []).map((proj: any, idx: number) => {
+      })),
+      projects: healResumeProjects((parsed.projects || []).map((proj: any, idx: number) => {
         const link = proj.link && proj.link.toLowerCase() !== 'link' ? proj.link : '';
         const linkText = proj.linkText && proj.linkText.toLowerCase() !== 'link'
           ? proj.linkText
@@ -432,7 +432,7 @@ export default function ResumeBuilderPage() {
             text: pt,
           })),
         };
-      }),
+      })),
       leadership: (parsed.leadership || []).map((item: any, idx: number) => ({
         id: `lead-${idx}`,
         text: typeof item === 'string' ? item : item.text || '',
