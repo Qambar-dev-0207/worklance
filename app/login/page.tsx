@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { isValidEmail } from '@/lib/validation';
 import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight, Check, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 function LoginForm() {
   const router = useRouter();
@@ -67,10 +68,20 @@ function LoginForm() {
       }
       window.dispatchEvent(new Event('worklance-user-updated'));
 
+      toast.success(`Welcome back, ${data.user.name || 'member'}!`, {
+        description: 'Signed in successfully.',
+        icon: '⚡',
+      });
+
       // Redirect to intended protected page or /jobs
-      window.location.href = redirectTarget;
+      setTimeout(() => {
+        window.location.href = redirectTarget;
+      }, 500);
     } catch (err: any) {
       setError(err.message);
+      toast.error('Login failed', {
+        description: err.message,
+      });
       triggerShake();
     } finally {
       setLoading(false);

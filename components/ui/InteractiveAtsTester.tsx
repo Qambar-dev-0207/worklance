@@ -14,6 +14,9 @@ import {
   Copy, 
   Check 
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { triggerScoreBoostConfetti } from '@/lib/confetti';
 import AnimatedCounter from './AnimatedCounter';
 
 interface RoleTemplate {
@@ -108,6 +111,10 @@ export default function InteractiveAtsTester() {
   const handleCopy = () => {
     navigator.clipboard.writeText(currentText);
     setCopied(true);
+    toast.success(isOptimized ? 'Optimized bullet copied!' : 'Draft bullet copied!', {
+      description: 'Ready to paste into your resume or job application.',
+      icon: isOptimized ? '✨' : '📋',
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -236,7 +243,15 @@ export default function InteractiveAtsTester() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsOptimized(true)}
+                onClick={() => {
+                  if (!isOptimized) {
+                    setIsOptimized(true);
+                    triggerScoreBoostConfetti();
+                    toast.success('AI ATS Optimization Applied!', {
+                      description: `Score boosted from ${active.unoptimized.score}% to ${active.optimized.score}%!`,
+                    });
+                  }
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -313,17 +328,24 @@ export default function InteractiveAtsTester() {
                   </button>
                 </div>
 
-                <p
-                  style={{
-                    fontSize: '15px',
-                    lineHeight: '1.65',
-                    color: isOptimized ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)',
-                    fontFamily: "'Inter', sans-serif",
-                    fontStyle: isOptimized ? 'normal' : 'italic',
-                  }}
-                >
-                  {currentText}
-                </p>
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={isOptimized ? `opt-${selectedRoleIndex}` : `raw-${selectedRoleIndex}`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    style={{
+                      fontSize: '15px',
+                      lineHeight: '1.65',
+                      color: isOptimized ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)',
+                      fontFamily: "'Inter', sans-serif",
+                      fontStyle: isOptimized ? 'normal' : 'italic',
+                    }}
+                  >
+                    {currentText}
+                  </motion.p>
+                </AnimatePresence>
               </div>
 
               {isOptimized && (

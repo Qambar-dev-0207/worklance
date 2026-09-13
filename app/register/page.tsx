@@ -21,6 +21,8 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { triggerCelebrationConfetti } from '@/lib/confetti';
 
 function RegisterForm() {
   const router = useRouter();
@@ -97,10 +99,21 @@ function RegisterForm() {
       }
       window.dispatchEvent(new Event('worklance-user-updated'));
 
+      triggerCelebrationConfetti();
+      toast.success(`Welcome to Worklance, ${data.user.name || 'member'}!`, {
+        description: 'Account created successfully in database.',
+        icon: '🎉',
+      });
+
       const destination = redirectTarget || (role === 'recruiter' ? '/jobs/post' : '/jobs');
-      window.location.href = destination;
+      setTimeout(() => {
+        window.location.href = destination;
+      }, 800);
     } catch (err: any) {
       setError(err.message);
+      toast.error('Registration failed', {
+        description: err.message,
+      });
       triggerShake();
     } finally {
       setLoading(false);

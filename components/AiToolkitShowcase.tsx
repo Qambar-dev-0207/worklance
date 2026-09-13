@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface ToolItem {
   id: string;
@@ -252,8 +254,10 @@ export default function AiToolkitShowcase() {
 
   const handleGenerate = () => {
     setIsGenerating(true);
+    const toastId = toast.loading('Regenerating AI output with verified career parameters...');
     setTimeout(() => {
       setIsGenerating(false);
+      toast.success('Generated high-impact AI draft!', { id: toastId, icon: '✨' });
     }, 600);
   };
 
@@ -267,6 +271,10 @@ export default function AiToolkitShowcase() {
 
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
+    toast.success('Copied to clipboard!', {
+      description: `Copied ${currentTool.tabLabel} content.`,
+      icon: '📋',
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -328,7 +336,7 @@ export default function AiToolkitShowcase() {
 
         {/* TABS ROW MATCHING "AI Coverage Letter Generator" */}
         <div className="ai-toolkit-tabs-wrapper reveal">
-          <div className="ai-toolkit-tabs">
+          <div className="ai-toolkit-tabs" style={{ position: 'relative' }}>
             {TOOLS.map((tool, idx) => (
               <button
                 key={tool.id}
@@ -338,7 +346,22 @@ export default function AiToolkitShowcase() {
                   setCopied(false);
                 }}
                 className={`ai-tab-btn ${activeTabIdx === idx ? 'active' : ''}`}
+                style={{ position: 'relative', isolation: 'isolate' }}
               >
+                {activeTabIdx === idx && (
+                  <motion.div
+                    layoutId="toolkit_active_tab_pill"
+                    transition={{ type: 'spring', stiffness: 440, damping: 32 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#18181B',
+                      border: '1px solid rgba(255, 255, 255, 0.22)',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                  />
+                )}
                 {tool.tabLabel}
               </button>
             ))}

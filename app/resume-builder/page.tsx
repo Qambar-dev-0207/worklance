@@ -48,6 +48,8 @@ import {
   Cloud,
   Check,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { triggerCelebrationConfetti } from '@/lib/confetti';
 import { ResumeData } from '@/types/resume';
 
 export default function ResumeBuilderPage() {
@@ -186,16 +188,20 @@ export default function ResumeBuilderPage() {
     const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
 
     if (!token && !uStr) {
-      setStatusBanner('Please log in first to save your resume to the database.');
-      setTimeout(() => setStatusBanner(''), 4000);
-      window.location.href = '/login?redirect=/resume-builder';
+      toast.error('Authentication required', {
+        description: 'Please log in to save and sync your resume with MongoDB cloud.',
+        action: {
+          label: 'Log In',
+          onClick: () => { window.location.href = '/login?redirect=/resume-builder'; },
+        },
+      });
       return;
     }
 
+    const toastId = toast.loading('Saving resume to MongoDB Atlas...');
     try {
       setIsSavingResume(true);
       setCloudSaveStatus('saving');
-      setStatusBanner('⏳ Saving resume to MongoDB database...');
 
       const res = await saveResumeToDatabase(resume, 'builder', {
         atsScore: atsScore.overallScore,
@@ -207,13 +213,22 @@ export default function ResumeBuilderPage() {
       }
 
       setCloudSaveStatus('saved');
-      setStatusBanner('✓ Resume successfully saved to database & synchronized with your profile!');
-      setTimeout(() => setStatusBanner(''), 4500);
+      toast.success('Resume saved to MongoDB database!', {
+        id: toastId,
+        description: `ATS Score: ${atsScore.overallScore}/100 · Saved & synchronized with profile.`,
+        icon: '☁️',
+      });
+
+      if (atsScore.overallScore >= 85) {
+        triggerCelebrationConfetti();
+      }
     } catch (err: any) {
       console.error('Error saving resume:', err);
       setCloudSaveStatus('unsaved');
-      setStatusBanner(`Save notice: ${err.message}`);
-      setTimeout(() => setStatusBanner(''), 4500);
+      toast.error('Failed to save resume', {
+        id: toastId,
+        description: err.message || 'Database connection error.',
+      });
     } finally {
       setIsSavingResume(false);
     }
@@ -226,22 +241,32 @@ export default function ResumeBuilderPage() {
     const uStr = typeof window !== 'undefined' ? localStorage.getItem('worklance_user') : null;
 
     if (!token && !uStr) {
-      alert('Please log in first to synchronize your resume with your Worklance profile.');
-      window.location.href = '/login?redirect=/resume-builder';
+      toast.error('Authentication required', {
+        description: 'Please log in first to synchronize your resume with your Worklance profile.',
+        action: {
+          label: 'Log In',
+          onClick: () => { window.location.href = '/login?redirect=/resume-builder'; },
+        },
+      });
       return;
     }
 
+    const toastId = toast.loading('Synchronizing Worklance profile...');
     try {
       setIsSyncingProfile(true);
-      setStatusBanner('⏳ Updating your Worklance profile from resume data...');
       const updatedUser = await syncResumeToUserProfile(resumeToSync, atsScore.overallScore);
       setCurrentUser(updatedUser);
-      setStatusBanner(`✓ Worklance profile successfully updated for ${updatedUser.name}!`);
-      setTimeout(() => setStatusBanner(''), 4500);
+      toast.success('Worklance profile updated!', {
+        id: toastId,
+        description: `Synced skills, experience, and education for ${updatedUser.name || 'your profile'}.`,
+        icon: '✓',
+      });
     } catch (err: any) {
       console.error('Profile sync error:', err);
-      setStatusBanner(`Sync notice: ${err.message}`);
-      setTimeout(() => setStatusBanner(''), 4500);
+      toast.error('Profile sync failed', {
+        id: toastId,
+        description: err.message,
+      });
     } finally {
       setIsSyncingProfile(false);
     }
@@ -249,24 +274,31 @@ export default function ResumeBuilderPage() {
 
   // Print PDF handler
   const handlePrint = () => {
-    setStatusBanner('Preparing 100% full-scale ATS PDF export...');
+    toast.info('Opening ATS PDF Print Dialog', {
+      description: 'Destination: Save as PDF · Layout: Portrait · Margins: None',
+      icon: '🖨️',
+    });
     printResumeToPdf('resume-document-root', cleanFileName, resume.settings.pageSize);
-    setTimeout(() => setStatusBanner(''), 4000);
   };
 
   // DOCX Export handler
   const handleDownloadDocx = async () => {
+    const toastId = toast.loading('Generating ATS-optimized Word (.docx) file...');
     try {
       setIsExportingDocx(true);
-      setStatusBanner('Generating native ATS-optimized Word document (.docx)...');
       const blob = await generateDocxResume(resume);
       downloadBlob(blob, `${cleanFileName}.docx`);
-      setStatusBanner('✓ Word document downloaded successfully!');
-      setTimeout(() => setStatusBanner(''), 3000);
+      toast.success('Word document exported!', {
+        id: toastId,
+        description: `${cleanFileName}.docx is ready.`,
+        icon: '📄',
+      });
     } catch (e: any) {
       console.error('Docx generation failed:', e);
-      setStatusBanner(`Export failed: ${e.message}`);
-      setTimeout(() => setStatusBanner(''), 4000);
+      toast.error('Word export failed', {
+        id: toastId,
+        description: e.message,
+      });
     } finally {
       setIsExportingDocx(false);
     }
@@ -281,8 +313,10 @@ export default function ResumeBuilderPage() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setStatusBanner('✓ Resume backup exported as JSON!');
-    setTimeout(() => setStatusBanner(''), 3000);
+    toast.success('JSON backup downloaded', {
+      description: 'You can restore this backup anytime.',
+      icon: '💾',
+    });
   };
 
   // JSON Import handler

@@ -11,6 +11,7 @@ import LiveActivityTicker from '@/components/ui/LiveActivityTicker';
 import InteractiveAtsTester from '@/components/ui/InteractiveAtsTester';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const router = useRouter();
@@ -402,17 +403,45 @@ export default function Home() {
             <h2>How Worklance works</h2>
             <p>A clear five-step path — whether you're hunting for your next role or hiring for one.</p>
           </div>
-          <div className="tabs reveal">
+          <div className="tabs reveal" style={{ position: 'relative' }}>
             <button
               className={`tab-btn ${activeTab === 'seeker' ? 'active' : ''}`}
               onClick={() => setActiveTab('seeker')}
+              style={{ position: 'relative', isolation: 'isolate' }}
             >
+              {activeTab === 'seeker' && (
+                <motion.div
+                  layoutId="how_it_works_pill"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: '#09090B',
+                    borderRadius: '100px',
+                    zIndex: -1,
+                  }}
+                />
+              )}
               For Job Seekers
             </button>
             <button
               className={`tab-btn ${activeTab === 'recruiter' ? 'active' : ''}`}
               onClick={() => setActiveTab('recruiter')}
+              style={{ position: 'relative', isolation: 'isolate' }}
             >
+              {activeTab === 'recruiter' && (
+                <motion.div
+                  layoutId="how_it_works_pill"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: '#09090B',
+                    borderRadius: '100px',
+                    zIndex: -1,
+                  }}
+                />
+              )}
               For Recruiters
             </button>
           </div>
@@ -579,33 +608,91 @@ export default function Home() {
             </div>
 
             {/* Plan Category Switcher (Recruiter AI Plans / Job Seeker Plans) */}
-            <div className="pricing-mode-tabs">
+            <div className="pricing-mode-tabs" style={{ position: 'relative' }}>
               <button
                 className={`pricing-mode-btn ${pricingCategory === 'recruiter' ? 'active' : ''}`}
                 onClick={() => setPricingCategory('recruiter')}
+                style={{ position: 'relative', isolation: 'isolate' }}
               >
+                {pricingCategory === 'recruiter' && (
+                  <motion.div
+                    layoutId="pricing_category_pill"
+                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#18181B',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                  />
+                )}
                 AI Hiring Plans (Recruiter)
               </button>
               <button
                 className={`pricing-mode-btn ${pricingCategory === 'seeker' ? 'active' : ''}`}
                 onClick={() => setPricingCategory('seeker')}
+                style={{ position: 'relative', isolation: 'isolate' }}
               >
+                {pricingCategory === 'seeker' && (
+                  <motion.div
+                    layoutId="pricing_category_pill"
+                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#18181B',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                  />
+                )}
                 Job Seeker Plans
               </button>
             </div>
 
             {/* Billing Toggle (Monthly / Yearly) */}
-            <div className="ai-billing-toggle">
+            <div className="ai-billing-toggle" style={{ position: 'relative' }}>
               <button
                 className={`ai-billing-btn ${billingCycle === 'monthly' ? 'active' : ''}`}
                 onClick={() => setBillingCycle('monthly')}
+                style={{ position: 'relative', isolation: 'isolate' }}
               >
+                {billingCycle === 'monthly' && (
+                  <motion.div
+                    layoutId="billing_cycle_pill"
+                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#FFFFFF',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                  />
+                )}
                 Monthly
               </button>
               <button
                 className={`ai-billing-btn ${billingCycle === 'yearly' ? 'active' : ''}`}
                 onClick={() => setBillingCycle('yearly')}
+                style={{ position: 'relative', isolation: 'isolate' }}
               >
+                {billingCycle === 'yearly' && (
+                  <motion.div
+                    layoutId="billing_cycle_pill"
+                    transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: '#FFFFFF',
+                      borderRadius: '100px',
+                      zIndex: -1,
+                    }}
+                  />
+                )}
                 Yearly <span className="discount-pill">15% OFF</span>
               </button>
             </div>
